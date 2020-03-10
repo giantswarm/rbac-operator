@@ -3,6 +3,8 @@ package controller
 import (
 	// If your operator watches a CRD import it here.
 	// "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"fmt"
+
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -10,7 +12,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/selection"
 
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/controller/resource/namespaceauth"
@@ -37,18 +38,12 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 
 	var operatorkitController *controller.Controller
 	{
-		var namespaceLabelValues []string
-		namespaceSelector := labels.NewSelector()
-		clusterLabelRequirement, err := labels.NewRequirement(nsClusterLabel, selection.Exists, namespaceLabelValues)
+
+		namespaceSelectorQuery := fmt.Sprintf("%s,%s", nsClusterLabel, nsOrgLabel)
+		namespaceSelector, err := labels.Parse(namespaceSelectorQuery)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
-		namespaceSelector.Add(*clusterLabelRequirement)
-		orgLabelRequirement, err := labels.NewRequirement(nsOrgLabel, selection.Exists, namespaceLabelValues)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-		namespaceSelector.Add(*orgLabelRequirement)
 
 		c := controller.Config{
 			K8sClient:    config.K8sClient,

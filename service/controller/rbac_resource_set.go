@@ -66,7 +66,6 @@ func newRBACResourceSet(config RBACResourceSetConfig) (*controller.ResourceSet, 
 		}
 	}
 
-	// filter namespaces without proper labels.
 	handlesFunc := func(obj interface{}) bool {
 		return true
 	}
