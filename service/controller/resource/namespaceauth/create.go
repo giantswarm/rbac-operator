@@ -37,10 +37,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "created view role")
 
+	} else if err != nil {
+		return microerror.Mask(err)
 	} else {
-		if err != nil {
-			return microerror.Mask(err)
-		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", "view role already exists")	
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", "view role exists")
