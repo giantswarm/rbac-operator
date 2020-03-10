@@ -12,7 +12,7 @@ func ToNamespace(v interface{}) (corev1.Namespace, error) {
 
 	p, ok := v.(*corev1.Namespace)
 	if !ok {
-		return corev1.Namespace{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &corev1.Namespace{}, v)
+		return corev1.Namespace{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", p, v)
 	}
 
 	c := p.DeepCopy()
