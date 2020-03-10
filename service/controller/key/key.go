@@ -7,7 +7,7 @@ import (
 
 func ToNamespace(v interface{}) (corev1.Namespace, error) {
 	if v == nil {
-		return corev1.Namespace{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &corev1.Namespace{}, v)
+		return corev1.Namespace{}, microerror.Maskf(wrongTypeError, "expected non-nil, got %#v'", v)
 	}
 
 	p, ok := v.(*corev1.Namespace)

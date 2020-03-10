@@ -31,7 +31,7 @@ type RBAC struct {
 func NewRBAC(config RBACConfig) (*RBAC, error) {
 	var err error
 
-	resourceSets, err := newRBACResourceSets(config)
+	resourceSet, err := newRBACResourceSet(config)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -48,7 +48,7 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 		c := controller.Config{
 			K8sClient:    config.K8sClient,
 			Logger:       config.Logger,
-			ResourceSets: resourceSets,
+			ResourceSets: []*controller.ResourceSet{resourceSet},
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(corev1.Namespace)
 			},
