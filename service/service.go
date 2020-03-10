@@ -19,6 +19,8 @@ import (
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/collector"
 	"github.com/giantswarm/rbac-operator/service/controller"
+
+	"github.com/giantswarm/rbac-operator/service/controller/resource/namespaceauth"
 )
 
 // Config represents the configuration used to create a new service.
@@ -33,7 +35,7 @@ type Service struct {
 	Version *version.Service
 
 	bootOnce          sync.Once
-	todoController    *controller.TODO
+	rbacController    *controller.RBAC
 	operatorCollector *collector.Set
 }
 
@@ -98,15 +100,19 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var todoController *controller.TODO
+	var rbacController *controller.RBAC
 	{
 
-		c := controller.TODOConfig{
+		c := controller.RBACConfig{
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
+
+			NamespaceAuth: namespaceauth.NamespaceAuth{
+				ViewAllTargetGroup: config.Viper.GetString(config.Flag.Service.NamespaceAuth.ViewAllTargetGroup),
+			},
 		}
 
-		todoController, err = controller.NewTODO(c)
+		rbacController, err = controller.NewRBAC(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -146,7 +152,7 @@ func New(config Config) (*Service, error) {
 		Version: versionService,
 
 		bootOnce:          sync.Once{},
-		todoController:    todoController,
+		rbacController:    rbacController,
 		operatorCollector: operatorCollector,
 	}
 
@@ -157,6 +163,6 @@ func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
 		go s.operatorCollector.Boot(ctx)
 
-		go s.todoController.Boot(ctx)
+		go s.rbacController.Boot(ctx)
 	})
 }
