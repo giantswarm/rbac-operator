@@ -13,6 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 
+	"github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/controller/resource/namespaceauth"
 )
@@ -39,7 +40,7 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 	var operatorkitController *controller.Controller
 	{
 
-		namespaceSelectorQuery := fmt.Sprintf("%s,%s", nsClusterLabel, nsOrgLabel)
+		namespaceSelectorQuery := fmt.Sprintf("%s,%s", label.Cluster, label.Organization)
 		namespaceSelector, err := labels.Parse(namespaceSelectorQuery)
 		if err != nil {
 			return nil, microerror.Mask(err)
@@ -70,29 +71,4 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 	}
 
 	return c, nil
-}
-
-func newRBACResourceSets(config RBACConfig) ([]*controller.ResourceSet, error) {
-	var err error
-
-	var resourceSet *controller.ResourceSet
-	{
-		c := RBACResourceSetConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			NamespaceAuth: config.NamespaceAuth,
-		}
-
-		resourceSet, err = newRBACResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	resourceSets := []*controller.ResourceSet{
-		resourceSet,
-	}
-
-	return resourceSets, nil
 }

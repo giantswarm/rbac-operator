@@ -12,11 +12,6 @@ import (
 	"github.com/giantswarm/rbac-operator/service/controller/resource/namespaceauth"
 )
 
-const (
-	nsClusterLabel = "giantswarm.io/cluster"
-	nsOrgLabel     = "giantswarm.io/organization"
-)
-
 type RBACResourceSetConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
@@ -24,7 +19,7 @@ type RBACResourceSetConfig struct {
 	NamespaceAuth namespaceauth.NamespaceAuth
 }
 
-func newRBACResourceSet(config RBACResourceSetConfig) (*controller.ResourceSet, error) {
+func newRBACResourceSet(config RBACConfig) (*controller.ResourceSet, error) {
 	var err error
 
 	var namespaceAuthResource resource.Interface
