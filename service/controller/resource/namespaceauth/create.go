@@ -11,7 +11,7 @@ import (
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	namespace, err := ToNamespace(obj)
+	namespace, err := key.ToNamespace(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -21,7 +21,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	viewAllRole, err := key.NewViewAllRole(resources)
+	viewAllRole, err := newViewAllRole(resources)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -45,7 +45,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", "view role exists")
 
-	viewAllRoleBinding := key.NewViewAllRoleBinding(r.namespaceAuth.ViewAllTargetGroup)
+	viewAllRoleBinding := newViewAllRoleBinding(r.namespaceAuth.ViewAllTargetGroup)
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", "creating view role binding")
 

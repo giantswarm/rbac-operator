@@ -68,19 +68,7 @@ func newRBACResourceSet(config RBACResourceSetConfig) (*controller.ResourceSet, 
 
 	// filter namespaces without proper labels.
 	handlesFunc := func(obj interface{}) bool {
-		namespace, err := namespaceauth.ToNamespace(obj)
-		if err != nil {
-			return false
-		}
-
-		_, clusterLabelOK := namespace.ObjectMeta.Labels[nsClusterLabel]
-		_, orgLabelOK := namespace.ObjectMeta.Labels[nsOrgLabel]
-
-		if clusterLabelOK && orgLabelOK {
-			return true
-		}
-
-		return false
+		return true
 	}
 
 	var resourceSet *controller.ResourceSet

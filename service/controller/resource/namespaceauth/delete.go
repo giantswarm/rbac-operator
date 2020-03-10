@@ -11,12 +11,12 @@ import (
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
-	namespace, err := ToNamespace(obj)
+	namespace, err := key.ToNamespace(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	_, err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(key.ViewAllRole, metav1.GetOptions{})
+	_, err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(viewAllRole, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// do nothing
 	} else {
@@ -25,7 +25,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "deleting view role binding")
 
-			err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Delete(key.ViewAllRole, &metav1.DeleteOptions{})
+			err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Delete(viewAllRole, &metav1.DeleteOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -34,7 +34,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		}
 	}
 
-	_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(key.ViewAllRole, metav1.GetOptions{})
+	_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(viewAllRole, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// do nothing
 	} else {
@@ -43,7 +43,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "deleting view role")
 
-			err = r.k8sClient.RbacV1().Roles(namespace.Name).Delete(key.ViewAllRole, &metav1.DeleteOptions{})
+			err = r.k8sClient.RbacV1().Roles(namespace.Name).Delete(viewAllRole, &metav1.DeleteOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}

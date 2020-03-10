@@ -8,8 +8,9 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
 	corev1 "k8s.io/api/core/v1"
-
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/selection"
 
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/controller/resource/namespaceauth"
@@ -36,6 +37,19 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 
 	var operatorkitController *controller.Controller
 	{
+		var namespaceLabelValues []string
+		namespaceSelector := labels.NewSelector()
+		clusterLabelRequirement, err := labels.NewRequirement(nsClusterLabel, selection.Exists, namespaceLabelValues)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+		namespaceSelector.Add(*clusterLabelRequirement)
+		orgLabelRequirement, err := labels.NewRequirement(nsOrgLabel, selection.Exists, namespaceLabelValues)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+		namespaceSelector.Add(*orgLabelRequirement)
+
 		c := controller.Config{
 			K8sClient:    config.K8sClient,
 			Logger:       config.Logger,
@@ -43,6 +57,7 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(corev1.Namespace)
 			},
+			Selector: namespaceSelector,
 
 			// Name is used to compute finalizer names. This here results in something
 			// like operatorkit.giantswarm.io/rbac-operator-RBAC-controller.
