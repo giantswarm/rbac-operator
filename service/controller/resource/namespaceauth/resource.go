@@ -61,12 +61,10 @@ func (r *Resource) Name() string {
 	return Name
 }
 
-func appendUnique(slice, exceptions []string, newElement string) []string {
+func appendUnique(slice []string, newElement string) []string {
 	for _, e := range slice {
-		for _, exception := range exceptions {
-			if e == newElement || newElement == exception {
-				return slice
-			}
+		if e == newElement {
+			return slice
 		}
 	}
 	return append(slice, newElement)
@@ -75,9 +73,6 @@ func appendUnique(slice, exceptions []string, newElement string) []string {
 func newViewAllRole(resources []*metav1.APIResourceList) (*rbacv1.Role, error) {
 	var resourceNamesNamespace, apiGroupsNamespace []string
 	{
-		apiGroupExceptions := []string{}
-		resourceExceptions := []string{}
-
 		for _, resource := range resources {
 
 			gv, err := schema.ParseGroupVersion(resource.GroupVersion)
@@ -85,11 +80,11 @@ func newViewAllRole(resources []*metav1.APIResourceList) (*rbacv1.Role, error) {
 				return nil, microerror.Mask(err)
 			}
 
-			apiGroupsNamespace = appendUnique(apiGroupsNamespace, apiGroupExceptions, gv.Group)
+			apiGroupsNamespace = appendUnique(apiGroupsNamespace, gv.Group)
 
 			for _, apiResource := range resource.APIResources {
 				if apiResource.Namespaced {
-					resourceNamesNamespace = appendUnique(resourceNamesNamespace, resourceExceptions, apiResource.Name)
+					resourceNamesNamespace = appendUnique(resourceNamesNamespace, apiResource.Name)
 				}
 			}
 		}
