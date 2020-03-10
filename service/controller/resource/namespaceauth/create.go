@@ -26,7 +26,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "creating view role")
+	r.logger.LogCtx(ctx, "level", "debug", "message", "creating view role %#q in namespace %#q", viewAllRole.Name, namespace.Name)
 
 	_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(viewAllRole.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
