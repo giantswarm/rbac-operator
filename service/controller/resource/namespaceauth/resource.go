@@ -70,7 +70,7 @@ func appendUnique(slice []string, newElement string) []string {
 	return append(slice, newElement)
 }
 
-func newViewAllRole(resources []*metav1.APIResourceList) (*rbacv1.Role, error) {
+func newViewAllRole(resources []*metav1.APIResourceList, words []string) (*rbacv1.Role, error) {
 	var resourceNamesNamespace, apiGroupsNamespace []string
 	{
 		for _, resource := range resources {
@@ -98,7 +98,7 @@ func newViewAllRole(resources []*metav1.APIResourceList) (*rbacv1.Role, error) {
 			rbacv1.PolicyRule{
 				APIGroups: apiGroupsNamespace,
 				Resources: resourceNamesNamespace,
-				Verbs:     []string{"get", "list", "watch", "create", "update"},
+				Verbs:     words,
 			},
 		},
 	}
@@ -117,7 +117,7 @@ func newViewAllRoleBinding(targetGroupName string) *rbacv1.RoleBinding {
 		},
 		Subjects: []rbacv1.Subject{
 			rbacv1.Subject{
-				Kind: "User",
+				Kind: "Group",
 				Name: targetGroupName,
 			},
 		},

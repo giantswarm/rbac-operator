@@ -21,7 +21,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	viewAllRole, err := newViewAllRole(resources)
+	viewAccessWords := []string{"get", "list", "watch"}
+	viewAllRole, err := newViewAllRole(resources, viewAccessWords)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -31,7 +32,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(viewAllRole.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		_, err := r.k8sClient.RbacV1().Roles(namespace.Name).Create(viewAllRole)
-		if err != nil {
+		if apierrors.IsAlreadyExists(err) {
+			// do nothing
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
@@ -52,7 +55,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	_, err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(viewAllRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Create(viewAllRoleBinding)
-		if err != nil {
+		if apierrors.IsAlreadyExists(err) {
+			// do nothing
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
