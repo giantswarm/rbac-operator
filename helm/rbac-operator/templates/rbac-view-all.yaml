@@ -159,4 +159,4 @@ roleRef:
   name: view-all
 subjects:
 - kind: Group
-  name: {{ .Values.Installation.V1.Kubernetes.Auth.ReadAccessGroup }}
+  name: {{ .Values.Installation.V1.Kubernetes.Auth.ViewAllTargetGroup }}

@@ -21,14 +21,14 @@ var (
 		words: []string{"get", "list", "watch"},
 	}
 	writeAllRole = role{
-		name:  "write-all",
+		name:  "tenant-admin",
 		words: []string{"get", "list", "watch", "create", "update"},
 	}
 )
 
 type NamespaceAuth struct {
 	ViewAllTargetGroup  string
-	WriteAllTargetGroup string
+	TenantAdminTargetGroup string
 }
 
 type Config struct {
@@ -62,8 +62,8 @@ func New(config Config) (*Resource, error) {
 	if config.NamespaceAuth.ViewAllTargetGroup == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.NamespaceAuth.ViewAllTargetGroup must not be empty", config)
 	}
-	if config.NamespaceAuth.WriteAllTargetGroup == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.NamespaceAuth.WriteAllTargetGroup must not be empty", config)
+	if config.NamespaceAuth.TenantAdminTargetGroup == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.NamespaceAuth.TenantAdminTargetGroup must not be empty", config)
 	}
 
 	r := &Resource{

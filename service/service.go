@@ -109,7 +109,7 @@ func New(config Config) (*Service, error) {
 
 			NamespaceAuth: namespaceauth.NamespaceAuth{
 				ViewAllTargetGroup:  config.Viper.GetString(config.Flag.Service.NamespaceAuth.ViewAllTargetGroup),
-				WriteAllTargetGroup: config.Viper.GetString(config.Flag.Service.NamespaceAuth.WriteAllTargetGroup),
+				TenantAdminTargetGroup: config.Viper.GetString(config.Flag.Service.NamespaceAuth.TenantAdminTargetGroup),
 			},
 		}
 

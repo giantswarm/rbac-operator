@@ -23,7 +23,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	viewAllRole.targetGroup = r.namespaceAuth.ViewAllTargetGroup
-	writeAllRole.targetGroup = r.namespaceAuth.WriteAllTargetGroup
+	writeAllRole.targetGroup = r.namespaceAuth.TenantAdminTargetGroup
 	roles := []role{
 		viewAllRole,
 		writeAllRole,
