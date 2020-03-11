@@ -22,8 +22,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	viewAllRole.targetGroup = r.namespaceAuth.ViewAllTargetGroup
-	tenantAdminRole.targetGroup = r.namespaceAuth.TenantAdminTargetGroup
+	viewAllRole := role{
+		name:        "view-all",
+		targetGroup: r.namespaceAuth.ViewAllTargetGroup,
+		verbs:       []string{"get", "list", "watch"},
+	}
+	tenantAdminRole := role{
+		name:        "tenant-admin",
+		targetGroup: r.namespaceAuth.ViewAllTargetGroup,
+		verbs:       []string{"get", "list", "watch", "create", "update", "patch", "delete"},
+	}
+
 	roles := []role{
 		viewAllRole,
 		tenantAdminRole,

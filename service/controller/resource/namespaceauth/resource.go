@@ -12,18 +12,9 @@ import (
 )
 
 const (
-	Name = "namespaceauth"
-)
-
-var (
-	viewAllRole = role{
-		name:  "view-all",
-		verbs: []string{"get", "list", "watch"},
-	}
-	tenantAdminRole = role{
-		name:  "tenant-admin",
-		verbs: []string{"get", "list", "watch", "create", "update", "patch", "delete"},
-	}
+	Name                = "namespaceauth"
+	tenantAdminRoleName = "tenant-admin"
+	viewAllRoleName     = "view-all"
 )
 
 type Config struct {
@@ -87,6 +78,14 @@ func appendUnique(slice []string, newElement string) []string {
 		}
 	}
 	return append(slice, newElement)
+}
+
+func newInternalRole(name, targetGroup string, verbs []string) role {
+	return role{
+		name:        name,
+		targetGroup: targetGroup,
+		verbs:       verbs,
+	}
 }
 
 func newRole(name string, resources []*metav1.APIResourceList, verbs []string) (*rbacv1.Role, error) {

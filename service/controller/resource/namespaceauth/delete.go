@@ -17,48 +17,48 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	roles := []role{
-		viewAllRole,
-		tenantAdminRole,
+	roles := []string{
+		"view-all",
+		"tenant-admin",
 	}
 
 	for _, role := range roles {
 
-		_, err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(role.name, metav1.GetOptions{})
+		_, err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(role, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			// do nothing
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q role binding", role.name))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q role binding", role))
 
-			err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Delete(role.name, &metav1.DeleteOptions{})
+			err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Delete(role, &metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// do nothing
 			}
 			if err != nil {
 				return microerror.Mask(err)
 			} else {
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been deleted", role.name))
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been deleted", role))
 			}
 		}
 
-		_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(role.name, metav1.GetOptions{})
+		_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(role, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			// do nothing
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q role", role.name))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q role", role))
 
-			err = r.k8sClient.RbacV1().Roles(namespace.Name).Delete(role.name, &metav1.DeleteOptions{})
+			err = r.k8sClient.RbacV1().Roles(namespace.Name).Delete(role, &metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// do nothing
 			}
 			if err != nil {
 				return microerror.Mask(err)
 			} else {
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role %#q has been deleted", role.name))
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role %#q has been deleted", role))
 			}
 		}
 	}
