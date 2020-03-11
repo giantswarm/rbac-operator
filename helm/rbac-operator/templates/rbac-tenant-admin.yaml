@@ -7,13 +7,9 @@ metadata:
     giantswarm.io/service-type: "managed"
 rules:
 - apiGroups:
-  - ""
-  - application.giantswarm.io
   - cluster.x-k8s.io
   - infrastructure.giantswarm.io
   resources:
-  - appcatalogs
-  - apps
   - clusters
   - machinedeployments
   - awsclusters
@@ -24,6 +20,18 @@ rules:
   - watch
   - create
   - update
+- apiGroups:
+  - application.giantswarm.io
+  resources:
+  - appcatalogs
+  - apps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
