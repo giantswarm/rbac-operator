@@ -13,12 +13,22 @@ import (
 
 const (
 	Name = "namespaceauth"
+)
 
-	viewAllRole = "view-all"
+var (
+	viewAllRole = role{
+		name:  "view-all",
+		words: []string{"get", "list", "watch"},
+	}
+	writeAllRole = role{
+		name:  "write-all",
+		words: []string{"get", "list", "watch", "create", "update"},
+	}
 )
 
 type NamespaceAuth struct {
-	ViewAllTargetGroup string
+	ViewAllTargetGroup  string
+	WriteAllTargetGroup string
 }
 
 type Config struct {
@@ -35,6 +45,12 @@ type Resource struct {
 	namespaceAuth NamespaceAuth
 }
 
+type role struct {
+	name        string
+	words       []string
+	targetGroup string
+}
+
 func New(config Config) (*Resource, error) {
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -45,6 +61,9 @@ func New(config Config) (*Resource, error) {
 
 	if config.NamespaceAuth.ViewAllTargetGroup == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.NamespaceAuth.ViewAllTargetGroup must not be empty", config)
+	}
+	if config.NamespaceAuth.WriteAllTargetGroup == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.NamespaceAuth.WriteAllTargetGroup must not be empty", config)
 	}
 
 	r := &Resource{
@@ -70,7 +89,7 @@ func appendUnique(slice []string, newElement string) []string {
 	return append(slice, newElement)
 }
 
-func newViewAllRole(resources []*metav1.APIResourceList, words []string) (*rbacv1.Role, error) {
+func newRole(name string, resources []*metav1.APIResourceList, words []string) (*rbacv1.Role, error) {
 	var resourceNamesNamespace, apiGroupsNamespace []string
 	{
 		for _, resource := range resources {
@@ -92,7 +111,7 @@ func newViewAllRole(resources []*metav1.APIResourceList, words []string) (*rbacv
 
 	role := &rbacv1.Role{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: viewAllRole,
+			Name: name,
 		},
 		Rules: []rbacv1.PolicyRule{
 			rbacv1.PolicyRule{
@@ -106,14 +125,14 @@ func newViewAllRole(resources []*metav1.APIResourceList, words []string) (*rbacv
 	return role, nil
 }
 
-func newViewAllRoleBinding(targetGroupName string) *rbacv1.RoleBinding {
+func newRoleBinding(name, targetGroupName string) *rbacv1.RoleBinding {
 	roleBinding := &rbacv1.RoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "RoleBinding",
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: viewAllRole,
+			Name: name,
 		},
 		Subjects: []rbacv1.Subject{
 			rbacv1.Subject{
@@ -124,7 +143,7 @@ func newViewAllRoleBinding(targetGroupName string) *rbacv1.RoleBinding {
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "Role",
-			Name:     viewAllRole,
+			Name:     name,
 		},
 	}
 

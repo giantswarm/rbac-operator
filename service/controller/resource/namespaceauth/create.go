@@ -2,6 +2,7 @@ package namespaceauth
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -21,51 +22,60 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	viewAccessWords := []string{"get", "list", "watch"}
-	viewAllRole, err := newViewAllRole(resources, viewAccessWords)
-	if err != nil {
-		return microerror.Mask(err)
+	viewAllRole.targetGroup = r.namespaceAuth.ViewAllTargetGroup
+	writeAllRole.targetGroup = r.namespaceAuth.WriteAllTargetGroup
+	roles := []role{
+		viewAllRole,
+		writeAllRole,
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "creating view role %#q in namespace %#q", viewAllRole.Name, namespace.Name)
+	for _, role := range roles {
 
-	_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(viewAllRole.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		_, err := r.k8sClient.RbacV1().Roles(namespace.Name).Create(viewAllRole)
-		if apierrors.IsAlreadyExists(err) {
-			// do nothing
-		} else if err != nil {
+		newRole, err := newRole(role.name, resources, role.words)
+		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "created view role")
+		_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(newRole.Name, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating role %#q", newRole.Name))
 
-	} else if err != nil {
-		return microerror.Mask(err)
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "view role already exists")
-	}
+			_, err := r.k8sClient.RbacV1().Roles(namespace.Name).Create(newRole)
+			if apierrors.IsAlreadyExists(err) {
+				// do nothing
+			} else if err != nil {
+				return microerror.Mask(err)
+			}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "view role exists")
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created role %#q", newRole.Name))
 
-	viewAllRoleBinding := newViewAllRoleBinding(r.namespaceAuth.ViewAllTargetGroup)
-
-	r.logger.LogCtx(ctx, "level", "debug", "message", "creating view role binding")
-
-	_, err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(viewAllRoleBinding.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Create(viewAllRoleBinding)
-		if apierrors.IsAlreadyExists(err) {
-			// do nothing
 		} else if err != nil {
 			return microerror.Mask(err)
+		} else {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role %#q already exists", newRole.Name))
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "created view role binding")
+		newRoleBinding := newRoleBinding(role.name, role.targetGroup)
 
+		_, err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(newRoleBinding.Name, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating role binding %#q", newRoleBinding.Name))
+
+			_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Create(newRoleBinding)
+			if apierrors.IsAlreadyExists(err) {
+				// do nothing
+			} else if err != nil {
+				return microerror.Mask(err)
+			}
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created role binding %#q", newRoleBinding.Name))
+
+		} else if err != nil {
+			return microerror.Mask(err)
+		} else {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q already exists", newRoleBinding.Name))
+		}
 	}
-
-	r.logger.LogCtx(ctx, "level", "debug", "message", "view role binding exists")
 
 	return nil
 }
