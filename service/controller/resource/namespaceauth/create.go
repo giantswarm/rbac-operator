@@ -47,7 +47,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created role %#q", newRole.Name))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role %#q has been created", newRole.Name))
 
 		} else if err != nil {
 			return microerror.Mask(err)
@@ -68,7 +68,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created role binding %#q", newRoleBinding.Name))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been created", newRoleBinding.Name))
 
 		} else if err != nil {
 			return microerror.Mask(err)
