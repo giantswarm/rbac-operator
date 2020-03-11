@@ -18,24 +18,24 @@ const (
 var (
 	viewAllRole = role{
 		name:  "view-all",
-		words: []string{"get", "list", "watch"},
+		verbs: []string{"get", "list", "watch"},
 	}
-	writeAllRole = role{
+	tenantAdminRole = role{
 		name:  "tenant-admin",
-		words: []string{"get", "list", "watch", "create", "update"},
+		verbs: []string{"get", "list", "watch", "create", "update", "patch", "delete"},
 	}
 )
-
-type NamespaceAuth struct {
-	ViewAllTargetGroup  string
-	TenantAdminTargetGroup string
-}
 
 type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
 	NamespaceAuth NamespaceAuth
+}
+
+type NamespaceAuth struct {
+	ViewAllTargetGroup     string
+	TenantAdminTargetGroup string
 }
 
 type Resource struct {
@@ -47,7 +47,7 @@ type Resource struct {
 
 type role struct {
 	name        string
-	words       []string
+	verbs       []string
 	targetGroup string
 }
 
@@ -89,7 +89,7 @@ func appendUnique(slice []string, newElement string) []string {
 	return append(slice, newElement)
 }
 
-func newRole(name string, resources []*metav1.APIResourceList, words []string) (*rbacv1.Role, error) {
+func newRole(name string, resources []*metav1.APIResourceList, verbs []string) (*rbacv1.Role, error) {
 	var resourceNamesNamespace, apiGroupsNamespace []string
 	{
 		for _, resource := range resources {
@@ -117,7 +117,7 @@ func newRole(name string, resources []*metav1.APIResourceList, words []string) (
 			rbacv1.PolicyRule{
 				APIGroups: apiGroupsNamespace,
 				Resources: resourceNamesNamespace,
-				Verbs:     words,
+				Verbs:     verbs,
 			},
 		},
 	}

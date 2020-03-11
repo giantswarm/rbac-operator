@@ -19,7 +19,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 
 	roles := []role{
 		viewAllRole,
-		writeAllRole,
+		tenantAdminRole,
 	}
 
 	for _, role := range roles {

@@ -23,15 +23,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	viewAllRole.targetGroup = r.namespaceAuth.ViewAllTargetGroup
-	writeAllRole.targetGroup = r.namespaceAuth.TenantAdminTargetGroup
+	tenantAdminRole.targetGroup = r.namespaceAuth.TenantAdminTargetGroup
 	roles := []role{
 		viewAllRole,
-		writeAllRole,
+		tenantAdminRole,
 	}
 
 	for _, role := range roles {
 
-		newRole, err := newRole(role.name, resources, role.words)
+		newRole, err := newRole(role.name, resources, role.verbs)
 		if err != nil {
 			return microerror.Mask(err)
 		}
