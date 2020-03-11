@@ -1,4 +1,4 @@
-package test
+package namespaceauth
 
 import (
 	"github.com/giantswarm/microerror"

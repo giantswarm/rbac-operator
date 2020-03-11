@@ -9,7 +9,7 @@ func NewVersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "rbac-operator",
-				Description: "TODO",
+				Description: "Add view-all resources role for customer identity provider's group.",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
