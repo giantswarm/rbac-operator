@@ -108,7 +108,7 @@ func New(config Config) (*Service, error) {
 			Logger:    config.Logger,
 
 			NamespaceAuth: namespaceauth.NamespaceAuth{
-				ViewAllTargetGroup:  config.Viper.GetString(config.Flag.Service.NamespaceAuth.ViewAllTargetGroup),
+				ViewAllTargetGroup:     config.Viper.GetString(config.Flag.Service.NamespaceAuth.ViewAllTargetGroup),
 				TenantAdminTargetGroup: config.Viper.GetString(config.Flag.Service.NamespaceAuth.TenantAdminTargetGroup),
 			},
 		}
