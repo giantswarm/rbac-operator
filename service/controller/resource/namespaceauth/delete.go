@@ -35,19 +35,17 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(viewAllRole, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// do nothing
+	} else if err != nil {
+		return microerror.Mask(err)
 	} else {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting view role")
+
+		err = r.k8sClient.RbacV1().Roles(namespace.Name).Delete(viewAllRole, &metav1.DeleteOptions{})
 		if err != nil {
 			return microerror.Mask(err)
-		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "deleting view role")
-
-			err = r.k8sClient.RbacV1().Roles(namespace.Name).Delete(viewAllRole, &metav1.DeleteOptions{})
-			if err != nil {
-				return microerror.Mask(err)
-			}
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", "view role has been deleted")
 		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "view role has been deleted")
 	}
 
 	return nil
