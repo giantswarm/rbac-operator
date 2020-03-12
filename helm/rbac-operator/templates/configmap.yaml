@@ -19,3 +19,6 @@ data:
           caFile: ''
           crtFile: ''
           keyFile: ''
+      namespaceAuth:
+        tenantAdminTargetGroup: {{ .Values.Installation.V1.Kubernetes.Auth.TenantAdminTargetGroup }}
+        viewAllTargetGroup: {{ .Values.Installation.V1.Kubernetes.Auth.ViewAllTargetGroup }}
