@@ -104,16 +104,3 @@ workflows:
           filters:
             tags:
               only: /^v.*/
-
-      - architect/push-to-app-collection:
-          name: push-rbac-operator-to-aws-app-collection
-          app_name: "rbac-operator"
-          app_collection_repo: "aws-app-collection"
-          unique: "true"
-          requires:
-            - push-rbac-operator-to-control-plane-app-catalog
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v.*/
