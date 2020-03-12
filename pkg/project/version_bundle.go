@@ -10,6 +10,11 @@ func NewVersionBundle() versionbundle.Bundle {
 			{
 				Component:   "rbac-operator",
 				Description: "Add view-all resources role for customer identity provider's group.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "rbac-operator",
+				Description: "Add tenant-admin resources role for customer identity provider's group.",
 				Kind:        versionbundle.KindChanged,
 			},
 		},

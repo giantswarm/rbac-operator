@@ -2,6 +2,7 @@ package namespaceauth
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -16,58 +17,50 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	_, err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(viewAllRole, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		// do nothing
-	} else if err != nil {
-		return microerror.Mask(err)
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting view role binding")
-
-		err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Delete(viewAllRole, &metav1.DeleteOptions{})
-		if err != nil {
-			return microerror.Mask(err)
-		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "deleting view role binding")
-
-			err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Delete(viewAllRole, &metav1.DeleteOptions{})
-			if apierrors.IsNotFound(err) {
-				// do nothing
-			} else if err != nil {
-				return microerror.Mask(err)
-			}
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", "role binding has been deleted")
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", "role binding has been deleted")
+	roles := []string{
+		"view-all",
+		"tenant-admin",
 	}
 
-	_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(viewAllRole, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		// do nothing
-	} else if err != nil {
-		return microerror.Mask(err)
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting view role")
+	for _, role := range roles {
 
-		err = r.k8sClient.RbacV1().Roles(namespace.Name).Delete(viewAllRole, &metav1.DeleteOptions{})
-		if err != nil {
+		_, err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(role, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			// do nothing
+		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "deleting view role")
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q role binding", role))
 
-			err = r.k8sClient.RbacV1().Roles(namespace.Name).Delete(viewAllRole, &metav1.DeleteOptions{})
+			err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Delete(role, &metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// do nothing
-			} else if err != nil {
-				return microerror.Mask(err)
 			}
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", "view role has been deleted")
+			if err != nil {
+				return microerror.Mask(err)
+			} else {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been deleted", role))
+			}
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "view role has been deleted")
+		_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(role, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			// do nothing
+		} else if err != nil {
+			return microerror.Mask(err)
+		} else {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q role", role))
+
+			err = r.k8sClient.RbacV1().Roles(namespace.Name).Delete(role, &metav1.DeleteOptions{})
+			if apierrors.IsNotFound(err) {
+				// do nothing
+			}
+			if err != nil {
+				return microerror.Mask(err)
+			} else {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role %#q has been deleted", role))
+			}
+		}
 	}
 
 	return nil
