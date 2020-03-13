@@ -35,6 +35,9 @@ resource:
 # Installation values
 Installation:
   V1:
+    GiantSwarm:
+      OIDC:
+        Enabled: false
     Kubernetes:
       Auth:
         TenantAdminTargetGroup: "group"

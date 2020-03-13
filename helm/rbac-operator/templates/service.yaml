@@ -1,3 +1,4 @@
+{{ if .Values.Installation.V1.GiantSwarm.OIDC.Enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -14,3 +15,4 @@ spec:
   selector:
     app: {{ .Values.project.name }}
     version: {{ .Values.project.version }}
+{{ end }}
