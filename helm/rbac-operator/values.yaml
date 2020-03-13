@@ -31,3 +31,13 @@ resource:
   pullSecret:
     name: '{{ .Release.Name | replace "." "-" | trunc 47 }}-pull-secret'
     namespace: "giantswarm"
+
+# Installation values
+Installation:
+  V1:
+    Kubernetes:
+      Auth:
+        TenantAdminTargetGroup: "group"
+        ViewAllTargetGroup: "group"
+    Registry:
+      Domain: "domain"
