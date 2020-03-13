@@ -1,33 +1,30 @@
-<!--
+[![CircleCI](https://circleci.com/gh/giantswarm/rbac-operator.svg?&style=shield&&circle-token=373dcae33aecb47a0a53c51105e9381dff5b0b88)](https://circleci.com/gh/giantswarm/rbac-operator) [![Docker Repository on Quay](https://quay.io/repository/giantswarm/rbac-operator/status "Docker Repository on Quay")](https://quay.io/repository/giantswarm/rbac-operator)
 
-    TODO:
+# rbac-operator
 
-    - Add the project to the CircleCI:
-      https://circleci.com/setup-project/gh/giantswarm/REPOSITORY_NAME
+The rbac-operator is an in-cluster agent, that manages roles and rolebingings
+for tenant cluster namespaces inside the Giant Swarm control-plane Kubernetes cluster.
 
-    - Import RELEASE_TOKEN variable from template repository for the builds:
-      https://circleci.com/gh/giantswarm/REPOSITORY_NAME/edit#env-vars
+## Getting Project
 
-    - Change the badge (with style=shield):
-      https://circleci.com/gh/giantswarm/REPOSITORY_NAME/edit#badges
-      If this is a private repository token with scope `status` will be needed.
+Clone the git repository: https://github.com/giantswarm/rbac-operator.git
 
-    - Run `devctl replace -i "REPOSITORY_NAME" "$(basename $(git rev-parse --show-toplevel))" *.md`
-      and commit your changes.
+### How to build
 
--->
-[![CircleCI](https://circleci.com/gh/giantswarm/rbac-operator.svg?&style=shield)](https://circleci.com/gh/giantswarm/rbac-operator) [![Docker Repository on Quay](https://quay.io/repository/giantswarm/rbac-operator/status "Docker Repository on Quay")](https://quay.io/repository/giantswarm/rbac-operator)
+Build it using the standard `go build` command.
 
-# REPOSITORY_NAME
+```
+go build github.com/giantswarm/rbac-operator
+```
 
-This is a template repository containing files for a giantswarm
-operator repository.
+## Contact
 
-To use it just hit `Use this template` button or [this
-link][generate].
+- Mailing list: [giantswarm](https://groups.google.com/forum/!forum/giantswarm)
+- IRC: #[giantswarm](irc://irc.freenode.org:6667/#giantswarm) on freenode.org
+- Bugs: [issues](https://github.com/giantswarm/rbac-operator/issues)
 
-After creating your repository replace all instances of
-`rbac-operator` in this code base with your new repository name.
-Also rename `helm/rbac-operator` directory.
 
-[generate]: https://github.com/giantswarm/rbac-operator/generate
+## License
+
+rbac-operator is under the Apache 2.0 license. See the [LICENSE](LICENSE) file for
+details.
