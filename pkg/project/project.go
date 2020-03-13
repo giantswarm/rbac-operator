@@ -1,8 +1,8 @@
 package project
 
 var (
-	bundleVersion = "0.0.1"
-	description   = "The rbac-operator does something."
+	bundleVersion = "0.1.0"
+	description   = "The rbac-operator manages tenant namespace access in control-plane Kubernetes."
 	gitSHA        = "n/a"
 	name          = "rbac-operator"
 	source        = "https://github.com/giantswarm/rbac-operator"
