@@ -1,5 +1,5 @@
 orbs:
-  architect: giantswarm/architect@0.4.5
+  architect: giantswarm/architect@0.8.3
 
 version: 2.1
 jobs:
@@ -94,7 +94,7 @@ workflows:
               only: master
 
       - architect/push-to-app-catalog:
-          name: push-rbac-operator-to-app-catalog
+          name: push-rbac-operator-to-control-plane-app-catalog
           app_catalog: "control-plane-catalog"
           app_catalog_test: "control-plane-test-catalog"
           chart: "rbac-operator"
@@ -102,5 +102,47 @@ workflows:
             - push-rbac-operator-to-quay
           # Needed to trigger job also on git tag.
           filters:
+            tags:
+              only: /^v.*/
+
+      # deploy to aws installations (only tags)
+      - architect/push-to-app-collection:
+          name: push-rbac-operator-to-aws-app-collection
+          app_name: "rbac-operator"
+          app_collection_repo: "aws-app-collection"
+          unique: "true"
+          requires:
+            - push-rbac-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
+      # deploy to azure installations (only tags)
+      - architect/push-to-app-collection:
+          name: push-rbac-operator-to-azure-app-collection
+          app_name: "rbac-operator"
+          app_collection_repo: "azure-app-collection"
+          unique: "true"
+          requires:
+            - push-rbac-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
+      # deploy to kvm installations (only tags)
+      - architect/push-to-app-collection:
+          name: push-rbac-operator-to-kvm-app-collection
+          app_name: "rbac-operator"
+          app_collection_repo: "kvm-app-collection"
+          unique: "true"
+          requires:
+            - push-rbac-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
             tags:
               only: /^v.*/
