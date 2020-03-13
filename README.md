@@ -3,7 +3,7 @@
 # rbac-operator
 
 The rbac-operator is an in-cluster agent, that manages roles and rolebingings
-for tenant cluster namespaces in the control-plane.
+for tenant cluster namespaces inside the Giant Swarm control-plane Kubenretes cluster.
 
 ## Getting Project
 
