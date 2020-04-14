@@ -87,7 +87,7 @@ roleRef:
   name: tenant-admin-manage-rbac
 subjects:
 - kind: Group
-  name: {{ .Values.Installation.V1.Kubernetes.Auth.TenantAdminTargetGroup }}`
+  name: {{ .Values.Installation.V1.Kubernetes.Auth.TenantAdminTargetGroup }}
 ---
 # view-all access
 apiVersion: rbac.authorization.k8s.io/v1
