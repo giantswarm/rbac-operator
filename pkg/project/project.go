@@ -6,7 +6,7 @@ var (
 	gitSHA        = "n/a"
 	name          = "rbac-operator"
 	source        = "https://github.com/giantswarm/rbac-operator"
-	version       = "0.3.0"
+	version       = "0.3.1"
 )
 
 func BundleVersion() string {
