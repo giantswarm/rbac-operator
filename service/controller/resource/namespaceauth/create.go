@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/microerror"
+	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -29,7 +30,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 	tenantAdminRole := role{
 		name:        "tenant-admin",
-		targetGroup: r.namespaceAuth.ViewAllTargetGroup,
+		targetGroup: r.namespaceAuth.TenantAdminTargetGroup,
 		verbs:       []string{"get", "list", "watch", "create", "update", "patch", "delete"},
 	}
 
@@ -66,7 +67,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		newRoleBinding := newRoleBinding(role.name, role.targetGroup)
 
-		_, err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(newRoleBinding.Name, metav1.GetOptions{})
+		existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(newRoleBinding.Name, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating role binding %#q", newRoleBinding.Name))
 
@@ -81,10 +82,23 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		} else if err != nil {
 			return microerror.Mask(err)
+		} else if needsUpdate(role, existingRoleBinding) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating role binding %#q", newRoleBinding.Name))
+			_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Update(newRoleBinding)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been updated", newRoleBinding.Name))
+
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q already exists", newRoleBinding.Name))
 		}
+
 	}
 
 	return nil
+}
+
+func needsUpdate(role role, existingRoleBinding *rbacv1.RoleBinding) bool {
+	return role.targetGroup != existingRoleBinding.Subjects[0].Name
 }

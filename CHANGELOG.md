@@ -5,12 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.1]- 2020-04-23
+## [Unreleased]
+
+### Changed
+
+- Reconcile `rolebinding` subject group changes properly.
+- Fix bug with binding role to the `view-all` read role instead of `tenant-admin` write role.
+
+
+## [0.3.2]- 2020-04-23
 
 ### Changed
 
 - Use Release.Revision in annotation for Helm 3 compatibility.
-
 
 
 ## [0.3.0]- 2020-04-06
@@ -33,7 +40,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.3.2...HEAD
+
+[0.3.2]: https://github.com/giantswarm/rbac-operator/releases/tag/v0.3.2
 
 [0.3.0]: https://github.com/giantswarm/rbac-operator/releases/tag/v0.3.0
 
