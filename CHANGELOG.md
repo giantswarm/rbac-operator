@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reconcile `rolebinding` subject group changes properly.
 - Fix bug with binding role to the `view-all` read role instead of `tenant-admin` write role.
 
+### Deleted
+
+- Delete `versionbundle` from project.
+
 
 ## [0.3.2]- 2020-04-23
 
