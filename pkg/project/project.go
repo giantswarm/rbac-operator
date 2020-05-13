@@ -9,10 +9,6 @@ var (
 	version       = "0.3.1"
 )
 
-func BundleVersion() string {
-	return bundleVersion
-}
-
 func Description() string {
 	return description
 }
