@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Push tags to *aliyun* repository.
 
 ## [0.3.3] - 2020-05-13
 
