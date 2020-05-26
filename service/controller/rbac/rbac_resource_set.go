@@ -1,4 +1,4 @@
-package controller
+package rbac
 
 import (
 	"github.com/giantswarm/k8sclient"
@@ -9,7 +9,7 @@ import (
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 
-	"github.com/giantswarm/rbac-operator/service/controller/resource/namespaceauth"
+	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/namespaceauth"
 )
 
 type RBACResourceSetConfig struct {

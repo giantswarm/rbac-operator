@@ -1,4 +1,4 @@
-package controller
+package rbac
 
 import (
 	// If your operator watches a CRD import it here.
@@ -15,7 +15,7 @@ import (
 
 	"github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
-	"github.com/giantswarm/rbac-operator/service/controller/resource/namespaceauth"
+	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/namespaceauth"
 )
 
 type RBACConfig struct {
@@ -37,7 +37,7 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 		return nil, microerror.Mask(err)
 	}
 
-	var operatorkitController *controller.Controller
+	var namespaceAuthController *controller.Controller
 	{
 
 		namespaceSelectorQuery := fmt.Sprintf("%s,%s", label.Cluster, label.Organization)
@@ -60,14 +60,14 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 			Name: project.Name() + "-rbac-controller",
 		}
 
-		operatorkitController, err = controller.New(c)
+		namespaceAuthController, err = controller.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
 	c := &RBAC{
-		Controller: operatorkitController,
+		Controller: namespaceAuthController,
 	}
 
 	return c, nil

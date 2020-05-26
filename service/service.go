@@ -18,9 +18,9 @@ import (
 	"github.com/giantswarm/rbac-operator/flag"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/collector"
-	"github.com/giantswarm/rbac-operator/service/controller"
+	"github.com/giantswarm/rbac-operator/service/controller/rbac"
 
-	"github.com/giantswarm/rbac-operator/service/controller/resource/namespaceauth"
+	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/namespaceauth"
 )
 
 // Config represents the configuration used to create a new service.
@@ -35,7 +35,7 @@ type Service struct {
 	Version *version.Service
 
 	bootOnce          sync.Once
-	rbacController    *controller.RBAC
+	rbacController    *rbac.RBAC
 	operatorCollector *collector.Set
 }
 
@@ -100,10 +100,10 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var rbacController *controller.RBAC
+	var rbacController *rbac.RBAC
 	{
 
-		c := controller.RBACConfig{
+		c := rbac.RBACConfig{
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
 
@@ -113,7 +113,7 @@ func New(config Config) (*Service, error) {
 			},
 		}
 
-		rbacController, err = controller.NewRBAC(c)
+		rbacController, err = rbac.NewRBAC(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
