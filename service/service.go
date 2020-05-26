@@ -176,6 +176,7 @@ func New(config Config) (*Service, error) {
 func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
 		go s.operatorCollector.Boot(ctx)
+		go s.namespaceLabelerController.Boot(ctx)
 
 		go s.rbacController.Boot(ctx)
 	})
