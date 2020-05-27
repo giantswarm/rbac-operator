@@ -17,8 +17,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if needsUpdate(namespace) {
-		namespace.ObjectMeta.Labels[label.Cluster] = ""
-		namespace.ObjectMeta.Labels[label.Organization] = ""
+		namespace.ObjectMeta.Labels[label.Cluster] = ns.ObjectMeta.Labels[label.LegacyCluster]
+		namespace.ObjectMeta.Labels[label.Organization] = ns.ObjectMeta.Labels[label.LegacyCustomer]
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "applying new labels to namespace")
 		_, err = r.k8sClient.CoreV1().Namespaces().Update(namespace)
