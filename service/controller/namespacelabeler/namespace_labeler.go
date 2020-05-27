@@ -35,7 +35,7 @@ func NewNamespaceLabeler(config NamespaceLabelerConfig) (*NamespaceLabeler, erro
 	var namespaceLabelerController *controller.Controller
 	{
 
-		namespaceSelectorQuery := fmt.Sprintf("%s,%s", label.LegacyCluster, label.LegacyCustomer)
+		namespaceSelectorQuery := fmt.Sprintf("%s=,%s=,%s!=,%s!=", label.LegacyCluster, label.LegacyCustomer, label.Cluster, label.Organization)
 		namespaceSelector, err := labels.Parse(namespaceSelectorQuery)
 		if err != nil {
 			return nil, microerror.Mask(err)
