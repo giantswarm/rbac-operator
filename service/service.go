@@ -18,6 +18,7 @@ import (
 	"github.com/giantswarm/rbac-operator/flag"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/collector"
+	"github.com/giantswarm/rbac-operator/service/controller/namespacelabeler"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac"
 
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/namespaceauth"
@@ -34,9 +35,10 @@ type Config struct {
 type Service struct {
 	Version *version.Service
 
-	bootOnce          sync.Once
-	rbacController    *rbac.RBAC
-	operatorCollector *collector.Set
+	bootOnce                   sync.Once
+	namespaceLabelerController *namespacelabeler.NamespaceLabeler
+	rbacController             *rbac.RBAC
+	operatorCollector          *collector.Set
 }
 
 // New creates a new configured service object.
@@ -86,11 +88,7 @@ func New(config Config) (*Service, error) {
 	var k8sClient k8sclient.Interface
 	{
 		c := k8sclient.ClientsConfig{
-			Logger: config.Logger,
-			// TODO: If you are watching a new CRD, include here the AddToScheme function from apiextensions.
-			// SchemeBuilder: k8sclient.SchemeBuilder{
-			//     corev1alpha1.AddToScheme,
-			// },
+			Logger:     config.Logger,
 			RestConfig: restConfig,
 		}
 
@@ -114,6 +112,20 @@ func New(config Config) (*Service, error) {
 		}
 
 		rbacController, err = rbac.NewRBAC(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var namespaceLabelerController *namespacelabeler.NamespaceLabeler
+	{
+
+		c := namespacelabeler.NamespaceLabelerConfig{
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+		}
+
+		namespaceLabelerController, err = namespacelabeler.NewNamespaceLabeler(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -152,9 +164,10 @@ func New(config Config) (*Service, error) {
 	s := &Service{
 		Version: versionService,
 
-		bootOnce:          sync.Once{},
-		rbacController:    rbacController,
-		operatorCollector: operatorCollector,
+		bootOnce:                   sync.Once{},
+		namespaceLabelerController: namespaceLabelerController,
+		rbacController:             rbacController,
+		operatorCollector:          operatorCollector,
 	}
 
 	return s, nil
@@ -163,6 +176,7 @@ func New(config Config) (*Service, error) {
 func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
 		go s.operatorCollector.Boot(ctx)
+		go s.namespaceLabelerController.Boot(ctx)
 
 		go s.rbacController.Boot(ctx)
 	})

@@ -12,7 +12,6 @@ spec:
   selector:
     matchLabels:
       app: {{ .Values.project.name }}
-      version: {{ .Values.project.version }}
   strategy:
     type: Recreate
   template:
@@ -30,7 +29,6 @@ spec:
               labelSelector:
                 matchLabels:
                   app: {{ .Values.project.name }}
-                  version: {{ .Values.project.version }}
               topologyKey: kubernetes.io/hostname
             weight: 100
       volumes:
