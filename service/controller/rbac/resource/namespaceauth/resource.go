@@ -146,3 +146,29 @@ func newGroupRoleBinding(name, targetGroupName string) *rbacv1.RoleBinding {
 
 	return roleBinding
 }
+
+func newServiceAccountRoleBinding(name, serviceAccountName, serviceAccountNamespace string) *rbacv1.RoleBinding {
+	roleBinding := &rbacv1.RoleBinding{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "RoleBinding",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: name,
+		},
+		Subjects: []rbacv1.Subject{
+			rbacv1.Subject{
+				Kind:      "ServiceAccount",
+				Name:      serviceAccountName,
+				Namespace: serviceAccountNamespace,
+			},
+		},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "Role",
+			Name:     name,
+		},
+	}
+
+	return roleBinding
+}

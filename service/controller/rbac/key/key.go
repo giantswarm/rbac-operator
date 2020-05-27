@@ -6,10 +6,10 @@ import (
 )
 
 const (
-	automationServiceAccountName      = "automation"
-	automationServiceAccountNamespace = "global"
-	tenantAdminRoleName               = "tenant-admin"
-	viewAllRoleName                   = "view-all"
+	AutomationServiceAccountName      = "automation"
+	AutomationServiceAccountNamespace = "global"
+	TenantAdminRoleName               = "tenant-admin"
+	ViewAllRoleName                   = "view-all"
 )
 
 func ToNamespace(v interface{}) (corev1.Namespace, error) {

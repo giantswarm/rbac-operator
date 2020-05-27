@@ -96,6 +96,36 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 		}
 
+		{
+			newServiceAccountRoleBinding := newServiceAccountRoleBinding(role.name, key.AutomationServiceAccountName, key.AutomationServiceAccountNamespace)
+
+			existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(newServiceAccountRoleBinding.Name, metav1.GetOptions{})
+			if apierrors.IsNotFound(err) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating role binding %#q", newServiceAccountRoleBinding.Name))
+
+				_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Create(newServiceAccountRoleBinding)
+				if apierrors.IsAlreadyExists(err) {
+					// do nothing
+				} else if err != nil {
+					return microerror.Mask(err)
+				}
+
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been created", newServiceAccountRoleBinding.Name))
+
+			} else if err != nil {
+				return microerror.Mask(err)
+			} else if needsUpdate(role, existingRoleBinding) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating role binding %#q", newServiceAccountRoleBinding.Name))
+				_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Update(newServiceAccountRoleBinding)
+				if err != nil {
+					return microerror.Mask(err)
+				}
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been updated", newServiceAccountRoleBinding.Name))
+
+			} else {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q already exists", newServiceAccountRoleBinding.Name))
+			}
+		}
 	}
 
 	return nil
