@@ -1,0 +1,10 @@
+---
+Installation:
+  V1:
+    GiantSwarm:
+      OIDC:
+        Enabled: false
+    Kubernetes:
+      Auth:
+        TenantAdminTargetGroup: "group"
+        ViewAllTargetGroup: "group"

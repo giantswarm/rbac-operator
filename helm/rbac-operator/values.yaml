@@ -1,7 +1,10 @@
 image:
-  registry: "quay.io"
   name: "giantswarm/rbac-operator"
   tag: "[[ .Version ]]"
+Installation:
+  V1:
+    Registry:
+      Domain: quay.io
 pod:
   user:
     id: 1000
@@ -31,16 +34,3 @@ resource:
   pullSecret:
     name: '{{ .Release.Name | replace "." "-" | trunc 47 }}-pull-secret'
     namespace: "giantswarm"
-
-# Installation values
-Installation:
-  V1:
-    GiantSwarm:
-      OIDC:
-        Enabled: false
-    Kubernetes:
-      Auth:
-        TenantAdminTargetGroup: "group"
-        ViewAllTargetGroup: "group"
-    Registry:
-      Domain: "domain"
