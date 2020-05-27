@@ -12,9 +12,7 @@ import (
 )
 
 const (
-	Name                = "namespaceauth"
-	tenantAdminRoleName = "tenant-admin"
-	viewAllRoleName     = "view-all"
+	Name = "namespaceauth"
 )
 
 type Config struct {
@@ -124,7 +122,7 @@ func newRole(name string, resources []*metav1.APIResourceList, verbs []string) (
 	return role, nil
 }
 
-func newRoleBinding(name, targetGroupName string) *rbacv1.RoleBinding {
+func newGroupRoleBinding(name, targetGroupName string) *rbacv1.RoleBinding {
 	roleBinding := &rbacv1.RoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "RoleBinding",

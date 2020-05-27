@@ -65,33 +65,35 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role %#q already exists", newRole.Name))
 		}
 
-		newRoleBinding := newRoleBinding(role.name, role.targetGroup)
+		{
+			newGroupRoleBinding := newGroupRoleBinding(role.name, role.targetGroup)
 
-		existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(newRoleBinding.Name, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating role binding %#q", newRoleBinding.Name))
+			existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(newGroupRoleBinding.Name, metav1.GetOptions{})
+			if apierrors.IsNotFound(err) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating role binding %#q", newGroupRoleBinding.Name))
 
-			_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Create(newRoleBinding)
-			if apierrors.IsAlreadyExists(err) {
-				// do nothing
+				_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Create(newGroupRoleBinding)
+				if apierrors.IsAlreadyExists(err) {
+					// do nothing
+				} else if err != nil {
+					return microerror.Mask(err)
+				}
+
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been created", newGroupRoleBinding.Name))
+
 			} else if err != nil {
 				return microerror.Mask(err)
+			} else if needsUpdate(role, existingRoleBinding) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating role binding %#q", newGroupRoleBinding.Name))
+				_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Update(newGroupRoleBinding)
+				if err != nil {
+					return microerror.Mask(err)
+				}
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been updated", newGroupRoleBinding.Name))
+
+			} else {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q already exists", newGroupRoleBinding.Name))
 			}
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been created", newRoleBinding.Name))
-
-		} else if err != nil {
-			return microerror.Mask(err)
-		} else if needsUpdate(role, existingRoleBinding) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating role binding %#q", newRoleBinding.Name))
-			_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Update(newRoleBinding)
-			if err != nil {
-				return microerror.Mask(err)
-			}
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been updated", newRoleBinding.Name))
-
-		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q already exists", newRoleBinding.Name))
 		}
 
 	}
