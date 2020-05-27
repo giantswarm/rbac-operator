@@ -50,7 +50,10 @@ func NewNamespaceLabeler(config NamespaceLabelerConfig) (*NamespaceLabeler, erro
 			},
 			Selector: namespaceSelector,
 
-			Name: project.Name() + "-namespace-labeler-controller",
+			// TODO: use namespace-labeler-controller name after operatokit allows disabling finalizer
+			// For now we need to have the same name for both controllers so that finalizer logic gets executed
+			// when current controller stops watching modified namespaces.
+			Name: project.Name() + "-rbac-controller",
 		}
 
 		namespaceLabelerController, err = controller.New(c)
