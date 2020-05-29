@@ -1,5 +1,5 @@
 apiVersion: v1
-appVersion: [[ .Version ]]
+appVersion: [[ .AppVersion ]]
 description: rbac-operator manages authorization for OIDC enabled control-plane Kubernetes APIs.
 home: https://github.com/giantswarm/rbac-operator
 name: rbac-operator
