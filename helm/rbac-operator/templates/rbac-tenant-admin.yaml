@@ -121,7 +121,6 @@ subjects:
 - kind: Group
   name: {{ .Values.Installation.V1.Kubernetes.Auth.TenantAdminTargetGroup }}
 ---
-# `automation` serviceaccount in `global` namespace
 apiVersion: v1
 kind: ServiceAccount
 metadata:
