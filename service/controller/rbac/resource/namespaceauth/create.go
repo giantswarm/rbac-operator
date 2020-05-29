@@ -134,5 +134,5 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 }
 
 func needsUpdate(role role, existingRoleBinding *rbacv1.RoleBinding) bool {
-	return role.targetGroup != existingRoleBinding.Subjects[0].Name
+	return role.targetGroup != existingRoleBinding.Subjects[0].Name || role.name != existingRoleBinding.RoleRef.Name
 }
