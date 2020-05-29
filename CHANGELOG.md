@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Push tags to *aliyun* repository.
 - Move `rbac` controller code into `rbac` package.
 - Add `namespacelabeler` controller, which labels legacy namespaces.
+- Add `automation` service account in `global` namespace, which has admin access to all the tenant namespaces.
 
 ## [0.3.3] - 2020-05-13
 

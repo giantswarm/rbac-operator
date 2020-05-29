@@ -4,6 +4,8 @@ import (
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/rbac-operator/pkg/label"
+	"github.com/giantswarm/rbac-operator/pkg/project"
 
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -12,9 +14,12 @@ import (
 )
 
 const (
-	Name                = "namespaceauth"
-	tenantAdminRoleName = "tenant-admin"
-	viewAllRoleName     = "view-all"
+	Name = "namespaceauth"
+
+	automationServiceAccountName      = "automation"
+	automationServiceAccountNamespace = "global"
+	tenantAdminRoleName               = "tenant-admin"
+	viewAllRoleName                   = "view-all"
 )
 
 type Config struct {
@@ -111,6 +116,9 @@ func newRole(name string, resources []*metav1.APIResourceList, verbs []string) (
 	role := &rbacv1.Role{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
 		},
 		Rules: []rbacv1.PolicyRule{
 			rbacv1.PolicyRule{
@@ -124,7 +132,7 @@ func newRole(name string, resources []*metav1.APIResourceList, verbs []string) (
 	return role, nil
 }
 
-func newRoleBinding(name, targetGroupName string) *rbacv1.RoleBinding {
+func newGroupRoleBinding(name, targetGroupName string) *rbacv1.RoleBinding {
 	roleBinding := &rbacv1.RoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "RoleBinding",
@@ -132,11 +140,43 @@ func newRoleBinding(name, targetGroupName string) *rbacv1.RoleBinding {
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
 		},
 		Subjects: []rbacv1.Subject{
 			rbacv1.Subject{
 				Kind: "Group",
 				Name: targetGroupName,
+			},
+		},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "Role",
+			Name:     name,
+		},
+	}
+
+	return roleBinding
+}
+
+func newServiceAccountRoleBinding(name, serviceAccountName, serviceAccountNamespace string) *rbacv1.RoleBinding {
+	roleBinding := &rbacv1.RoleBinding{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "RoleBinding",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: name,
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+		},
+		Subjects: []rbacv1.Subject{
+			rbacv1.Subject{
+				Kind:      "ServiceAccount",
+				Name:      serviceAccountName,
+				Namespace: serviceAccountNamespace,
 			},
 		},
 		RoleRef: rbacv1.RoleRef{
