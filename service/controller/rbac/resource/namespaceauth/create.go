@@ -99,7 +99,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		{
 			roleBindingName := fmt.Sprintf("%s-sa", role.name)
-			newServiceAccountRoleBinding := newServiceAccountRoleBinding(roleBindingName, key.AutomationServiceAccountName, key.AutomationServiceAccountNamespace)
+			newServiceAccountRoleBinding := newServiceAccountRoleBinding(roleBindingName, automationServiceAccountName, automationServiceAccountNamespace)
 
 			existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(newServiceAccountRoleBinding.Name, metav1.GetOptions{})
 			if apierrors.IsNotFound(err) {

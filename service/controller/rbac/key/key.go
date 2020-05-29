@@ -5,13 +5,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-const (
-	AutomationServiceAccountName      = "automation"
-	AutomationServiceAccountNamespace = "global"
-	TenantAdminRoleName               = "tenant-admin"
-	ViewAllRoleName                   = "view-all"
-)
-
 func ToNamespace(v interface{}) (corev1.Namespace, error) {
 	if v == nil {
 		return corev1.Namespace{}, microerror.Maskf(wrongTypeError, "expected non-nil, got %#v'", v)

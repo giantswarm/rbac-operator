@@ -13,6 +13,11 @@ import (
 
 const (
 	Name = "namespaceauth"
+
+	automationServiceAccountName      = "automation"
+	automationServiceAccountNamespace = "global"
+	tenantAdminRoleName               = "tenant-admin"
+	viewAllRoleName                   = "view-all"
 )
 
 type Config struct {
