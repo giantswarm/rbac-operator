@@ -132,14 +132,14 @@ func newRole(name string, resources []*metav1.APIResourceList, verbs []string) (
 	return role, nil
 }
 
-func newGroupRoleBinding(name, targetGroupName string) *rbacv1.RoleBinding {
+func newGroupRoleBinding(roleBindingName, targetGroupName, targetRoleName string) *rbacv1.RoleBinding {
 	roleBinding := &rbacv1.RoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "RoleBinding",
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: name,
+			Name: roleBindingName,
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
@@ -153,21 +153,21 @@ func newGroupRoleBinding(name, targetGroupName string) *rbacv1.RoleBinding {
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "Role",
-			Name:     name,
+			Name:     targetRoleName,
 		},
 	}
 
 	return roleBinding
 }
 
-func newServiceAccountRoleBinding(name, serviceAccountName, serviceAccountNamespace string) *rbacv1.RoleBinding {
+func newServiceAccountRoleBinding(roleBindingName, serviceAccountName, serviceAccountNamespace, targetRoleName string) *rbacv1.RoleBinding {
 	roleBinding := &rbacv1.RoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "RoleBinding",
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: name,
+			Name: roleBindingName,
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
@@ -182,7 +182,7 @@ func newServiceAccountRoleBinding(name, serviceAccountName, serviceAccountNamesp
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "Role",
-			Name:     name,
+			Name:     targetRoleName,
 		},
 	}
 
