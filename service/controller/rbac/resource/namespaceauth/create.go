@@ -67,7 +67,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		{
 			roleBindingName := fmt.Sprintf("%s-group", role.name)
-			newGroupRoleBinding := newGroupRoleBinding(roleBindingName, role.targetGroup)
+			newGroupRoleBinding := newGroupRoleBinding(roleBindingName, role.targetGroup, role.name)
 
 			existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(newGroupRoleBinding.Name, metav1.GetOptions{})
 			if apierrors.IsNotFound(err) {
@@ -99,7 +99,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		{
 			roleBindingName := fmt.Sprintf("%s-sa", role.name)
-			newServiceAccountRoleBinding := newServiceAccountRoleBinding(roleBindingName, automationServiceAccountName, automationServiceAccountNamespace)
+			newServiceAccountRoleBinding := newServiceAccountRoleBinding(roleBindingName, automationServiceAccountName, automationServiceAccountNamespace, role.name)
 
 			existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(newServiceAccountRoleBinding.Name, metav1.GetOptions{})
 			if apierrors.IsNotFound(err) {
