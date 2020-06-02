@@ -3,7 +3,6 @@ package rbac
 import (
 	// If your operator watches a CRD import it here.
 	// "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"fmt"
 
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
@@ -40,8 +39,7 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 	var namespaceAuthController *controller.Controller
 	{
 
-		namespaceSelectorQuery := fmt.Sprintf("%s,%s", label.Cluster, label.Organization)
-		namespaceSelector, err := labels.Parse(namespaceSelectorQuery)
+		namespaceSelector, err := labels.Parse(label.Organization)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
