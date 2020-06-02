@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
 - Change `rbac` controller label selector to match organization namespaces as well.
 
 ## [0.4.1]
