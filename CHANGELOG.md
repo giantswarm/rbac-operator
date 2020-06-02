@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Change `rbac` controller label selector to match organization namespaces as well.
+
 ## [0.4.1]
 
 - Fix `namespacelabeler` controller label selector.
@@ -41,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Tenant admin role *tenant-admin-manage-rbac* to manage `serviceaccounts`, `roles`, `clusterroles`, `rolebindings` and `clusterrolebindings`.
-- Add tenant admin full access to `global` and `default` namespaces. 
+- Add tenant admin full access to `global` and `default` namespaces.
 
 ## [0.2.0]- 2020-03-13
 
