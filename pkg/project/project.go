@@ -1,12 +1,12 @@
 package project
 
 var (
-	bundleVersion = "0.4.1"
+	bundleVersion = "0.4.2"
 	description   = "The rbac-operator manages tenant namespace access in control-plane Kubernetes."
 	gitSHA        = "n/a"
 	name          = "rbac-operator"
 	source        = "https://github.com/giantswarm/rbac-operator"
-	version       = "0.4.1"
+	version       = "0.4.2"
 )
 
 func BundleVersion() string {
