@@ -4,7 +4,7 @@ kind: ClusterRole
 metadata:
   name: tenant-admin
   labels:
-    app: rbac-operator
+    {{- include "labels.common" . | nindent 4 }}
     giantswarm.io/service-type: "managed"
 rules:
 - apiGroups:
@@ -43,7 +43,7 @@ kind: ClusterRoleBinding
 metadata:
   name: tenant-admin
   labels:
-    app: rbac-operator
+    {{- include "labels.common" . | nindent 4 }}
     giantswarm.io/service-type: "managed"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -59,7 +59,7 @@ kind: ClusterRole
 metadata:
   name: tenant-admin-manage-rbac
   labels:
-    app: rbac-operator
+    {{- include "labels.common" . | nindent 4 }}
     giantswarm.io/service-type: "managed"
 rules:
 - apiGroups:
@@ -95,7 +95,7 @@ kind: ClusterRoleBinding
 metadata:
   name: tenant-admin-manage-rbac
   labels:
-    app: rbac-operator
+    {{- include "labels.common" . | nindent 4 }}
     giantswarm.io/service-type: "managed"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -111,9 +111,8 @@ kind: ClusterRoleBinding
 metadata:
   name: tenant-admin-view-all
   labels:
-    app: rbac-operator
+    {{- include "labels.common" . | nindent 4 }}
     giantswarm.io/service-type: "managed"
-roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: view-all
@@ -134,9 +133,8 @@ metadata:
   name: tenant-admin-namespace-global
   namespace: global
   labels:
-    app: rbac-operator
+    {{- include "labels.common" . | nindent 4 }}
     giantswarm.io/service-type: "managed"
-roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: cluster-admin
@@ -152,7 +150,7 @@ metadata:
   name: tenant-admin-namespace-default
   namespace: default
   labels:
-    app: rbac-operator
+    {{- include "labels.common" . | nindent 4 }}
     giantswarm.io/service-type: "managed"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
