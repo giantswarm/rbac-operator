@@ -24,5 +24,5 @@ room for such suffix.
 {{- end -}}
 
 {{- define "resource.default.namespace" -}}
-giantswarm
+{{ .Release.Namespace }}
 {{- end -}}
