@@ -4,8 +4,7 @@ kind: ClusterRole
 metadata:
   name: view-all
   labels:
-    app: rbac-operator
-    giantswarm.io/service-type: "managed"
+    {{- include "labels.rbac" . | nindent 4 }}
 rules:
 - apiGroups:
   - ""
@@ -152,8 +151,7 @@ kind: ClusterRoleBinding
 metadata:
   name: view-all
   labels:
-    app: rbac-operator
-    giantswarm.io/service-type: "managed"
+    {{- include "labels.rbac" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
