@@ -1,6 +1,7 @@
 image:
   name: "giantswarm/rbac-operator"
   tag: "[[ .Version ]]"
+
 Installation:
   V1:
     Registry:
@@ -10,6 +11,3 @@ pod:
     id: 1000
   group:
     id: 1000
-project:
-  name: "rbac-operator"
-  version: "[[ .Version ]]"
