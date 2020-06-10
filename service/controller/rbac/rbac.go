@@ -39,6 +39,9 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 	var namespaceAuthController *controller.Controller
 	{
 
+		var selector labels.Selector
+		{
+		}
 		namespaceSelector, err := labels.Parse(label.Organization)
 		if err != nil {
 			return nil, microerror.Mask(err)
