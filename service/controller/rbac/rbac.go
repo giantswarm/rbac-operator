@@ -4,10 +4,11 @@ import (
 	// If your operator watches a CRD import it here.
 	// "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 
-	"github.com/giantswarm/k8sclient"
+	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -31,9 +32,14 @@ type RBAC struct {
 func NewRBAC(config RBACConfig) (*RBAC, error) {
 	var err error
 
-	resourceSet, err := newRBACResourceSet(config)
-	if err != nil {
-		return nil, microerror.Mask(err)
+	var resources []resource.Interface
+	{
+		c := rbacResourcesConfig(config)
+
+		resources, err = newRBACResources(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
 	var namespaceAuthController *controller.Controller
@@ -45,13 +51,13 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 		}
 
 		c := controller.Config{
-			K8sClient:    config.K8sClient,
-			Logger:       config.Logger,
-			ResourceSets: []*controller.ResourceSet{resourceSet},
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(corev1.Namespace)
 			},
-			Selector: namespaceSelector,
+			Resources: resources,
+			Selector:  namespaceSelector,
 
 			// Name is used to compute finalizer names. This here results in something
 			// like operatorkit.giantswarm.io/rbac-operator-RBAC-controller.
