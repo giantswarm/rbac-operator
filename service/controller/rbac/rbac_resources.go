@@ -1,10 +1,9 @@
 package rbac
 
 import (
-	"github.com/giantswarm/k8sclient"
+	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/resource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
@@ -12,14 +11,14 @@ import (
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/namespaceauth"
 )
 
-type RBACResourceSetConfig struct {
+type rbacResourcesConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
 	NamespaceAuth namespaceauth.NamespaceAuth
 }
 
-func newRBACResourceSet(config RBACConfig) (*controller.ResourceSet, error) {
+func newRBACResources(config rbacResourcesConfig) ([]resource.Interface, error) {
 	var err error
 
 	var namespaceAuthResource resource.Interface
@@ -61,23 +60,5 @@ func newRBACResourceSet(config RBACConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	handlesFunc := func(obj interface{}) bool {
-		return true
-	}
-
-	var resourceSet *controller.ResourceSet
-	{
-		c := controller.ResourceSetConfig{
-			Handles:   handlesFunc,
-			Logger:    config.Logger,
-			Resources: resources,
-		}
-
-		resourceSet, err = controller.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	return resourceSet, nil
+	return resources, nil
 }

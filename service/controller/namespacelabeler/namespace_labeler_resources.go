@@ -1,22 +1,22 @@
 package namespacelabeler
 
 import (
-	"github.com/giantswarm/k8sclient"
+	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/resource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
+
 	"github.com/giantswarm/rbac-operator/service/controller/namespacelabeler/resource/namespacelabel"
 )
 
-type NamespaceLabelerResourceSetConfig struct {
+type namespaceLabelerResourcesConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 }
 
-func NewNamespaceLabelerResourceSet(config NamespaceLabelerConfig) (*controller.ResourceSet, error) {
+func newNamespaceLabelerResources(config namespaceLabelerResourcesConfig) ([]resource.Interface, error) {
 	var err error
 
 	var namespaceLabelResource resource.Interface
@@ -56,23 +56,5 @@ func NewNamespaceLabelerResourceSet(config NamespaceLabelerConfig) (*controller.
 		}
 	}
 
-	handlesFunc := func(obj interface{}) bool {
-		return true
-	}
-
-	var resourceSet *controller.ResourceSet
-	{
-		c := controller.ResourceSetConfig{
-			Handles:   handlesFunc,
-			Logger:    config.Logger,
-			Resources: resources,
-		}
-
-		resourceSet, err = controller.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	return resourceSet, nil
+	return resources, nil
 }
