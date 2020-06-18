@@ -10,7 +10,6 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/resource"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/rbac-operator/pkg/label"
@@ -44,11 +43,9 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 
 	var namespaceAuthController *controller.Controller
 	{
-
-		namespaceSelector, err := labels.Parse(label.Organization)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
+		selector := controller.NewSelector(func(labels controller.Labels) bool {
+			return labels.Has(label.Organization) || labels.Has(label.LegacyCustomer)
+		})
 
 		c := controller.Config{
 			K8sClient: config.K8sClient,
@@ -57,7 +54,7 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 				return new(corev1.Namespace)
 			},
 			Resources: resources,
-			Selector:  namespaceSelector,
+			Selector:  selector,
 
 			// Name is used to compute finalizer names. This here results in something
 			// like operatorkit.giantswarm.io/rbac-operator-RBAC-controller.
