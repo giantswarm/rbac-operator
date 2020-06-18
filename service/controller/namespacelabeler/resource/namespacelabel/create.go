@@ -15,15 +15,47 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	namespace.ObjectMeta.Labels[label.Cluster] = namespace.ObjectMeta.Labels[label.LegacyCluster]
-	namespace.ObjectMeta.Labels[label.Organization] = namespace.ObjectMeta.Labels[label.LegacyCustomer]
+	changeSet := []struct {
+		Src string
+		Dst string
+	}{
+		{
+			Src: label.LegacyCluster,
+			Dst: label.Cluster,
+		},
+		{
+			Src: label.LegacyCustomer,
+			Dst: label.Organization,
+		},
+	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "applying new labels to namespace")
+	labels := namespace.GetLabels()
+	if labels == nil {
+		labels = map[string]string{}
+	}
+
+	needsUpdate := false
+	for _, change := range changeSet {
+		if _, ok := labels[change.Dst]; ok {
+			continue
+		}
+
+		needsUpdate = true
+		labels[change.Dst] = labels[change.Src]
+	}
+
+	if !needsUpdate {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "labels are up to date")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling resource")
+		return nil
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", "updating labels")
 	_, err = r.k8sClient.CoreV1().Namespaces().Update(namespace)
 	if err != nil {
 		return microerror.Mask(err)
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "new labels has been applied")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "updated labels")
 	}
 
 	return nil
