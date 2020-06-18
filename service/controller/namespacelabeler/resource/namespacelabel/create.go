@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
 	"github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/service/controller/namespacelabeler/key"
@@ -57,6 +58,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updated labels")
 	}
+
+	reconciliationcanceledcontext.SetCanceled(true)
+	r.logger.LogCtx(ctx, "level", "debug", "message", "object with new labels needs to be reconciled again")
+	r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling reconciliation")
 
 	return nil
 }
