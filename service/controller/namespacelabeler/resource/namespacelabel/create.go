@@ -59,7 +59,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updated labels")
 	}
 
-	reconciliationcanceledcontext.SetCanceled(true)
+	reconciliationcanceledcontext.SetCanceled(ctx)
 	r.logger.LogCtx(ctx, "level", "debug", "message", "object with new labels needs to be reconciled again")
 	r.logger.LogCtx(ctx, "level", "debug", "message", "cancelling reconciliation")
 
