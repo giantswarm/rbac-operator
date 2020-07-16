@@ -20,7 +20,6 @@ go build github.com/giantswarm/rbac-operator
 ## Contact
 
 - Mailing list: [giantswarm](https://groups.google.com/forum/!forum/giantswarm)
-- IRC: #[giantswarm](irc://irc.freenode.org:6667/#giantswarm) on freenode.org
 - Bugs: [issues](https://github.com/giantswarm/rbac-operator/issues)
 
 
