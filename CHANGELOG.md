@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix `roleRef` in `ClusterRoleBinding`/`tenant-admin-view-all`.
+
 ## [0.4.3] - 2020-07-29
 
 ### Added
 
-Add github actions for release automation.
+- Add github actions for release automation.
 
 ### Changed
 
