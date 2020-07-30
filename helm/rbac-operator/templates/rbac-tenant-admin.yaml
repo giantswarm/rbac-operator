@@ -113,6 +113,7 @@ metadata:
   labels:
     {{- include "labels.common" . | nindent 4 }}
     giantswarm.io/service-type: "managed"
+roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: view-all
