@@ -2,13 +2,13 @@ package rbac
 
 import (
 	// If your operator watches a CRD import it here.
-	// "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	// "github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 
-	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/controller"
-	"github.com/giantswarm/operatorkit/resource"
+	"github.com/giantswarm/operatorkit/v2/pkg/controller"
+	"github.com/giantswarm/operatorkit/v2/pkg/resource"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
