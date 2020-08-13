@@ -46,11 +46,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(newRole.Name, metav1.GetOptions{})
+		_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(ctx, newRole.Name, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating role %#q", newRole.Name))
 
-			_, err := r.k8sClient.RbacV1().Roles(namespace.Name).Create(newRole)
+			_, err := r.k8sClient.RbacV1().Roles(namespace.Name).Create(ctx, newRole, metav1.CreateOptions{})
 			if apierrors.IsAlreadyExists(err) {
 				// do nothing
 			} else if err != nil {
@@ -69,11 +69,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			roleBindingName := fmt.Sprintf("%s-group", role.name)
 			newGroupRoleBinding := newGroupRoleBinding(roleBindingName, role.targetGroup, role.name)
 
-			existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(newGroupRoleBinding.Name, metav1.GetOptions{})
+			existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(ctx, newGroupRoleBinding.Name, metav1.GetOptions{})
 			if apierrors.IsNotFound(err) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating role binding %#q", newGroupRoleBinding.Name))
 
-				_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Create(newGroupRoleBinding)
+				_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Create(ctx, newGroupRoleBinding, metav1.CreateOptions{})
 				if apierrors.IsAlreadyExists(err) {
 					// do nothing
 				} else if err != nil {
@@ -86,7 +86,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			} else if needsUpdate(role, existingRoleBinding) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating role binding %#q", newGroupRoleBinding.Name))
-				_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Update(newGroupRoleBinding)
+				_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Update(ctx, newGroupRoleBinding, metav1.UpdateOptions{})
 				if err != nil {
 					return microerror.Mask(err)
 				}
@@ -101,11 +101,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			roleBindingName := fmt.Sprintf("%s-sa", role.name)
 			newServiceAccountRoleBinding := newServiceAccountRoleBinding(roleBindingName, automationServiceAccountName, automationServiceAccountNamespace, role.name)
 
-			existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(newServiceAccountRoleBinding.Name, metav1.GetOptions{})
+			existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(ctx, newServiceAccountRoleBinding.Name, metav1.GetOptions{})
 			if apierrors.IsNotFound(err) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating role binding %#q", newServiceAccountRoleBinding.Name))
 
-				_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Create(newServiceAccountRoleBinding)
+				_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Create(ctx, newServiceAccountRoleBinding, metav1.CreateOptions{})
 				if apierrors.IsAlreadyExists(err) {
 					// do nothing
 				} else if err != nil {
@@ -118,7 +118,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			} else if needsUpdate(role, existingRoleBinding) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating role binding %#q", newServiceAccountRoleBinding.Name))
-				_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Update(newServiceAccountRoleBinding)
+				_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Update(ctx, newServiceAccountRoleBinding, metav1.UpdateOptions{})
 				if err != nil {
 					return microerror.Mask(err)
 				}
