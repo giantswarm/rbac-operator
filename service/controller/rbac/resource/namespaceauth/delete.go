@@ -24,7 +24,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 
 	for _, role := range roles {
 
-		_, err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(role, metav1.GetOptions{})
+		_, err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(ctx, role, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			// do nothing
 		} else if err != nil {
@@ -32,7 +32,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q role binding", role))
 
-			err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Delete(role, &metav1.DeleteOptions{})
+			err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Delete(ctx, role, metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// do nothing
 			}
@@ -43,7 +43,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 			}
 		}
 
-		_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(role, metav1.GetOptions{})
+		_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(ctx, role, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			// do nothing
 		} else if err != nil {
@@ -51,7 +51,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q role", role))
 
-			err = r.k8sClient.RbacV1().Roles(namespace.Name).Delete(role, &metav1.DeleteOptions{})
+			err = r.k8sClient.RbacV1().Roles(namespace.Name).Delete(ctx, role, metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// do nothing
 			}
