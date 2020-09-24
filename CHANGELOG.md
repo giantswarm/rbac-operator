@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2020-09-24
+
 ### Changed
 
 - Updated Kubernetes dependencies to v1.18.9 and operatorkit to v2.0.1.
@@ -105,7 +107,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/giantswarm/rbac-operator/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/giantswarm/rbac-operator/compare/v0.4.6...v0.5.0
 [0.4.6]: https://github.com/giantswarm/rbac-operator/compare/v0.4.5...v0.4.6
 [0.4.5]: https://github.com/giantswarm/rbac-operator/compare/v0.4.4...v0.4.5
