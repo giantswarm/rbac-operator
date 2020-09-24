@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Updated Kubernetes dependencies to v1.18.9 and operatorkit to v2.0.1.
+
 ### Added
 
 - Add monitoring labels.
