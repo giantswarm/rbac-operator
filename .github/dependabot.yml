@@ -12,6 +12,14 @@ updates:
   target-branch: master
   reviewers:
   - giantswarm/team-biscuit
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "04:00"
+  target-branch: master
+  reviewers:
+  - giantswarm/team-biscuit
 - package-ecosystem: gomod
   directory: "/"
   schedule:
