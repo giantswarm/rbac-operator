@@ -4,6 +4,7 @@ import (
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+
 	"github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 
@@ -18,8 +19,6 @@ const (
 
 	automationServiceAccountName      = "automation"
 	automationServiceAccountNamespace = "global"
-	tenantAdminRoleName               = "tenant-admin"
-	viewAllRoleName                   = "view-all"
 )
 
 type Config struct {
@@ -85,14 +84,6 @@ func appendUnique(slice []string, newElement string) []string {
 	return append(slice, newElement)
 }
 
-func newInternalRole(name, targetGroup string, verbs []string) role {
-	return role{
-		name:        name,
-		targetGroup: targetGroup,
-		verbs:       verbs,
-	}
-}
-
 func newRole(name string, resources []*metav1.APIResourceList, verbs []string) (*rbacv1.Role, error) {
 	var resourceNamesNamespace, apiGroupsNamespace []string
 	{
@@ -121,7 +112,7 @@ func newRole(name string, resources []*metav1.APIResourceList, verbs []string) (
 			},
 		},
 		Rules: []rbacv1.PolicyRule{
-			rbacv1.PolicyRule{
+			{
 				APIGroups: apiGroupsNamespace,
 				Resources: resourceNamesNamespace,
 				Verbs:     verbs,
@@ -145,7 +136,7 @@ func newGroupRoleBinding(roleBindingName, targetGroupName, targetRoleName string
 			},
 		},
 		Subjects: []rbacv1.Subject{
-			rbacv1.Subject{
+			{
 				Kind: "Group",
 				Name: targetGroupName,
 			},
@@ -173,7 +164,7 @@ func newServiceAccountRoleBinding(roleBindingName, serviceAccountName, serviceAc
 			},
 		},
 		Subjects: []rbacv1.Subject{
-			rbacv1.Subject{
+			{
 				Kind:      "ServiceAccount",
 				Name:      serviceAccountName,
 				Namespace: serviceAccountNamespace,
