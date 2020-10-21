@@ -3,6 +3,8 @@ package namespaceauth
 import (
 	"context"
 	"fmt"
+	"reflect"
+	"sort"
 
 	"github.com/giantswarm/microerror"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -46,7 +48,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(ctx, newRole.Name, metav1.GetOptions{})
+		existingRole, err := r.k8sClient.RbacV1().Roles(namespace.Name).Get(ctx, newRole.Name, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating role %#q", newRole.Name))
 
@@ -63,6 +65,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role %#q already exists", newRole.Name))
+
+			if !areRolesEqual(newRole, existingRole) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rules in role %#q need to be updated", newRole.Name))
+				_, err := r.k8sClient.RbacV1().Roles(namespace.Name).Update(ctx, newRole, metav1.UpdateOptions{})
+				if err != nil {
+					return microerror.Mask(err)
+				}
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role %#q has been updated", newRole.Name))
+			}
 		}
 
 		{
@@ -135,4 +146,20 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 func needsUpdate(role role, existingRoleBinding *rbacv1.RoleBinding) bool {
 	return role.targetGroup != existingRoleBinding.Subjects[0].Name
+}
+
+func areRolesEqual(role1, role2 *rbacv1.Role) bool {
+	if len(role1.Rules) < 1 || len(role2.Rules) < 1 {
+		return false
+	}
+
+	sort.Strings(role1.Rules[0].Resources)
+	sort.Strings(role1.Rules[0].APIGroups)
+	sort.Strings(role1.Rules[0].Verbs)
+
+	sort.Strings(role2.Rules[0].Resources)
+	sort.Strings(role2.Rules[0].APIGroups)
+	sort.Strings(role2.Rules[0].Verbs)
+
+	return reflect.DeepEqual(role1.Rules, role2.Rules)
 }
