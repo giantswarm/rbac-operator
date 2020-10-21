@@ -145,7 +145,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 }
 
 func needsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.RoleBinding) bool {
-	return desiredRoleBinding.Subjects[0].Name != existingRoleBinding.Subjects[0].Name
+	if len(existingRoleBinding.Subjects) < 1 {
+		return true
+	}
+
+	return desiredRoleBinding.Subjects[0].Name != existingRoleBinding.Subjects[0].Name || desiredRoleBinding.Subjects[0].Namespace != existingRoleBinding.Subjects[0].Namespace || desiredRoleBinding.RoleRef.Name != existingRoleBinding.RoleRef.Name
 }
 
 func areRolesEqual(role1, role2 *rbacv1.Role) bool {
