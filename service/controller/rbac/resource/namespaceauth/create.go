@@ -3,6 +3,7 @@ package namespaceauth
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/giantswarm/microerror"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -46,7 +47,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(ctx, newRole.Name, metav1.GetOptions{})
+		existingRole, err := r.k8sClient.RbacV1().Roles(namespace.Name).Get(ctx, newRole.Name, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating role %#q", newRole.Name))
 
@@ -63,6 +64,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role %#q already exists", newRole.Name))
+		}
+
+		if !reflect.DeepEqual(newRole.Rules, existingRole.Rules) {
+			_, err := r.k8sClient.RbacV1().Roles(namespace.Name).Update(ctx, newRole, metav1.UpdateOptions{})
+			if err != nil {
+				return microerror.Mask(err)
+			}
 		}
 
 		{
