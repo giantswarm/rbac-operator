@@ -95,7 +95,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 			} else if err != nil {
 				return microerror.Mask(err)
-			} else if needsUpdate(role, existingRoleBinding) {
+			} else if needsUpdate(newGroupRoleBinding, existingRoleBinding) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating role binding %#q", newGroupRoleBinding.Name))
 				_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Update(ctx, newGroupRoleBinding, metav1.UpdateOptions{})
 				if err != nil {
@@ -127,7 +127,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 			} else if err != nil {
 				return microerror.Mask(err)
-			} else if needsUpdate(role, existingRoleBinding) {
+			} else if needsUpdate(newServiceAccountRoleBinding, existingRoleBinding) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating role binding %#q", newServiceAccountRoleBinding.Name))
 				_, err := r.k8sClient.RbacV1().RoleBindings(namespace.Name).Update(ctx, newServiceAccountRoleBinding, metav1.UpdateOptions{})
 				if err != nil {
@@ -144,8 +144,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func needsUpdate(role role, existingRoleBinding *rbacv1.RoleBinding) bool {
-	return role.targetGroup != existingRoleBinding.Subjects[0].Name
+func needsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.RoleBinding) bool {
+	if len(existingRoleBinding.Subjects) < 1 {
+		return true
+	}
+
+	return desiredRoleBinding.Subjects[0].Name != existingRoleBinding.Subjects[0].Name || desiredRoleBinding.Subjects[0].Namespace != existingRoleBinding.Subjects[0].Namespace || desiredRoleBinding.RoleRef.Name != existingRoleBinding.RoleRef.Name
 }
 
 func areRolesEqual(role1, role2 *rbacv1.Role) bool {
