@@ -64,12 +64,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role %#q already exists", newRole.Name))
-		}
 
-		if !reflect.DeepEqual(newRole.Rules, existingRole.Rules) {
-			_, err := r.k8sClient.RbacV1().Roles(namespace.Name).Update(ctx, newRole, metav1.UpdateOptions{})
-			if err != nil {
-				return microerror.Mask(err)
+			if !reflect.DeepEqual(newRole.Rules, existingRole.Rules) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rules in role %#q need to be updated", newRole.Name))
+				_, err := r.k8sClient.RbacV1().Roles(namespace.Name).Update(ctx, newRole, metav1.UpdateOptions{})
+				if err != nil {
+					return microerror.Mask(err)
+				}
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role %#q has been updated", newRole.Name))
 			}
 		}
 
