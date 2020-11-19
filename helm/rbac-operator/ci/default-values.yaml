@@ -6,5 +6,6 @@ Installation:
         Enabled: false
     Kubernetes:
       Auth:
+        ControlPlaneAdminTargetGroup: "group"
         TenantAdminTargetGroup: "group"
         ViewAllTargetGroup: "group"
