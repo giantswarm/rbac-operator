@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Allow `tenant admin` role users full access, and `view-all` users read-only access to `Organization` CRs`.
+
 ## [0.8.0] - 2020-11-19
 
 ### Added

@@ -46,6 +46,7 @@ rules:
   - cluster.x-k8s.io
   - infrastructure.giantswarm.io
   - metrics.k8s.io
+  - security.giantswarm.io
   resources:
   - serviceaccounts
   - endpoints
@@ -142,6 +143,7 @@ rules:
   - awsmachinedeployments
   - g8scontrolplanes
   - awscontrolplanes
+  - organizations
   verbs:
   - get
   - list
