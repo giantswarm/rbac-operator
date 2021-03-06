@@ -18,6 +18,7 @@ import (
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/collector"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac"
+	"github.com/giantswarm/rbac-operator/service/internal/bootstrap"
 
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/namespaceauth"
 )
@@ -93,6 +94,24 @@ func New(config Config) (*Service, error) {
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
+	}
+
+	var bootstrapRunner *bootstrap.Bootstrap
+	{
+		c := bootstrap.Config{
+			Logger:    config.Logger,
+			K8sClient: k8sClient,
+		}
+
+		bootstrapRunner, err = bootstrap.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	err = bootstrapRunner.Run()
+	if err != nil {
+		return nil, microerror.Mask(err)
 	}
 
 	var rbacController *rbac.RBAC
