@@ -1,6 +1,6 @@
 package namespaceauth
 
 type NamespaceAuth struct {
-	ViewAllTargetGroup     string
-	TenantAdminTargetGroup string
+	WriteAllCustomerGroup string
+	WriteAllGSGroup       string
 }

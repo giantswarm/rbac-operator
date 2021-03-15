@@ -101,6 +101,9 @@ func New(config Config) (*Service, error) {
 		c := bootstrap.Config{
 			Logger:    config.Logger,
 			K8sClient: k8sClient,
+
+			CustomerAdminGroup: config.Viper.GetString(config.Flag.Service.NamespaceAuth.WriteAllCustomerGroup),
+			GSAdminGroup:       config.Viper.GetString(config.Flag.Service.NamespaceAuth.WriteAllGSGroup),
 		}
 
 		bootstrapRunner, err = bootstrap.New(c)
@@ -122,8 +125,8 @@ func New(config Config) (*Service, error) {
 			Logger:    config.Logger,
 
 			NamespaceAuth: namespaceauth.NamespaceAuth{
-				ViewAllTargetGroup:     config.Viper.GetString(config.Flag.Service.NamespaceAuth.ViewAllTargetGroup),
-				TenantAdminTargetGroup: config.Viper.GetString(config.Flag.Service.NamespaceAuth.TenantAdminTargetGroup),
+				ViewAllTargetGroup:     config.Viper.GetString(config.Flag.Service.NamespaceAuth.WriteAllCustomerGroup),
+				TenantAdminTargetGroup: config.Viper.GetString(config.Flag.Service.NamespaceAuth.WriteAllCustomerGroup),
 			},
 		}
 
