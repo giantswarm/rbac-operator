@@ -9,26 +9,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-/*
-Create during boot:
-
-1. ClusterRole read-all -> introduce code for this - create during boot
-2. Rolebinding to cluster-admin in default namespace
-3. Rolebinding to cluster-admin in global namespace (create global namespace if doesn't exist)
-6. ClusterRoleBinding to clusterrole 4 - for read-all and write-all groups
-
-
-------------------------
-
-out of scope of this package:
-
-controller updates:
-
-Per namespace:
-Rolebinding for read-all -> if there is clusterrolebinding - I don't need rolebinding anymore?
-Rolebinding for cluster-admin
-*/
-
 type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
