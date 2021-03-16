@@ -54,10 +54,8 @@ func New(config Config) (*Bootstrap, error) {
 	return r, nil
 }
 
-func (b *Bootstrap) Run() error {
+func (b *Bootstrap) Run(ctx context.Context) error {
 	var err error
-
-	ctx := context.Background()
 
 	err = b.createAutomationServiceAccount(ctx)
 	if err != nil {

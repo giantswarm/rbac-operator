@@ -35,6 +35,7 @@ type Service struct {
 	Version *version.Service
 
 	bootOnce          sync.Once
+	bootstrapRunner   *bootstrap.Bootstrap
 	rbacController    *rbac.RBAC
 	operatorCollector *collector.Set
 }
@@ -112,11 +113,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	err = bootstrapRunner.Run()
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
 	var rbacController *rbac.RBAC
 	{
 
@@ -169,6 +165,7 @@ func New(config Config) (*Service, error) {
 		Version: versionService,
 
 		bootOnce:          sync.Once{},
+		bootstrapRunner:   bootstrapRunner,
 		rbacController:    rbacController,
 		operatorCollector: operatorCollector,
 	}
@@ -177,7 +174,10 @@ func New(config Config) (*Service, error) {
 }
 
 func (s *Service) Boot(ctx context.Context) {
+
 	s.bootOnce.Do(func() {
+		go s.bootstrapRunner.Run(ctx)
+
 		go s.operatorCollector.Boot(ctx)
 
 		go s.rbacController.Boot(ctx)
