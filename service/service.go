@@ -174,9 +174,12 @@ func New(config Config) (*Service, error) {
 }
 
 func (s *Service) Boot(ctx context.Context) {
-	s.bootstrapRunner.Run(ctx)
-
 	s.bootOnce.Do(func() {
+
+		err := s.bootstrapRunner.Run(ctx)
+		if err != nil {
+			panic(microerror.JSON(microerror.Mask(err)))
+		}
 
 		go s.operatorCollector.Boot(ctx)
 
