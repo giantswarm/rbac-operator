@@ -1,11 +1,12 @@
 package namespaceauth
 
 import (
+	"github.com/giantswarm/apiextensions/v3/pkg/label"
+
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
-	"github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -16,28 +17,20 @@ import (
 
 const (
 	Name = "namespaceauth"
-
-	automationServiceAccountName      = "automation"
-	automationServiceAccountNamespace = "global"
 )
 
 type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	NamespaceAuth NamespaceAuth
-}
-
-type NamespaceAuth struct {
-	ViewAllTargetGroup     string
-	TenantAdminTargetGroup string
+	WriteAllCustomerGroup string
 }
 
 type Resource struct {
 	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
 
-	namespaceAuth NamespaceAuth
+	writeAllCustomerGroup string
 }
 
 type role struct {
@@ -54,18 +47,15 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.NamespaceAuth.ViewAllTargetGroup == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.NamespaceAuth.ViewAllTargetGroup must not be empty", config)
-	}
-	if config.NamespaceAuth.TenantAdminTargetGroup == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.NamespaceAuth.TenantAdminTargetGroup must not be empty", config)
+	if config.WriteAllCustomerGroup == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.WriteAllCustomerGroup must not be empty", config)
 	}
 
 	r := &Resource{
 		k8sClient: config.K8sClient.K8sClient(),
 		logger:    config.Logger,
 
-		namespaceAuth: config.NamespaceAuth,
+		writeAllCustomerGroup: config.WriteAllCustomerGroup,
 	}
 
 	return r, nil
