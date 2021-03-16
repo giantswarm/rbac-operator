@@ -174,9 +174,9 @@ func New(config Config) (*Service, error) {
 }
 
 func (s *Service) Boot(ctx context.Context) {
+	s.bootstrapRunner.Run(ctx)
 
 	s.bootOnce.Do(func() {
-		go s.bootstrapRunner.Run(ctx)
 
 		go s.operatorCollector.Boot(ctx)
 
