@@ -4,6 +4,8 @@ import (
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/rbac-operator/pkg/label"
+	"github.com/giantswarm/rbac-operator/pkg/project"
 	rbacv1 "k8s.io/api/rbac/v1"
 
 	"k8s.io/client-go/kubernetes"
@@ -44,6 +46,11 @@ func (r *Resource) Name() string {
 }
 
 func isTargetRoleBinding(roleBinding rbacv1.RoleBinding) bool {
+	managedByLabel, hasManagedByLabel := roleBinding.Labels[label.ManagedBy]
+	if hasManagedByLabel && managedByLabel == project.Name() {
+		return false
+	}
+
 	for _, subject := range roleBinding.Subjects {
 		if (subject.Kind == "Group" || subject.Kind == "User") && subject.Name != "" {
 			return true
