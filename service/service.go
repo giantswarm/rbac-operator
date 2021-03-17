@@ -18,6 +18,7 @@ import (
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/collector"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac"
+	"github.com/giantswarm/rbac-operator/service/internal/bootstrap"
 
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/namespaceauth"
 )
@@ -34,6 +35,7 @@ type Service struct {
 	Version *version.Service
 
 	bootOnce          sync.Once
+	bootstrapRunner   *bootstrap.Bootstrap
 	rbacController    *rbac.RBAC
 	operatorCollector *collector.Set
 }
@@ -95,6 +97,22 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var bootstrapRunner *bootstrap.Bootstrap
+	{
+		c := bootstrap.Config{
+			Logger:    config.Logger,
+			K8sClient: k8sClient,
+
+			CustomerAdminGroup: config.Viper.GetString(config.Flag.Service.NamespaceAuth.WriteAllCustomerGroup),
+			GSAdminGroup:       config.Viper.GetString(config.Flag.Service.NamespaceAuth.WriteAllGSGroup),
+		}
+
+		bootstrapRunner, err = bootstrap.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var rbacController *rbac.RBAC
 	{
 
@@ -103,8 +121,8 @@ func New(config Config) (*Service, error) {
 			Logger:    config.Logger,
 
 			NamespaceAuth: namespaceauth.NamespaceAuth{
-				ViewAllTargetGroup:     config.Viper.GetString(config.Flag.Service.NamespaceAuth.ViewAllTargetGroup),
-				TenantAdminTargetGroup: config.Viper.GetString(config.Flag.Service.NamespaceAuth.TenantAdminTargetGroup),
+				ViewAllTargetGroup:     config.Viper.GetString(config.Flag.Service.NamespaceAuth.WriteAllCustomerGroup),
+				TenantAdminTargetGroup: config.Viper.GetString(config.Flag.Service.NamespaceAuth.WriteAllCustomerGroup),
 			},
 		}
 
@@ -147,6 +165,7 @@ func New(config Config) (*Service, error) {
 		Version: versionService,
 
 		bootOnce:          sync.Once{},
+		bootstrapRunner:   bootstrapRunner,
 		rbacController:    rbacController,
 		operatorCollector: operatorCollector,
 	}
@@ -156,6 +175,12 @@ func New(config Config) (*Service, error) {
 
 func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
+
+		err := s.bootstrapRunner.Run(ctx)
+		if err != nil {
+			panic(microerror.JSON(microerror.Mask(err)))
+		}
+
 		go s.operatorCollector.Boot(ctx)
 
 		go s.rbacController.Boot(ctx)
