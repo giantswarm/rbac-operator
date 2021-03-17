@@ -15,7 +15,7 @@ type rbacResourcesConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	NamespaceAuth namespaceauth.NamespaceAuth
+	WriteAllCustomerGroup string
 }
 
 func newRBACResources(config rbacResourcesConfig) ([]resource.Interface, error) {
@@ -27,7 +27,7 @@ func newRBACResources(config rbacResourcesConfig) ([]resource.Interface, error) 
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			NamespaceAuth: config.NamespaceAuth,
+			WriteAllCustomerGroup: config.WriteAllCustomerGroup,
 		}
 
 		namespaceAuthResource, err = namespaceauth.New(c)

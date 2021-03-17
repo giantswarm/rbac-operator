@@ -19,8 +19,6 @@ import (
 	"github.com/giantswarm/rbac-operator/service/collector"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac"
 	"github.com/giantswarm/rbac-operator/service/internal/bootstrap"
-
-	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/namespaceauth"
 )
 
 // Config represents the configuration used to create a new service.
@@ -103,8 +101,8 @@ func New(config Config) (*Service, error) {
 			Logger:    config.Logger,
 			K8sClient: k8sClient,
 
-			CustomerAdminGroup: config.Viper.GetString(config.Flag.Service.NamespaceAuth.WriteAllCustomerGroup),
-			GSAdminGroup:       config.Viper.GetString(config.Flag.Service.NamespaceAuth.WriteAllGSGroup),
+			CustomerAdminGroup: config.Viper.GetString(config.Flag.Service.WriteAllCustomerGroup),
+			GSAdminGroup:       config.Viper.GetString(config.Flag.Service.WriteAllGiantswarmGroup),
 		}
 
 		bootstrapRunner, err = bootstrap.New(c)
@@ -120,10 +118,7 @@ func New(config Config) (*Service, error) {
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
 
-			NamespaceAuth: namespaceauth.NamespaceAuth{
-				ViewAllTargetGroup:     config.Viper.GetString(config.Flag.Service.NamespaceAuth.WriteAllCustomerGroup),
-				TenantAdminTargetGroup: config.Viper.GetString(config.Flag.Service.NamespaceAuth.WriteAllCustomerGroup),
-			},
+			WriteAllCustomerGroup: config.Viper.GetString(config.Flag.Service.WriteAllCustomerGroup),
 		}
 
 		rbacController, err = rbac.NewRBAC(c)
