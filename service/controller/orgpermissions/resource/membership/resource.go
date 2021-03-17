@@ -4,6 +4,7 @@ import (
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	rbacv1 "k8s.io/api/rbac/v1"
 
 	"k8s.io/client-go/kubernetes"
 )
@@ -40,4 +41,13 @@ func New(config Config) (*Resource, error) {
 
 func (r *Resource) Name() string {
 	return Name
+}
+
+func isTargetRoleBinding(roleBinding rbacv1.RoleBinding) bool {
+	for _, subject := range roleBinding.Subjects {
+		if (subject.Kind == "Group" || subject.Kind == "User") && subject.Name != "" {
+			return true
+		}
+	}
+	return false
 }

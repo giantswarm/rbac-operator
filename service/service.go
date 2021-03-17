@@ -17,6 +17,7 @@ import (
 	"github.com/giantswarm/rbac-operator/flag"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/collector"
+	"github.com/giantswarm/rbac-operator/service/controller/orgpermissions"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac"
 	"github.com/giantswarm/rbac-operator/service/internal/bootstrap"
 )
@@ -32,10 +33,11 @@ type Config struct {
 type Service struct {
 	Version *version.Service
 
-	bootOnce          sync.Once
-	bootstrapRunner   *bootstrap.Bootstrap
-	rbacController    *rbac.RBAC
-	operatorCollector *collector.Set
+	bootOnce                 sync.Once
+	bootstrapRunner          *bootstrap.Bootstrap
+	rbacController           *rbac.RBAC
+	orgPermissionsController *orgpermissions.OrgPermissions
+	operatorCollector        *collector.Set
 }
 
 // New creates a new configured service object.
@@ -127,6 +129,20 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var orgPermissionsController *orgpermissions.OrgPermissions
+	{
+
+		c := orgpermissions.OrgPermissionsConfig{
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+		}
+
+		orgPermissionsController, err = orgpermissions.NewOrgPermissions(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var operatorCollector *collector.Set
 	{
 		c := collector.SetConfig{
@@ -159,10 +175,11 @@ func New(config Config) (*Service, error) {
 	s := &Service{
 		Version: versionService,
 
-		bootOnce:          sync.Once{},
-		bootstrapRunner:   bootstrapRunner,
-		rbacController:    rbacController,
-		operatorCollector: operatorCollector,
+		bootOnce:                 sync.Once{},
+		bootstrapRunner:          bootstrapRunner,
+		rbacController:           rbacController,
+		orgPermissionsController: orgPermissionsController,
+		operatorCollector:        operatorCollector,
 	}
 
 	return s, nil
@@ -179,5 +196,7 @@ func (s *Service) Boot(ctx context.Context) {
 		go s.operatorCollector.Boot(ctx)
 
 		go s.rbacController.Boot(ctx)
+
+		go s.orgPermissionsController.Boot(ctx)
 	})
 }

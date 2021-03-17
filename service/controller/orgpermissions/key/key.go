@@ -12,7 +12,7 @@ func ToRoleBinding(v interface{}) (rbacv1.RoleBinding, error) {
 
 	p, ok := v.(*rbacv1.RoleBinding)
 	if !ok {
-		return rbacv1.RoleBinding, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", p, v)
+		return rbacv1.RoleBinding{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", p, v)
 	}
 
 	c := p.DeepCopy()
