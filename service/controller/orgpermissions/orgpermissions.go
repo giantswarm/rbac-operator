@@ -44,8 +44,6 @@ func NewOrgPermissions(config OrgPermissionsConfig) (*OrgPermissions, error) {
 			},
 			Resources: resources,
 
-			// Name is used to compute finalizer names. This here results in something
-			// like operatorkit.giantswarm.io/rbac-operator-RBAC-controller.
 			Name: project.Name() + "-orgpermissions-controller",
 		}
 
