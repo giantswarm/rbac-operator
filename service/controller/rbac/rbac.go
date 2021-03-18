@@ -4,6 +4,7 @@ import (
 	// If your operator watches a CRD import it here.
 	// "github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
 
+	"github.com/giantswarm/apiextensions/v3/pkg/label"
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -12,16 +13,15 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/giantswarm/rbac-operator/pkg/label"
+	legacylabel "github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
-	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/namespaceauth"
 )
 
 type RBACConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	NamespaceAuth namespaceauth.NamespaceAuth
+	WriteAllCustomerGroup string
 }
 
 type RBAC struct {
@@ -44,7 +44,7 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 	var namespaceAuthController *controller.Controller
 	{
 		selector := controller.NewSelector(func(labels controller.Labels) bool {
-			return labels.Has(label.Organization) || labels.Has(label.LegacyCustomer)
+			return labels.Has(label.Organization) || labels.Has(legacylabel.LegacyCustomer)
 		})
 
 		c := controller.Config{

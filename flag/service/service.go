@@ -2,11 +2,12 @@ package service
 
 import (
 	"github.com/giantswarm/operatorkit/v2/pkg/flag/service/kubernetes"
-	"github.com/giantswarm/rbac-operator/flag/service/namespaceauth"
 )
 
 // Service is an intermediate data structure for command line configuration flags.
 type Service struct {
-	NamespaceAuth namespaceauth.NamespaceAuth
-	Kubernetes    kubernetes.Kubernetes
+	Kubernetes kubernetes.Kubernetes
+
+	WriteAllCustomerGroup   string
+	WriteAllGiantswarmGroup string
 }

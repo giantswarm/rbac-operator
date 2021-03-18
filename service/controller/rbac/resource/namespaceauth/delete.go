@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/microerror"
+	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -12,19 +13,19 @@ import (
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
-	namespace, err := key.ToNamespace(obj)
+	ns, err := key.ToNamespace(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
 	roles := []string{
-		"view-all",
-		"tenant-admin",
+		pkgkey.WriteAllCustomerGroupRoleBindingName(),
+		pkgkey.WriteAllAutomationSARoleBindingName(),
 	}
 
 	for _, role := range roles {
 
-		_, err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Get(ctx, role, metav1.GetOptions{})
+		_, err = r.k8sClient.RbacV1().RoleBindings(ns.Name).Get(ctx, role, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			// do nothing
 		} else if err != nil {
@@ -32,7 +33,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q role binding", role))
 
-			err = r.k8sClient.RbacV1().RoleBindings(namespace.Name).Delete(ctx, role, metav1.DeleteOptions{})
+			err = r.k8sClient.RbacV1().RoleBindings(ns.Name).Delete(ctx, role, metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// do nothing
 			}
@@ -43,7 +44,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 			}
 		}
 
-		_, err = r.k8sClient.RbacV1().Roles(namespace.Name).Get(ctx, role, metav1.GetOptions{})
+		_, err = r.k8sClient.RbacV1().Roles(ns.Name).Get(ctx, role, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			// do nothing
 		} else if err != nil {
@@ -51,7 +52,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q role", role))
 
-			err = r.k8sClient.RbacV1().Roles(namespace.Name).Delete(ctx, role, metav1.DeleteOptions{})
+			err = r.k8sClient.RbacV1().Roles(ns.Name).Delete(ctx, role, metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// do nothing
 			}
