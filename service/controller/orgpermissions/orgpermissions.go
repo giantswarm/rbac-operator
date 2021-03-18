@@ -28,7 +28,7 @@ func NewOrgPermissions(config OrgPermissionsConfig) (*OrgPermissions, error) {
 	{
 		c := orgPermissionsResourcesConfig(config)
 
-		resources, err = NewOrgPermissionsResources(c)
+		resources, err = newOrgPermissionsResources(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

@@ -16,7 +16,7 @@ type orgPermissionsResourcesConfig struct {
 	Logger    micrologger.Logger
 }
 
-func NewOrgPermissionsResources(config orgPermissionsResourcesConfig) ([]resource.Interface, error) {
+func newOrgPermissionsResources(config orgPermissionsResourcesConfig) ([]resource.Interface, error) {
 	var err error
 
 	var membershipResource resource.Interface
