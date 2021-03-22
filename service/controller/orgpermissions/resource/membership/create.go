@@ -23,7 +23,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	if !pkgkey.IsOrgNamespace(roleBinding.Namespace) || !isTargetRoleBinding(roleBinding) {
+	if !pkgkey.IsOrgNamespace(roleBinding.Namespace) && !isTargetRoleBinding(roleBinding) {
 		return nil
 	}
 
