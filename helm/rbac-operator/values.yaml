@@ -14,9 +14,9 @@ registry:
 oidc:
   enabled: false
   customer:
-    admin_group: ""
+    write_all_group: ""
   giantswarm:
-    admin_group: ""
+    write_all_group: ""
 
 project:
   branch: "[[ .Branch ]]"

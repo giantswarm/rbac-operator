@@ -22,6 +22,6 @@ data:
           caFile: ''
           crtFile: ''
           keyFile: ''
-      writeAllCustomerGroup: {{ .Values.oidc.customer.admin_group }}
-      writeAllGiantswarmGroup: {{ .Values.oidc.giantswarm.admin_group}}
+      writeAllCustomerGroup: {{ .Values.oidc.customer.write_all_group }}
+      writeAllGiantswarmGroup: {{ .Values.oidc.giantswarm.write_all_group}}
 {{ end }}
