@@ -23,6 +23,48 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	orgReadClusterRoleName := pkgkey.OrganizationReadClusterRoleName(ns.Name)
+
+	orgReadClusterRole := &rbacv1.ClusterRole{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ClusterRole",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: orgReadClusterRoleName,
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+		},
+		Rules: []rbacv1.PolicyRule{
+			{
+				APIGroups:     []string{"security.giantswarm.io"},
+				Resources:     []string{"organizations"},
+				ResourceNames: []string{pkgkey.OrganizationName(ns.Name)},
+				Verbs:         []string{"get"},
+			},
+		},
+	}
+
+	_, err = r.k8sClient.RbacV1().ClusterRoles().Get(ctx, orgReadClusterRole.Name, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", orgReadClusterRole.Name))
+
+		_, err := r.k8sClient.RbacV1().ClusterRoles().Create(ctx, orgReadClusterRole, metav1.CreateOptions{})
+		if apierrors.IsAlreadyExists(err) {
+			// do nothing
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been created", orgReadClusterRole.Name))
+
+	} else if err != nil {
+		return microerror.Mask(err)
+	} else {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q already exists", orgReadClusterRole.Name))
+	}
+
 	roleBindingToCustomerGroupName := pkgkey.WriteAllCustomerGroupRoleBindingName()
 
 	writeAllRoleBindingToCustomerGroup := &rbacv1.RoleBinding{

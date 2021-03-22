@@ -1,6 +1,9 @@
 package key
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 const (
 	AutomationServiceAccountName   = "automation"
@@ -9,6 +12,22 @@ const (
 	DefaultWriteAllPermissionsName = "write-all"
 	DefaultNamespaceName           = "default"
 )
+
+func IsOrgNamespace(ns string) bool {
+	return strings.HasPrefix(ns, "org-")
+}
+
+func OrganizationName(ns string) string {
+	return strings.TrimPrefix(ns, "org-")
+}
+
+func OrganizationReadClusterRoleName(ns string) string {
+	return fmt.Sprintf("%s-organization-read", strings.TrimPrefix(ns, "org-"))
+}
+
+func OrganizationReadRoleBindingName(roleBinding string) string {
+	return fmt.Sprintf("%s-organization-read", roleBinding)
+}
 
 func ReadAllCustomerGroupClusterRoleBindingName() string {
 	return fmt.Sprintf("%s-customer-group", DefaultReadAllPermissionsName)
