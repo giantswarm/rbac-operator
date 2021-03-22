@@ -2,15 +2,21 @@ image:
   name: "giantswarm/rbac-operator"
   tag: "[[ .Version ]]"
 
-Installation:
-  V1:
-    Registry:
-      Domain: quay.io
 pod:
   user:
     id: 1000
   group:
     id: 1000
+
+registry:
+  domain: quay.io
+
+oidc:
+  enabled: false
+  customer:
+    admin_group: ""
+  giantswarm:
+    admin_group: ""
 
 project:
   branch: "[[ .Branch ]]"

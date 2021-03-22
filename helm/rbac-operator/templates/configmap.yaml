@@ -1,4 +1,4 @@
-{{ if .Values.Installation.V1.GiantSwarm.OIDC.Enabled }}
+{{ if .Values.oidc.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -22,7 +22,6 @@ data:
           caFile: ''
           crtFile: ''
           keyFile: ''
-      namespaceAuth:
-        tenantAdminTargetGroup: {{ .Values.Installation.V1.Kubernetes.Auth.TenantAdminTargetGroup }}
-        viewAllTargetGroup: {{ .Values.Installation.V1.Kubernetes.Auth.ViewAllTargetGroup }}
+      writeAllCustomerGroup: {{ .Values.oidc.customer.admin_group }}
+      writeAllGiantswarmGroup: {{ .Values.oidc.giantswarm.admin_group}}
 {{ end }}

@@ -1,4 +1,4 @@
-{{ if .Values.Installation.V1.GiantSwarm.OIDC.Enabled }}
+{{ if .Values.oidc.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -42,7 +42,7 @@ spec:
         runAsGroup: {{ .Values.pod.group.id }}
       containers:
       - name: {{ include "name" . }}
-        image: "{{ .Values.Installation.V1.Registry.Domain }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
+        image: "{{ .Values.registry.domain }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
         args:
         - daemon
         - --config.dirs=/var/run/{{ include "name" . }}/configmap/

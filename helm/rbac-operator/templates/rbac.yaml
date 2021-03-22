@@ -1,4 +1,4 @@
-{{ if .Values.Installation.V1.GiantSwarm.OIDC.Enabled }}
+{{ if .Values.oidc.enabled }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
