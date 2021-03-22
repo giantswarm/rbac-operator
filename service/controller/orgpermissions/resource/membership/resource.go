@@ -4,9 +4,10 @@ import (
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	rbacv1 "k8s.io/api/rbac/v1"
+
 	"github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
-	rbacv1 "k8s.io/api/rbac/v1"
 
 	"k8s.io/client-go/kubernetes"
 )

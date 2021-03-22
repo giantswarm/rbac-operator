@@ -6,13 +6,14 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/rbac-operator/pkg/key"
-	"github.com/giantswarm/rbac-operator/pkg/project"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+
+	"github.com/giantswarm/rbac-operator/pkg/key"
+	"github.com/giantswarm/rbac-operator/pkg/project"
 )
 
 func (b *Bootstrap) createAutomationServiceAccount(ctx context.Context) error {
