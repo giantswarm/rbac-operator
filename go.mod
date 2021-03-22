@@ -19,4 +19,3 @@ require (
 )
 
 replace sigs.k8s.io/cluster-api => github.com/giantswarm/cluster-api v0.3.13-gs
-
