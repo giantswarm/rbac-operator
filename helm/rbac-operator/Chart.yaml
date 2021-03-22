@@ -4,3 +4,5 @@ description: rbac-operator manages authorization for OIDC enabled control-plane 
 home: https://github.com/giantswarm/rbac-operator
 name: rbac-operator
 version: [[ .Version ]]
+annotations:
+  application.giantswarm.io/team: "biscuit"

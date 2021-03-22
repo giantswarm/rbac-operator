@@ -1,4 +1,4 @@
-package rbac
+package orgpermissions
 
 import (
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
@@ -8,36 +8,32 @@ import (
 	"github.com/giantswarm/operatorkit/v2/pkg/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/v2/pkg/resource/wrapper/retryresource"
 
-	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/namespaceauth"
+	"github.com/giantswarm/rbac-operator/service/controller/orgpermissions/resource/membership"
 )
 
-type rbacResourcesConfig struct {
+type orgPermissionsResourcesConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
-
-	WriteAllCustomerGroup string
 }
 
-func newRBACResources(config rbacResourcesConfig) ([]resource.Interface, error) {
+func newOrgPermissionsResources(config orgPermissionsResourcesConfig) ([]resource.Interface, error) {
 	var err error
 
-	var namespaceAuthResource resource.Interface
+	var membershipResource resource.Interface
 	{
-		c := namespaceauth.Config{
+		c := membership.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
-
-			WriteAllCustomerGroup: config.WriteAllCustomerGroup,
 		}
 
-		namespaceAuthResource, err = namespaceauth.New(c)
+		membershipResource, err = membership.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
 	resources := []resource.Interface{
-		namespaceAuthResource,
+		membershipResource,
 	}
 
 	{

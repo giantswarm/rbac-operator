@@ -17,9 +17,9 @@ import (
 	"github.com/giantswarm/rbac-operator/flag"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/collector"
+	"github.com/giantswarm/rbac-operator/service/controller/orgpermissions"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac"
-
-	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/namespaceauth"
+	"github.com/giantswarm/rbac-operator/service/internal/bootstrap"
 )
 
 // Config represents the configuration used to create a new service.
@@ -33,9 +33,11 @@ type Config struct {
 type Service struct {
 	Version *version.Service
 
-	bootOnce          sync.Once
-	rbacController    *rbac.RBAC
-	operatorCollector *collector.Set
+	bootOnce                 sync.Once
+	bootstrapRunner          *bootstrap.Bootstrap
+	rbacController           *rbac.RBAC
+	orgPermissionsController *orgpermissions.OrgPermissions
+	operatorCollector        *collector.Set
 }
 
 // New creates a new configured service object.
@@ -95,6 +97,22 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var bootstrapRunner *bootstrap.Bootstrap
+	{
+		c := bootstrap.Config{
+			Logger:    config.Logger,
+			K8sClient: k8sClient,
+
+			CustomerAdminGroup: config.Viper.GetString(config.Flag.Service.WriteAllCustomerGroup),
+			GSAdminGroup:       config.Viper.GetString(config.Flag.Service.WriteAllGiantswarmGroup),
+		}
+
+		bootstrapRunner, err = bootstrap.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var rbacController *rbac.RBAC
 	{
 
@@ -102,13 +120,24 @@ func New(config Config) (*Service, error) {
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
 
-			NamespaceAuth: namespaceauth.NamespaceAuth{
-				ViewAllTargetGroup:     config.Viper.GetString(config.Flag.Service.NamespaceAuth.ViewAllTargetGroup),
-				TenantAdminTargetGroup: config.Viper.GetString(config.Flag.Service.NamespaceAuth.TenantAdminTargetGroup),
-			},
+			WriteAllCustomerGroup: config.Viper.GetString(config.Flag.Service.WriteAllCustomerGroup),
 		}
 
 		rbacController, err = rbac.NewRBAC(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var orgPermissionsController *orgpermissions.OrgPermissions
+	{
+
+		c := orgpermissions.OrgPermissionsConfig{
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+		}
+
+		orgPermissionsController, err = orgpermissions.NewOrgPermissions(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -146,9 +175,11 @@ func New(config Config) (*Service, error) {
 	s := &Service{
 		Version: versionService,
 
-		bootOnce:          sync.Once{},
-		rbacController:    rbacController,
-		operatorCollector: operatorCollector,
+		bootOnce:                 sync.Once{},
+		bootstrapRunner:          bootstrapRunner,
+		rbacController:           rbacController,
+		orgPermissionsController: orgPermissionsController,
+		operatorCollector:        operatorCollector,
 	}
 
 	return s, nil
@@ -156,8 +187,16 @@ func New(config Config) (*Service, error) {
 
 func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
+
+		err := s.bootstrapRunner.Run(ctx)
+		if err != nil {
+			panic(microerror.JSON(microerror.Mask(err)))
+		}
+
 		go s.operatorCollector.Boot(ctx)
 
 		go s.rbacController.Boot(ctx)
+
+		go s.orgPermissionsController.Boot(ctx)
 	})
 }

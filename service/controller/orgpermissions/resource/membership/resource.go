@@ -1,29 +1,28 @@
-package namespaceauth
+package membership
 
 import (
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/rbac-operator/pkg/label"
+	"github.com/giantswarm/rbac-operator/pkg/project"
+	rbacv1 "k8s.io/api/rbac/v1"
 
 	"k8s.io/client-go/kubernetes"
 )
 
 const (
-	Name = "namespaceauth"
+	Name = "membership"
 )
 
 type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
-
-	WriteAllCustomerGroup string
 }
 
 type Resource struct {
 	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
-
-	writeAllCustomerGroup string
 }
 
 func New(config Config) (*Resource, error) {
@@ -34,15 +33,9 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.WriteAllCustomerGroup == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.WriteAllCustomerGroup must not be empty", config)
-	}
-
 	r := &Resource{
 		k8sClient: config.K8sClient.K8sClient(),
 		logger:    config.Logger,
-
-		writeAllCustomerGroup: config.WriteAllCustomerGroup,
 	}
 
 	return r, nil
@@ -50,4 +43,18 @@ func New(config Config) (*Resource, error) {
 
 func (r *Resource) Name() string {
 	return Name
+}
+
+func isTargetRoleBinding(roleBinding rbacv1.RoleBinding) bool {
+	managedByLabel, hasManagedByLabel := roleBinding.Labels[label.ManagedBy]
+	if hasManagedByLabel && managedByLabel == project.Name() {
+		return false
+	}
+
+	for _, subject := range roleBinding.Subjects {
+		if (subject.Kind == "Group" || subject.Kind == "User") && subject.Name != "" {
+			return true
+		}
+	}
+	return false
 }
