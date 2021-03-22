@@ -1,6 +1,8 @@
 package orgpermissions
 
 import (
+	"github.com/giantswarm/apiextensions/v3/pkg/label"
+
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -9,6 +11,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
+	legacylabel "github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 )
 
@@ -36,6 +39,10 @@ func NewOrgPermissions(config OrgPermissionsConfig) (*OrgPermissions, error) {
 
 	var organizationPermissionsController *controller.Controller
 	{
+		selector := controller.NewSelector(func(labels controller.Labels) bool {
+			return labels.Has(label.Organization) || labels.Has(legacylabel.LegacyCustomer)
+		})
+
 		c := controller.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
@@ -43,6 +50,7 @@ func NewOrgPermissions(config OrgPermissionsConfig) (*OrgPermissions, error) {
 				return new(rbacv1.RoleBinding)
 			},
 			Resources: resources,
+			Selector:  selector,
 
 			Name: project.Name() + "-orgpermissions-controller",
 		}
