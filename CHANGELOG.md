@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update `read-all` ClusterRole on every bootstrap.
+- Extend `rbac-operator` service account ClusterRole permissions to namespaces.
 
 ## [0.9.0] - 2021-03-22
 
