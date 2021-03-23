@@ -87,6 +87,10 @@ func (b *Bootstrap) createReadAllClusterRole(ctx context.Context) error {
 	readOnlyClusterRole := &rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: key.DefaultReadAllPermissionsName,
+			Labels: map[string]string{
+				label.ManagedBy:              project.Name(),
+				label.DisplayInUserInterface: "true",
+			},
 		},
 		Rules: policyRules,
 	}
@@ -107,7 +111,12 @@ func (b *Bootstrap) createReadAllClusterRole(ctx context.Context) error {
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q already exists", readOnlyClusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole binding %#q", readOnlyClusterRole.Name))
+		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, readOnlyClusterRole, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been updated", readOnlyClusterRole.Name))
 	}
 
 	return nil
