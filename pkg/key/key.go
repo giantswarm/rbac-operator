@@ -13,6 +13,12 @@ const (
 	DefaultNamespaceName           = "default"
 )
 
+func DefaultClusterRolesToDisplayInUI() []string {
+	return []string{
+		"cluster-admin",
+	}
+}
+
 func IsOrgNamespace(ns string) bool {
 	return strings.HasPrefix(ns, "org-")
 }

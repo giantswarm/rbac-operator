@@ -376,6 +376,39 @@ func (b *Bootstrap) createWriteAllRoleBindingToAutomationSA(ctx context.Context)
 	return nil
 }
 
+// Grant cluster-admin access for automation service account to default namespace.
+func (b *Bootstrap) labelDefaultClusterRoles(ctx context.Context) error {
+	clusterRoles := key.DefaultClusterRolesToDisplayInUI()
+
+	for _, clusterRole := range clusterRoles {
+
+		clusterRoleToLabel, err := b.k8sClient.RbacV1().ClusterRoles().Get(ctx, clusterRole, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q doesn't exist", clusterRole))
+			return nil
+		} else if err != nil {
+			return microerror.Mask(err)
+		} else {
+			displayLabel, displayLabelExists := clusterRoleToLabel.Labels[label.DisplayInUserInterface]
+			if displayLabelExists && displayLabel == "true" {
+				b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q already labeled", clusterRole))
+				return nil
+			}
+			b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("labeling clusterrole %#q", clusterRole))
+
+			clusterRoleToLabel.Labels[label.DisplayInUserInterface] = "true"
+
+			_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, clusterRoleToLabel, metav1.UpdateOptions{})
+			if err != nil {
+				return microerror.Mask(err)
+			}
+			b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been labeled", clusterRole))
+		}
+	}
+
+	return nil
+}
+
 func isRestrictedResource(resource string) bool {
 	var restrictedResources = []string{"configmaps", "secrets"}
 
