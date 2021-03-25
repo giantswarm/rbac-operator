@@ -28,11 +28,11 @@ func OrganizationName(ns string) string {
 }
 
 func OrganizationReadClusterRoleName(ns string) string {
-	return fmt.Sprintf("%s-organization-read", strings.TrimPrefix(ns, "org-"))
+	return fmt.Sprintf("organization-%s-read", strings.TrimPrefix(ns, "org-"))
 }
 
-func OrganizationReadRoleBindingName(roleBinding string) string {
-	return fmt.Sprintf("%s-organization-read", roleBinding)
+func OrganizationReadClusterRoleBindingName(roleBindingName, organization string) string {
+	return fmt.Sprintf("%s-organization-%s-read", roleBindingName, organization)
 }
 
 func ReadAllCustomerGroupClusterRoleBindingName() string {

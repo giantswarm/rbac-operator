@@ -24,28 +24,30 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	roleBindingsToDelete := []string{
-		pkgkey.OrganizationReadRoleBindingName(roleBinding.Name),
+	orgName := pkgkey.OrganizationName(roleBinding.Namespace)
+
+	clusterRoleBindingsToDelete := []string{
+		pkgkey.OrganizationReadClusterRoleBindingName(roleBinding.Name, orgName),
 	}
 
-	for _, rb := range roleBindingsToDelete {
+	for _, crb := range clusterRoleBindingsToDelete {
 
-		_, err = r.k8sClient.RbacV1().RoleBindings(roleBinding.Namespace).Get(ctx, rb, metav1.GetOptions{})
+		_, err = r.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, crb, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			// do nothing
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q role binding", rb))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q clusterrolebinding", crb))
 
-			err = r.k8sClient.RbacV1().RoleBindings(roleBinding.Namespace).Delete(ctx, rb, metav1.DeleteOptions{})
+			err = r.k8sClient.RbacV1().ClusterRoleBindings().Delete(ctx, crb, metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// do nothing
 			}
 			if err != nil {
 				return microerror.Mask(err)
 			} else {
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been deleted", rb))
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been deleted", crb))
 			}
 		}
 	}
