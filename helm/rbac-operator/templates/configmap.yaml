@@ -1,4 +1,3 @@
-{{ if .Values.Installation.V1.GiantSwarm.OIDC.Enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -24,4 +23,3 @@ data:
           keyFile: ''
       writeAllCustomerGroup: {{ .Values.Installation.V1.Kubernetes.Auth.TenantAdminTargetGroup }}
       writeAllGiantswarmGroup: {{ .Values.Installation.V1.Kubernetes.Auth.ControlPlaneAdminTargetGroup }}
-{{ end }}
