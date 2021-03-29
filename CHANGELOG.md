@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Install all the `rbac-operator` resources by default.
+
 ## [0.11.0] - 2021-03-25
 
 ### Changed
