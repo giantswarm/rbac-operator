@@ -43,7 +43,14 @@ func (b *Bootstrap) createAutomationServiceAccount(ctx context.Context) error {
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("service account %#q already exists", automationSA.Name))
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating %#q service account", automationSA.Name))
+
+		_, err := b.k8sClient.CoreV1().ServiceAccounts(key.DefaultNamespaceName).Update(ctx, automationSA, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("service account %#q has been updated", automationSA.Name))
 	}
 
 	return nil
@@ -166,7 +173,13 @@ func (b *Bootstrap) createReadAllClusterRoleBindingToCustomerGroup(ctx context.C
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q already exists", readAllClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrolebinding %#q", readAllClusterRoleBinding.Name))
+
+		_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, readAllClusterRoleBinding, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", readAllClusterRoleBinding.Name))
 	}
 
 	return nil
@@ -267,7 +280,14 @@ func (b *Bootstrap) createWriteAllClusterRoleBindingToGSGroup(ctx context.Contex
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q already exists", readAllClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrolebinding %#q", readAllClusterRoleBinding.Name))
+
+		_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, readAllClusterRoleBinding, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", readAllClusterRoleBinding.Name))
 	}
 
 	return nil
@@ -318,7 +338,14 @@ func (b *Bootstrap) createWriteAllRoleBindingToCustomerGroup(ctx context.Context
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q/%#q already exists", ns, writeAllRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating rolebinding %#q/%#q", ns, writeAllRoleBinding.Name))
+
+		_, err := b.k8sClient.RbacV1().RoleBindings(ns).Update(ctx, writeAllRoleBinding, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q/%#q has been updated", ns, writeAllRoleBinding.Name))
 	}
 
 	return nil
