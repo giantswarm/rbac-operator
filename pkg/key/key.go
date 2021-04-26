@@ -6,11 +6,12 @@ import (
 )
 
 const (
-	AutomationServiceAccountName   = "automation"
-	ClusterAdminClusterRoleName    = "cluster-admin"
-	DefaultReadAllPermissionsName  = "read-all"
-	DefaultWriteAllPermissionsName = "write-all"
-	DefaultNamespaceName           = "default"
+	AutomationServiceAccountName      = "automation"
+	ClusterAdminClusterRoleName       = "cluster-admin"
+	DefaultReadAllPermissionsName     = "read-all"
+	DefaultWriteAllPermissionsName    = "write-all"
+	DefaultNamespaceName              = "default"
+	WriteOrganizationsPermissionsName = "write-organizations"
 )
 
 func DefaultClusterRolesToDisplayInUI() []string {
@@ -53,4 +54,8 @@ func WriteAllAutomationSARoleBindingName() string {
 
 func WriteAllGSGroupClusterRoleBindingName() string {
 	return fmt.Sprintf("%s-giantswarm-group", DefaultWriteAllPermissionsName)
+}
+
+func WriteOrganizationsCustomerGroupClusterRoleBindingName() string {
+	return fmt.Sprintf("%s-customer-group", WriteOrganizationsPermissionsName)
 }

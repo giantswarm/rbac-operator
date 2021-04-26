@@ -129,6 +129,108 @@ func (b *Bootstrap) createReadAllClusterRole(ctx context.Context) error {
 	return nil
 }
 
+func (b *Bootstrap) createWriteOrganizationsClusterRole(ctx context.Context) error {
+
+	policyRule := rbacv1.PolicyRule{
+		APIGroups: []string{"security.giantswarm.io"},
+		Resources: []string{"organizations"},
+		Verbs:     []string{"*"},
+	}
+
+	orgAdminClusterRole := &rbacv1.ClusterRole{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: key.WriteOrganizationsPermissionsName,
+			Labels: map[string]string{
+				label.ManagedBy:              project.Name(),
+				label.DisplayInUserInterface: "true",
+			},
+		},
+		Rules: []rbacv1.PolicyRule{policyRule},
+	}
+
+	_, err := b.k8sClient.RbacV1().ClusterRoles().Get(ctx, orgAdminClusterRole.Name, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", orgAdminClusterRole.Name))
+
+		_, err := b.k8sClient.RbacV1().ClusterRoles().Create(ctx, orgAdminClusterRole, metav1.CreateOptions{})
+		if apierrors.IsAlreadyExists(err) {
+			// do nothing
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been created", orgAdminClusterRole.Name))
+
+	} else if err != nil {
+		return microerror.Mask(err)
+	} else {
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole binding %#q", orgAdminClusterRole.Name))
+		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, orgAdminClusterRole, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been updated", orgAdminClusterRole.Name))
+	}
+
+	return nil
+}
+
+// Grant customer admin write access to organizations.security.giantswarm.io.
+func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToCustomerGroup(ctx context.Context) error {
+	clusterRoleBindingName := key.WriteOrganizationsCustomerGroupClusterRoleBindingName()
+
+	writeOrganizationsClusterRoleBinding := &rbacv1.ClusterRoleBinding{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ClusterRoleBinding",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: clusterRoleBindingName,
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+		},
+		Subjects: []rbacv1.Subject{
+			{
+				Kind: "Group",
+				Name: b.customerAdminGroup,
+			},
+		},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     key.WriteOrganizationsPermissionsName,
+		},
+	}
+
+	_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, writeOrganizationsClusterRoleBinding.Name, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrolebinding %#q", writeOrganizationsClusterRoleBinding.Name))
+
+		_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, writeOrganizationsClusterRoleBinding, metav1.CreateOptions{})
+		if apierrors.IsAlreadyExists(err) {
+			// do nothing
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been created", writeOrganizationsClusterRoleBinding.Name))
+
+	} else if err != nil {
+		return microerror.Mask(err)
+	} else {
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrolebinding %#q", writeOrganizationsClusterRoleBinding.Name))
+
+		_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, writeOrganizationsClusterRoleBinding, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", writeOrganizationsClusterRoleBinding.Name))
+	}
+
+	return nil
+}
+
 // Grant customer admin read access to everything except configmap/secrets.
 func (b *Bootstrap) createReadAllClusterRoleBindingToCustomerGroup(ctx context.Context) error {
 	clusterRoleBindingName := key.ReadAllCustomerGroupClusterRoleBindingName()
