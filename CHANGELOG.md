@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2021-04-26
+
+### Added
+
+- Provide customer admin group access to manage `Organization` CRs.
+
+## [0.13.0] - 2021-04-26
+
+### Changed
+
+- Update bootstrap resources on restart.
+
+## [0.12.0] - 2021-03-30
+
+### Changed
+
+- Install all the `rbac-operator` resources by default.
+
+## [0.11.0] - 2021-03-25
+
+### Changed
+
+- Label default ClusterRoles, which needs to be displayed in Happa.
+
+### Deleted
+
+- Remove selector in `orgpermissions` controller.
+
+## [0.10.0] - 2021-03-23
+
+### Changed
+
+- Update `read-all` ClusterRole on every bootstrap.
+- Extend `rbac-operator` service account ClusterRole permissions to namespaces.
+
+## [0.9.0] - 2021-03-22
+
 ### Changed
 
 - Move management of static resources from Helm into code.
@@ -130,7 +167,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/giantswarm/rbac-operator/compare/v0.13.0...v0.14.0
+[0.13.0]: https://github.com/giantswarm/rbac-operator/compare/v0.12.0...v0.13.0
+[0.12.0]: https://github.com/giantswarm/rbac-operator/compare/v0.11.0...v0.12.0
+[0.11.0]: https://github.com/giantswarm/rbac-operator/compare/v0.10.0...v0.11.0
+[0.10.0]: https://github.com/giantswarm/rbac-operator/compare/v0.9.0...v0.10.0
+[0.9.0]: https://github.com/giantswarm/rbac-operator/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/giantswarm/rbac-operator/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/giantswarm/rbac-operator/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/giantswarm/rbac-operator/compare/v0.5.0...v0.6.0

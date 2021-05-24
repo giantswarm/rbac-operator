@@ -1,4 +1,3 @@
-{{ if .Values.oidc.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -24,4 +23,3 @@ data:
           keyFile: ''
       writeAllCustomerGroup: {{ .Values.oidc.customer.write_all_group }}
       writeAllGiantswarmGroup: {{ .Values.oidc.giantswarm.write_all_group}}
-{{ end }}

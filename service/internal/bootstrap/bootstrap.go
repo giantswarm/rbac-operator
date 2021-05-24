@@ -92,5 +92,20 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 		return microerror.Mask(err)
 	}
 
+	err = b.createWriteOrganizationsClusterRole(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = b.createWriteOrganizationsClusterRoleBindingToCustomerGroup(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = b.labelDefaultClusterRoles(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	return nil
 }

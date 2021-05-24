@@ -1,5 +1,5 @@
 orbs:
-  architect: giantswarm/architect@2.1.0
+  architect: giantswarm/architect@2.8.0
 
 version: 2.1
 jobs:
@@ -80,6 +80,19 @@ workflows:
             - push-rbac-operator-to-quay
           # Needed to trigger job also on git tag.
           filters:
+            tags:
+              only: /^v.*/
+
+      # deploy to all installations (only tags)
+      - architect/push-to-app-collection:
+          name: push-rbac-operator-to-shared-app-collection
+          app_name: "rbac-operator"
+          app_collection_repo: "shared-app-collection"
+          requires:
+            - push-rbac-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
             tags:
               only: /^v.*/
 

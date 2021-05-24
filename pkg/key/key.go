@@ -6,12 +6,19 @@ import (
 )
 
 const (
-	AutomationServiceAccountName   = "automation"
-	ClusterAdminClusterRoleName    = "cluster-admin"
-	DefaultReadAllPermissionsName  = "read-all"
-	DefaultWriteAllPermissionsName = "write-all"
-	DefaultNamespaceName           = "default"
+	AutomationServiceAccountName      = "automation"
+	ClusterAdminClusterRoleName       = "cluster-admin"
+	DefaultReadAllPermissionsName     = "read-all"
+	DefaultWriteAllPermissionsName    = "write-all"
+	DefaultNamespaceName              = "default"
+	WriteOrganizationsPermissionsName = "write-organizations"
 )
+
+func DefaultClusterRolesToDisplayInUI() []string {
+	return []string{
+		"cluster-admin",
+	}
+}
 
 func IsOrgNamespace(ns string) bool {
 	return strings.HasPrefix(ns, "org-")
@@ -22,11 +29,11 @@ func OrganizationName(ns string) string {
 }
 
 func OrganizationReadClusterRoleName(ns string) string {
-	return fmt.Sprintf("%s-organization-read", strings.TrimPrefix(ns, "org-"))
+	return fmt.Sprintf("organization-%s-read", strings.TrimPrefix(ns, "org-"))
 }
 
-func OrganizationReadRoleBindingName(roleBinding string) string {
-	return fmt.Sprintf("%s-organization-read", roleBinding)
+func OrganizationReadClusterRoleBindingName(roleBindingName, organization string) string {
+	return fmt.Sprintf("%s-organization-%s-read", roleBindingName, organization)
 }
 
 func ReadAllCustomerGroupClusterRoleBindingName() string {
@@ -47,4 +54,8 @@ func WriteAllAutomationSARoleBindingName() string {
 
 func WriteAllGSGroupClusterRoleBindingName() string {
 	return fmt.Sprintf("%s-giantswarm-group", DefaultWriteAllPermissionsName)
+}
+
+func WriteOrganizationsCustomerGroupClusterRoleBindingName() string {
+	return fmt.Sprintf("%s-customer-group", WriteOrganizationsPermissionsName)
 }
