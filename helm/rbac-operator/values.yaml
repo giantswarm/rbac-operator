@@ -12,7 +12,6 @@ registry:
   domain: quay.io
 
 oidc:
-  enabled: false
   customer:
     write_all_group: ""
   giantswarm:
