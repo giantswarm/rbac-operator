@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Prepare Helm values to use config CR.
+- Update architect-orb to v3.0.0.
+
 ## [0.14.0] - 2021-04-26
 
 ### Added
@@ -49,7 +54,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Move management of static resources from Helm into code.
 - Remove `view-all` related roles/bindings.
 - Bind customer admin group to `cluster-admin` cluster role in target organization namespace.
-- Prepare Helm values to use config CR.
 
 ## [0.8.0] - 2020-11-19
 
