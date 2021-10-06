@@ -1,19 +1,16 @@
-[![CircleCI](https://circleci.com/gh/giantswarm/rbac-operator.svg?&style=shield&&circle-token=373dcae33aecb47a0a53c51105e9381dff5b0b88)](https://circleci.com/gh/giantswarm/rbac-operator) [![Docker Repository on Quay](https://quay.io/repository/giantswarm/rbac-operator/status "Docker Repository on Quay")](https://quay.io/repository/giantswarm/rbac-operator)
+[![CircleCI](https://circleci.com/gh/giantswarm/rbac-operator.svg?&style=shield&&circle-token=373dcae33aecb47a0a53c51105e9381dff5b0b88)](https://circleci.com/gh/giantswarm/rbac-operator)
+[![Docker Repository on Quay](https://quay.io/repository/giantswarm/rbac-operator/status "Docker Repository on Quay")](https://quay.io/repository/giantswarm/rbac-operator)
 
 # rbac-operator
 
-The rbac-operator is an in-cluster agent, that manages roles and rolebingings
-for tenant cluster namespaces inside the Giant Swarm control-plane Kubernetes cluster.
-
-## Getting Project
-
-Clone the git repository: https://github.com/giantswarm/rbac-operator.git
+The rbac-operator is an agent running in Giant Swarm management clusters,
+creating certain roles and rolebindings.
 
 ### How to build
 
 Build it using the standard `go build` command.
 
-```
+```nohighlight
 go build github.com/giantswarm/rbac-operator
 ```
 
@@ -21,7 +18,6 @@ go build github.com/giantswarm/rbac-operator
 
 - Mailing list: [giantswarm](https://groups.google.com/forum/!forum/giantswarm)
 - Bugs: [issues](https://github.com/giantswarm/rbac-operator/issues)
-
 
 ## License
 
