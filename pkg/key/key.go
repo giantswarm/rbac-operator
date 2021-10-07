@@ -52,6 +52,10 @@ func WriteAllAutomationSARoleBindingName() string {
 	return fmt.Sprintf("%s-customer-sa", DefaultWriteAllPermissionsName)
 }
 
+func WriteOrganizationsAutomationSARoleBindingName() string {
+	return fmt.Sprintf("%s-customer-sa", WriteOrganizationsPermissionsName)
+}
+
 func WriteAllGSGroupClusterRoleBindingName() string {
 	return fmt.Sprintf("%s-giantswarm-group", DefaultWriteAllPermissionsName)
 }
