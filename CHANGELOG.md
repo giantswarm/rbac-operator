@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0] - 2021-11-04
+
 ### Added
 
 - Provide access to the customer automation SA for managing flux resources.
@@ -185,7 +187,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.16.0...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.17.0...HEAD
+[0.17.0]: https://github.com/giantswarm/rbac-operator/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/giantswarm/rbac-operator/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/giantswarm/rbac-operator/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/giantswarm/rbac-operator/compare/v0.13.0...v0.14.0
