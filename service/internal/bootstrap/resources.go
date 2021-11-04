@@ -663,6 +663,108 @@ func (b *Bootstrap) createWriteFluxResourcesClusterRoleBindingToAutomationSA(ctx
 	return nil
 }
 
+func (b *Bootstrap) createWriteClustersClusterRole(ctx context.Context) error {
+	policyRule := rbacv1.PolicyRule{
+		APIGroups: []string{"cluster.x-k8s.io", "infrastructure.cluster.x-k8s.io", "infrastructure.giantswarm.io"},
+		Resources: []string{"clusters", "awsclusters", "awscontrolplanes", "g8scontrolplanes", "azureclusters", "azuremachines"},
+		Verbs:     []string{"*"},
+	}
+
+	clusterRole := &rbacv1.ClusterRole{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: key.WriteClustersPermissionsName,
+			Labels: map[string]string{
+				label.ManagedBy:              project.Name(),
+				label.DisplayInUserInterface: "true",
+			},
+		},
+		Rules: []rbacv1.PolicyRule{policyRule},
+	}
+
+	_, err := b.k8sClient.RbacV1().ClusterRoles().Get(ctx, clusterRole.Name, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", clusterRole.Name))
+
+		_, err := b.k8sClient.RbacV1().ClusterRoles().Create(ctx, clusterRole, metav1.CreateOptions{})
+		if apierrors.IsAlreadyExists(err) {
+			// Do nothing.
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been created", clusterRole.Name))
+
+	} else if err != nil {
+		return microerror.Mask(err)
+	} else {
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole binding %#q", clusterRole.Name))
+		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, clusterRole, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been updated", clusterRole.Name))
+	}
+
+	return nil
+}
+
+func (b *Bootstrap) createWriteClustersClusterRoleBindingToAutomationSA(ctx context.Context) error {
+	clusterRoleBindingName := key.WriteClustersAutomationSARoleBindingName()
+
+	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ClusterRoleBinding",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: clusterRoleBindingName,
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+		},
+		Subjects: []rbacv1.Subject{
+			{
+				Kind:      "ServiceAccount",
+				Name:      key.AutomationServiceAccountName,
+				Namespace: key.DefaultNamespaceName,
+			},
+		},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     key.WriteClustersPermissionsName,
+		},
+	}
+
+	_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, clusterRoleBinding.Name, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrolebinding %#q", clusterRoleBinding.Name))
+
+		_, err = b.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, clusterRoleBinding, metav1.CreateOptions{})
+		if apierrors.IsAlreadyExists(err) {
+			// Do nothing.
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been created", clusterRoleBinding.Name))
+
+		return nil
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
+	b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrolebinding %#q", clusterRoleBinding.Name))
+
+	_, err = b.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, clusterRoleBinding, metav1.UpdateOptions{})
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", clusterRoleBinding.Name))
+
+	return nil
+}
+
 // Grant cluster-admin access for automation service account to default namespace.
 func (b *Bootstrap) labelDefaultClusterRoles(ctx context.Context) error {
 	clusterRoles := key.DefaultClusterRolesToDisplayInUI()

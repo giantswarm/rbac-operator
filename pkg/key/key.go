@@ -13,6 +13,7 @@ const (
 	DefaultNamespaceName              = "default"
 	WriteOrganizationsPermissionsName = "write-organizations"
 	WriteFluxResourcesPermissionsName = "write-flux-resources"
+	WriteClustersPermissionsName      = "write-clusters"
 )
 
 func DefaultClusterRolesToDisplayInUI() []string {
@@ -67,4 +68,8 @@ func WriteOrganizationsCustomerGroupClusterRoleBindingName() string {
 
 func WriteFluxResourcesAutomationSARoleBindingName() string {
 	return fmt.Sprintf("%s-customer-sa", WriteFluxResourcesPermissionsName)
+}
+
+func WriteClustersAutomationSARoleBindingName() string {
+	return fmt.Sprintf("%s-customer-sa", WriteClustersPermissionsName)
 }
