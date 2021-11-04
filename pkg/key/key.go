@@ -14,6 +14,7 @@ const (
 	WriteOrganizationsPermissionsName = "write-organizations"
 	WriteFluxResourcesPermissionsName = "write-flux-resources"
 	WriteClustersPermissionsName      = "write-clusters"
+	WriteNodePoolsPermissionsName     = "write-nodepools"
 )
 
 func DefaultClusterRolesToDisplayInUI() []string {
@@ -72,4 +73,8 @@ func WriteFluxResourcesAutomationSARoleBindingName() string {
 
 func WriteClustersAutomationSARoleBindingName() string {
 	return fmt.Sprintf("%s-customer-sa", WriteClustersPermissionsName)
+}
+
+func WriteNodePoolsAutomationSARoleBindingName() string {
+	return fmt.Sprintf("%s-customer-sa", WriteNodePoolsPermissionsName)
 }

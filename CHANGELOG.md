@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Provide access to the customer automation SA for managing flux resources.
 - Provide access to the customer automation SA for managing cluster-specific resources.
+- Provide access to the customer automation SA for managing node pool-specific resources.
 
 ## [0.16.0] - 2021-10-07
 
