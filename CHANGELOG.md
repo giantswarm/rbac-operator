@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+
+- Set the `giantswarm.io/managed-by` label on the `cluster-admin` RBAC ClusterRole.
+
 ## [0.18.0] - 2021-11-11
 
 ### Added
