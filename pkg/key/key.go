@@ -6,6 +6,10 @@ import (
 )
 
 const (
+	LabelManagedBy = "giantswarm.io/managed-by"
+)
+
+const (
 	AutomationServiceAccountName      = "automation"
 	ClusterAdminClusterRoleName       = "cluster-admin"
 	DefaultReadAllPermissionsName     = "read-all"
