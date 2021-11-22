@@ -137,17 +137,17 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 		return microerror.Mask(err)
 	}
 
-    err = b.createWriteClientCertsClusterRole(ctx)
+	err = b.createWriteClientCertsClusterRole(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-    err = b.createWriteClientCertsClusterRoleBindingToAutomationSA(ctx)
+	err = b.createWriteClientCertsClusterRoleBindingToAutomationSA(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-    err = b.createWriteSilencesClusterRole(ctx)
+	err = b.createWriteSilencesClusterRole(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
