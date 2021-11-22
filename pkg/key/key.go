@@ -20,6 +20,7 @@ const (
 	WriteClustersPermissionsName      = "write-clusters"
 	WriteNodePoolsPermissionsName     = "write-nodepools"
 	WriteClientCertsPermissionsName   = "write-client-certificates"
+	WriteSilencesPermissionsName      = "write-silences"
 )
 
 func DefaultClusterRolesToDisplayInUI() []string {
@@ -86,4 +87,8 @@ func WriteNodePoolsAutomationSARoleBindingName() string {
 
 func WriteClientCertsAutomationSARoleBindingName() string {
 	return fmt.Sprintf("%s-customer-sa", WriteClientCertsPermissionsName)
+}
+
+func WriteSilencesAutomationSARoleBindingName() string {
+	return fmt.Sprintf("%s-customer-sa", WriteSilencesPermissionsName)
 }
