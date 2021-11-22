@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Provide access to the customer automation SA for managing workload cluster silences.
+
 ## [0.18.1] - 2021-11-17
 
 ## Added
