@@ -10,19 +10,19 @@ const (
 )
 
 const (
-	AutomationServiceAccountName        = "automation"
-	ClusterAdminClusterRoleName         = "cluster-admin"
-	DefaultReadAllPermissionsName       = "read-all"
-	DefaultWriteAllPermissionsName      = "write-all"
-	DefaultNamespaceName                = "default"
-	WriteOrganizationsPermissionsName   = "write-organizations"
-	WriteFluxResourcesPermissionsName   = "write-flux-resources"
-	WriteClustersPermissionsName        = "write-clusters"
-	WriteNodePoolsPermissionsName       = "write-nodepools"
-	WriteClientCertsPermissionsName     = "write-client-certificates"
-	WriteSilencesPermissionsName        = "write-silences"
-	ReadWebUIResourcesClusterRoleName   = "read-webui"
-	AccessWebUIResourcesClusterRoleName = "read-webui-access"
+	AutomationServiceAccountName                   = "automation"
+	ClusterAdminClusterRoleName                    = "cluster-admin"
+	DefaultReadAllPermissionsName                  = "read-all"
+	DefaultWriteAllPermissionsName                 = "write-all"
+	DefaultNamespaceName                           = "default"
+	WriteOrganizationsPermissionsName              = "write-organizations"
+	WriteFluxResourcesPermissionsName              = "write-flux-resources"
+	WriteClustersPermissionsName                   = "write-clusters"
+	WriteNodePoolsPermissionsName                  = "write-nodepools"
+	WriteClientCertsPermissionsName                = "write-client-certificates"
+	WriteSilencesPermissionsName                   = "write-silences"
+	ReadWebUIResourcesClusterRoleName              = "read-webui"
+	ReadWebUIClusterScopedResourcesClusterRoleName = "read-webui-resources"
 )
 
 func DefaultClusterRolesToDisplayInUI() []string {

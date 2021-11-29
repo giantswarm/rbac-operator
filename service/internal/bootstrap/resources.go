@@ -1158,7 +1158,7 @@ func (b *Bootstrap) createReadWebUIResourcesClusterRole(ctx context.Context) err
 	return nil
 }
 
-func (b *Bootstrap) createAccessWebUIResourcesClusterRole(ctx context.Context) error {
+func (b *Bootstrap) createReadWebUIClusterScopedResourcesClusterRole(ctx context.Context) error {
 	policyRules := []rbacv1.PolicyRule{
 		{
 			APIGroups: []string{"authorization.k8s.io"},
@@ -1179,7 +1179,7 @@ func (b *Bootstrap) createAccessWebUIResourcesClusterRole(ctx context.Context) e
 
 	clusterRole := &rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: key.AccessWebUIResourcesClusterRoleName,
+			Name: key.ReadWebUIClusterScopedResourcesClusterRoleName,
 			Labels: map[string]string{
 				label.ManagedBy:              project.Name(),
 				label.DisplayInUserInterface: "true",
