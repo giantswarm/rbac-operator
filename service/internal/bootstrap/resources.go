@@ -1084,11 +1084,6 @@ func (b *Bootstrap) createReadWebUIResourcesClusterRole(ctx context.Context) err
 			Verbs:     []string{"get", "list", "watch"},
 		},
 		{
-			APIGroups: []string{"authorization.k8s.io"},
-			Resources: []string{"selfsubjectaccessreviews", "selfsubjectrulesreviews"},
-			Verbs:     []string{"create"},
-		},
-		{
 			APIGroups: []string{"cluster.x-k8s.io"},
 			Resources: []string{"clusters", "machinedeployments", "machinepools"},
 			Verbs:     []string{"get", "list", "watch"},
@@ -1138,6 +1133,58 @@ func (b *Bootstrap) createReadWebUIResourcesClusterRole(ctx context.Context) err
 	clusterRole := &rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: key.ReadWebUIResourcesClusterRoleName,
+			Labels: map[string]string{
+				label.ManagedBy:              project.Name(),
+				label.DisplayInUserInterface: "true",
+			},
+		},
+		Rules: policyRules,
+	}
+
+	_, err := b.k8sClient.RbacV1().ClusterRoles().Get(ctx, clusterRole.Name, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", clusterRole.Name))
+
+		_, err := b.k8sClient.RbacV1().ClusterRoles().Create(ctx, clusterRole, metav1.CreateOptions{})
+		if apierrors.IsAlreadyExists(err) {
+			// Do nothing.
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been created", clusterRole.Name))
+
+	} else if err != nil {
+		return microerror.Mask(err)
+	} else {
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole binding %#q", clusterRole.Name))
+		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, clusterRole, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been updated", clusterRole.Name))
+	}
+
+	return nil
+}
+
+func (b *Bootstrap) createAccessWebUIResourcesClusterRole(ctx context.Context) error {
+	policyRules := []rbacv1.PolicyRule{
+		{
+			APIGroups: []string{"authorization.k8s.io"},
+			Resources: []string{"selfsubjectaccessreviews", "selfsubjectrulesreviews"},
+			Verbs:     []string{"create"},
+		},
+		{
+			APIGroups: []string{"security.giantswarm.io"},
+			Resources: []string{"organizations"},
+			Verbs:     []string{"get", "list", "watch"},
+		},
+	}
+
+	clusterRole := &rbacv1.ClusterRole{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: key.AccessWebUIResourcesClusterRoleName,
 			Labels: map[string]string{
 				label.ManagedBy:              project.Name(),
 				label.DisplayInUserInterface: "true",
