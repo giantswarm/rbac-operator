@@ -1071,6 +1071,108 @@ func (b *Bootstrap) createWriteSilencesClusterRoleBindingToAutomationSA(ctx cont
 	return nil
 }
 
+func (b *Bootstrap) createReadWebUIResourcesClusterRole(ctx context.Context) error {
+	policyRules := []rbacv1.PolicyRule{
+		{
+			APIGroups: []string{""},
+			Resources: []string{"serviceaccounts"},
+			Verbs:     []string{"get", "list", "watch"},
+		},
+		{
+			APIGroups: []string{"application.giantswarm.io"},
+			Resources: []string{"apps", "appcatalogentries", "catalogs"},
+			Verbs:     []string{"get", "list", "watch"},
+		},
+		{
+			APIGroups: []string{"authorization.k8s.io"},
+			Resources: []string{"selfsubjectaccessreviews", "selfsubjectrulesreviews"},
+			Verbs:     []string{"create"},
+		},
+		{
+			APIGroups: []string{"cluster.x-k8s.io"},
+			Resources: []string{"clusters", "machinedeployments", "machinepools"},
+			Verbs:     []string{"get", "list", "watch"},
+		},
+		{
+			APIGroups: []string{"core.giantswarm.io"},
+			Resources: []string{"sparks", "storageconfigs"},
+			Verbs:     []string{"get", "list", "watch"},
+		},
+		{
+			APIGroups: []string{"exp.cluster.x-k8s.io"},
+			Resources: []string{"machinepools"},
+			Verbs:     []string{"get", "list", "watch"},
+		},
+		{
+			APIGroups: []string{"exp.infrastructure.cluster.x-k8s.io"},
+			Resources: []string{"azuremachinepools"},
+			Verbs:     []string{"get", "list", "watch"},
+		},
+		{
+			APIGroups: []string{"infrastructure.cluster.x-k8s.io"},
+			Resources: []string{"azureclusters", "azuremachinepools", "azuremachines"},
+			Verbs:     []string{"get", "list", "watch"},
+		},
+		{
+			APIGroups: []string{"infrastructure.giantswarm.io"},
+			Resources: []string{"awsclusters", "awscontrolplanes", "awsmachinedeployments", "g8scontrolplanes"},
+			Verbs:     []string{"get", "list", "watch"},
+		},
+		{
+			APIGroups: []string{"rbac.authorization.k8s.io"},
+			Resources: []string{"clusterrolebindings", "clusterroles", "rolebindings", "roles"},
+			Verbs:     []string{"get", "list", "watch"},
+		},
+		{
+			APIGroups: []string{"release.giantswarm.io"},
+			Resources: []string{"releases"},
+			Verbs:     []string{"get", "list", "watch"},
+		},
+		{
+			APIGroups: []string{"security.giantswarm.io"},
+			Resources: []string{"organizations"},
+			Verbs:     []string{"get", "list", "watch"},
+		},
+	}
+
+	clusterRole := &rbacv1.ClusterRole{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: key.ReadWebUIResourcesClusterRoleName,
+			Labels: map[string]string{
+				label.ManagedBy:              project.Name(),
+				label.DisplayInUserInterface: "true",
+			},
+		},
+		Rules: policyRules,
+	}
+
+	_, err := b.k8sClient.RbacV1().ClusterRoles().Get(ctx, clusterRole.Name, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", clusterRole.Name))
+
+		_, err := b.k8sClient.RbacV1().ClusterRoles().Create(ctx, clusterRole, metav1.CreateOptions{})
+		if apierrors.IsAlreadyExists(err) {
+			// Do nothing.
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been created", clusterRole.Name))
+
+	} else if err != nil {
+		return microerror.Mask(err)
+	} else {
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole binding %#q", clusterRole.Name))
+		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, clusterRole, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been updated", clusterRole.Name))
+	}
+
+	return nil
+}
+
 // Grant cluster-admin access for automation service account to default namespace.
 func (b *Bootstrap) labelDefaultClusterRoles(ctx context.Context) error {
 	labelsToSet := map[string]string{

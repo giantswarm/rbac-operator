@@ -21,6 +21,7 @@ const (
 	WriteNodePoolsPermissionsName     = "write-nodepools"
 	WriteClientCertsPermissionsName   = "write-client-certificates"
 	WriteSilencesPermissionsName      = "write-silences"
+	ReadWebUIResourcesClusterRoleName = "read-webui"
 )
 
 func DefaultClusterRolesToDisplayInUI() []string {
