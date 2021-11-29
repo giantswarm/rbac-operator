@@ -1118,16 +1118,6 @@ func (b *Bootstrap) createReadWebUIResourcesClusterRole(ctx context.Context) err
 			Resources: []string{"clusterrolebindings", "clusterroles", "rolebindings", "roles"},
 			Verbs:     []string{"get", "list", "watch"},
 		},
-		{
-			APIGroups: []string{"release.giantswarm.io"},
-			Resources: []string{"releases"},
-			Verbs:     []string{"get", "list", "watch"},
-		},
-		{
-			APIGroups: []string{"security.giantswarm.io"},
-			Resources: []string{"organizations"},
-			Verbs:     []string{"get", "list", "watch"},
-		},
 	}
 
 	clusterRole := &rbacv1.ClusterRole{
@@ -1174,6 +1164,11 @@ func (b *Bootstrap) createAccessWebUIResourcesClusterRole(ctx context.Context) e
 			APIGroups: []string{"authorization.k8s.io"},
 			Resources: []string{"selfsubjectaccessreviews", "selfsubjectrulesreviews"},
 			Verbs:     []string{"create"},
+		},
+		{
+			APIGroups: []string{"release.giantswarm.io"},
+			Resources: []string{"releases"},
+			Verbs:     []string{"get", "list", "watch"},
 		},
 		{
 			APIGroups: []string{"security.giantswarm.io"},
