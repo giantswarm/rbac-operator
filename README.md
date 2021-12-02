@@ -3,7 +3,7 @@
 
 # rbac-operator
 
-The rbac-operator is an agent running in Giant Swarm management clusters,
+The rbac-operator is a controller running in Giant Swarm management clusters,
 creating certain roles and rolebindings.
 
 ### How to build
