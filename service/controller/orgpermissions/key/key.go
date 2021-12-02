@@ -5,6 +5,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 )
 
+// Casts the given value to a rbacv1.RoleBinding.
 func ToRoleBinding(v interface{}) (rbacv1.RoleBinding, error) {
 	if v == nil {
 		return rbacv1.RoleBinding{}, microerror.Maskf(wrongTypeError, "expected non-nil, got %#v'", v)
