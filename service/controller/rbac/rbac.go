@@ -57,7 +57,7 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 			Selector:  selector,
 
 			// Name is used to compute finalizer names. This here results in something
-			// like operatorkit.giantswarm.io/rbac-operator-RBAC-controller.
+			// like operatorkit.giantswarm.io/rbac-operator-rbac-controller.
 			Name: project.Name() + "-rbac-controller",
 		}
 
