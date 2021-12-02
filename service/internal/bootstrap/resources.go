@@ -187,8 +187,8 @@ func (b *Bootstrap) createWriteOrganizationsClusterRole(ctx context.Context) err
 	return nil
 }
 
-// Ensures the ClusterRoleBinding 'write-all-customer-group' between
-// ClusterRole 'write-all' and the customer admin group.
+// Ensures the ClusterRoleBinding 'write-organizations-customer-group' between
+// ClusterRole 'write-organizations' and the customer admin group.
 func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToCustomerGroup(ctx context.Context) error {
 	clusterRoleBindingName := key.WriteOrganizationsCustomerGroupClusterRoleBindingName()
 
