@@ -15,6 +15,8 @@ import (
 	"github.com/giantswarm/rbac-operator/service/controller/orgpermissions/key"
 )
 
+// Ensures that a ClusterRoleBinding '<rolebinding-name>-organization-<organization>-read'
+// exists for a certain RoleBinding, with the same subjects.
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	var err error
 
