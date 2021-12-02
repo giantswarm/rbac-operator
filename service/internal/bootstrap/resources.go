@@ -412,7 +412,7 @@ func (b *Bootstrap) createWriteAllClusterRoleBindingToGSGroup(ctx context.Contex
 }
 
 // Ensures the ClusterRoleBinding 'write-all-customer-group' between
-// ClusterRole 'cluster-admin' and the Giant Swarm admin group.
+// ClusterRole 'cluster-admin' and the customer admin group.
 func (b *Bootstrap) createWriteAllRoleBindingToCustomerGroup(ctx context.Context) error {
 	roleBindingName := key.WriteAllCustomerGroupRoleBindingName()
 
