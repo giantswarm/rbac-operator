@@ -1,3 +1,6 @@
+// Package bootstrap ensures certain RBAC resources like ClusterRoles,
+// ClusterRoleBindings, and ServiceAccounts. If they exist, they will
+// be modified according to spec. If not, they are created.
 package bootstrap
 
 import (
@@ -16,6 +19,7 @@ import (
 	"github.com/giantswarm/rbac-operator/pkg/project"
 )
 
+// Ensures the 'automation' service account in the default namespace.
 func (b *Bootstrap) createAutomationServiceAccount(ctx context.Context) error {
 
 	automationSA := &corev1.ServiceAccount{
@@ -56,6 +60,10 @@ func (b *Bootstrap) createAutomationServiceAccount(ctx context.Context) error {
 	return nil
 }
 
+// Ensures the ClusterRole 'read-all'.
+//
+// Purpose if this role is to enable read permissions (get, list, watch)
+// for all resources except ConfigMap and Secret.
 func (b *Bootstrap) createReadAllClusterRole(ctx context.Context) error {
 
 	lists, err := b.k8sClient.Discovery().ServerPreferredResources()
@@ -129,6 +137,10 @@ func (b *Bootstrap) createReadAllClusterRole(ctx context.Context) error {
 	return nil
 }
 
+// Ensures the ClusterRole 'write-organizations'.
+//
+// Purpose of this role is to grant all permissions for the
+// organizations.security.giantswarm.io resource.
 func (b *Bootstrap) createWriteOrganizationsClusterRole(ctx context.Context) error {
 
 	policyRule := rbacv1.PolicyRule{
@@ -175,7 +187,8 @@ func (b *Bootstrap) createWriteOrganizationsClusterRole(ctx context.Context) err
 	return nil
 }
 
-// Grant customer admin write access to organizations.security.giantswarm.io.
+// Ensures the ClusterRoleBinding 'write-organizations-customer-group' between
+// ClusterRole 'write-organizations' and the customer admin group.
 func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToCustomerGroup(ctx context.Context) error {
 	clusterRoleBindingName := key.WriteOrganizationsCustomerGroupClusterRoleBindingName()
 
@@ -231,7 +244,8 @@ func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToCustomerGroup(ct
 	return nil
 }
 
-// Grant customer admin read access to everything except configmap/secrets.
+// Ensures the ClusterRoleBinding 'read-all-customer-group' between
+// ClusterRole 'read-all' and the customer admin group.
 func (b *Bootstrap) createReadAllClusterRoleBindingToCustomerGroup(ctx context.Context) error {
 	clusterRoleBindingName := key.ReadAllCustomerGroupClusterRoleBindingName()
 
@@ -287,7 +301,8 @@ func (b *Bootstrap) createReadAllClusterRoleBindingToCustomerGroup(ctx context.C
 	return nil
 }
 
-// Grant automation service account read access to everything except configmap/secrets.
+// Ensures the ClusterRoleBinding 'read-all-customer-sa' between
+// ClusterRole 'read-all' and the ServiceAccount 'automation'.
 func (b *Bootstrap) createReadAllClusterRoleBindingToAutomationSA(ctx context.Context) error {
 	clusterRoleBindingName := key.ReadAllAutomationSAClusterRoleBindingName()
 
@@ -338,7 +353,8 @@ func (b *Bootstrap) createReadAllClusterRoleBindingToAutomationSA(ctx context.Co
 	return nil
 }
 
-// Grant cluster-admin access to giantswarm admin group.
+// Ensures the ClusterRoleBinding 'write-all-giantswarm-group' between
+// ClusterRole 'cluster-admin' and the Giant Swarm admin group.
 func (b *Bootstrap) createWriteAllClusterRoleBindingToGSGroup(ctx context.Context) error {
 	clusterRoleBindingName := key.WriteAllGSGroupClusterRoleBindingName()
 
@@ -395,7 +411,8 @@ func (b *Bootstrap) createWriteAllClusterRoleBindingToGSGroup(ctx context.Contex
 	return nil
 }
 
-// Grant cluster-admin access for customer admin group to default namespace.
+// Ensures the ClusterRoleBinding 'write-all-customer-group' between
+// ClusterRole 'cluster-admin' and the customer admin group.
 func (b *Bootstrap) createWriteAllRoleBindingToCustomerGroup(ctx context.Context) error {
 	roleBindingName := key.WriteAllCustomerGroupRoleBindingName()
 
@@ -453,7 +470,9 @@ func (b *Bootstrap) createWriteAllRoleBindingToCustomerGroup(ctx context.Context
 	return nil
 }
 
-// Grant cluster-admin access for automation service account to default namespace.
+// Ensures a RoleBinding 'write-all-customer-sa' between
+// ClusterRole 'cluster-admin' and ServiceAccount 'automation'
+// in namespace 'default'.
 func (b *Bootstrap) createWriteAllRoleBindingToAutomationSA(ctx context.Context) error {
 	roleBindingName := key.WriteAllAutomationSARoleBindingName()
 
@@ -505,6 +524,8 @@ func (b *Bootstrap) createWriteAllRoleBindingToAutomationSA(ctx context.Context)
 	return nil
 }
 
+// Ensures the ClusterRoleBinding 'write-organizations-customer-sa' between
+// ClusterRole 'write-organizations' and ServiceAccount 'automation'.
 func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToAutomationSA(ctx context.Context) error {
 	clusterRoleBindingName := key.WriteOrganizationsAutomationSARoleBindingName()
 
@@ -561,11 +582,34 @@ func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToAutomationSA(ctx
 	return nil
 }
 
+// Ensures the ClusterRole 'write-flux-resources'.
+//
+// Purpose of this role is to grant all permissions for certain
+// *.toolkit.fluxcd.io resources.
 func (b *Bootstrap) createWriteFluxResourcesClusterRole(ctx context.Context) error {
 	policyRule := rbacv1.PolicyRule{
-		APIGroups: []string{"notification.toolkit.fluxcd.io", "source.toolkit.fluxcd.io", "image.toolkit.fluxcd.io", "helm.toolkit.fluxcd.io", "kustomizations.kustomize.toolkit.fluxcd.io"},
-		Resources: []string{"alerts", "providers", "receivers", "buckets", "gitrepositories", "helmcharts", "helmrepositories", "imagepolicies", "imagerepositories", "imageupdateautomations", "helmreleases", "kustomizations"},
-		Verbs:     []string{"*"},
+		APIGroups: []string{
+			"helm.toolkit.fluxcd.io",
+			"image.toolkit.fluxcd.io",
+			"kustomizations.kustomize.toolkit.fluxcd.io",
+			"notification.toolkit.fluxcd.io",
+			"source.toolkit.fluxcd.io",
+		},
+		Resources: []string{
+			"alerts",
+			"buckets",
+			"gitrepositories",
+			"helmcharts",
+			"helmreleases",
+			"helmrepositories",
+			"imagepolicies",
+			"imagerepositories",
+			"imageupdateautomations",
+			"kustomizations",
+			"providers",
+			"receivers",
+		},
+		Verbs: []string{"*"},
 	}
 
 	clusterRole := &rbacv1.ClusterRole{
@@ -606,6 +650,8 @@ func (b *Bootstrap) createWriteFluxResourcesClusterRole(ctx context.Context) err
 	return nil
 }
 
+// Ensures the ClusterRoleBinding 'write-flux-resources-customer-sa' between
+// ClusterRole 'write-flux-resources' and ServiceAccount 'automation'.
 func (b *Bootstrap) createWriteFluxResourcesClusterRoleBindingToAutomationSA(ctx context.Context) error {
 	clusterRoleBindingName := key.WriteFluxResourcesAutomationSARoleBindingName()
 
@@ -663,11 +709,27 @@ func (b *Bootstrap) createWriteFluxResourcesClusterRoleBindingToAutomationSA(ctx
 	return nil
 }
 
+// Ensures the ClusterRole 'write-clusters'.
+//
+// Purpose of this role is to grant all permissions needed for
+// creating, modifying, and deleting clusters, not including
+// node pools.
 func (b *Bootstrap) createWriteClustersClusterRole(ctx context.Context) error {
 	policyRule := rbacv1.PolicyRule{
-		APIGroups: []string{"cluster.x-k8s.io", "infrastructure.cluster.x-k8s.io", "infrastructure.giantswarm.io"},
-		Resources: []string{"clusters", "awsclusters", "awscontrolplanes", "g8scontrolplanes", "azureclusters", "azuremachines"},
-		Verbs:     []string{"*"},
+		APIGroups: []string{
+			"cluster.x-k8s.io",
+			"infrastructure.cluster.x-k8s.io",
+			"infrastructure.giantswarm.io",
+		},
+		Resources: []string{
+			"awsclusters",
+			"awscontrolplanes",
+			"azureclusters",
+			"azuremachines",
+			"clusters",
+			"g8scontrolplanes",
+		},
+		Verbs: []string{"*"},
 	}
 
 	clusterRole := &rbacv1.ClusterRole{
@@ -708,6 +770,8 @@ func (b *Bootstrap) createWriteClustersClusterRole(ctx context.Context) error {
 	return nil
 }
 
+// Ensures the ClusterRoleBinding 'write-clusters-customer-sa' between
+// ClusterRole 'write-clusters' and ServiceAccount 'automation'.
 func (b *Bootstrap) createWriteClustersClusterRoleBindingToAutomationSA(ctx context.Context) error {
 	clusterRoleBindingName := key.WriteClustersAutomationSARoleBindingName()
 
@@ -765,11 +829,28 @@ func (b *Bootstrap) createWriteClustersClusterRoleBindingToAutomationSA(ctx cont
 	return nil
 }
 
+// Ensures the ClusterRole 'write-nodepools'.
+//
+// Purpose of this role is to grant all permissions needed for
+// creating, modifying, and deleting node pools.
 func (b *Bootstrap) createWriteNodePoolsClusterRole(ctx context.Context) error {
 	policyRule := rbacv1.PolicyRule{
-		APIGroups: []string{"cluster.x-k8s.io", "exp.cluster.x-k8s.io", "infrastructure.cluster.x-k8s.io", "infrastructure.giantswarm.io", "core.giantswarm.io"},
-		Resources: []string{"machinedeployments", "awsmachinedeployments", "networkpools", "machinepools", "azuremachinepools", "sparks"},
-		Verbs:     []string{"*"},
+		APIGroups: []string{
+			"cluster.x-k8s.io",
+			"core.giantswarm.io",
+			"exp.cluster.x-k8s.io",
+			"infrastructure.cluster.x-k8s.io",
+			"infrastructure.giantswarm.io",
+		},
+		Resources: []string{
+			"awsmachinedeployments",
+			"azuremachinepools",
+			"machinedeployments",
+			"machinepools",
+			"networkpools",
+			"sparks",
+		},
+		Verbs: []string{"*"},
 	}
 
 	clusterRole := &rbacv1.ClusterRole{
@@ -810,6 +891,8 @@ func (b *Bootstrap) createWriteNodePoolsClusterRole(ctx context.Context) error {
 	return nil
 }
 
+// Ensures the ClusterRoleBinding 'write-nodepools-customer-sa' between
+// ClusterRole 'write-nodepools' and ServiceAccount 'automation'.
 func (b *Bootstrap) createWriteNodePoolsClusterRoleBindingToAutomationSA(ctx context.Context) error {
 	clusterRoleBindingName := key.WriteNodePoolsAutomationSARoleBindingName()
 
@@ -867,11 +950,22 @@ func (b *Bootstrap) createWriteNodePoolsClusterRoleBindingToAutomationSA(ctx con
 	return nil
 }
 
+// Ensures the ClusterRole 'write-client-certificates'.
+//
+// Purpose of this role is to grant all permissions needed for
+// creating client certificates, which happens via the creation
+// of certconfigs.core.giantswarm.io resources.
+//
+// Note: read access to secrets is not included.
 func (b *Bootstrap) createWriteClientCertsClusterRole(ctx context.Context) error {
 	policyRule := rbacv1.PolicyRule{
-		APIGroups: []string{"core.giantswarm.io"},
-		Resources: []string{"certconfigs"},
-		Verbs:     []string{"*"},
+		APIGroups: []string{
+			"core.giantswarm.io",
+		},
+		Resources: []string{
+			"certconfigs",
+		},
+		Verbs: []string{"*"},
 	}
 
 	clusterRole := &rbacv1.ClusterRole{
@@ -912,6 +1006,8 @@ func (b *Bootstrap) createWriteClientCertsClusterRole(ctx context.Context) error
 	return nil
 }
 
+// Ensures the ClusterRoleBinding 'write-client-certificates-customer-sa' between
+// ClusterRole 'write-client-certificates' and ServiceAccount 'automation'.
 func (b *Bootstrap) createWriteClientCertsClusterRoleBindingToAutomationSA(ctx context.Context) error {
 	clusterRoleBindingName := key.WriteClientCertsAutomationSARoleBindingName()
 
@@ -969,11 +1065,19 @@ func (b *Bootstrap) createWriteClientCertsClusterRoleBindingToAutomationSA(ctx c
 	return nil
 }
 
+// Ensures the ClusterRole 'write-silences'.
+//
+// Purpose of this role is to grant all permissions needed for
+// handling silences.monitoring.giantswarm.io resources.
 func (b *Bootstrap) createWriteSilencesClusterRole(ctx context.Context) error {
 	policyRule := rbacv1.PolicyRule{
-		APIGroups: []string{"monitoring.giantswarm.io"},
-		Resources: []string{"silences"},
-		Verbs:     []string{"*"},
+		APIGroups: []string{
+			"monitoring.giantswarm.io",
+		},
+		Resources: []string{
+			"silences",
+		},
+		Verbs: []string{"*"},
 	}
 
 	clusterRole := &rbacv1.ClusterRole{
@@ -1014,6 +1118,8 @@ func (b *Bootstrap) createWriteSilencesClusterRole(ctx context.Context) error {
 	return nil
 }
 
+// Ensures the ClusterRoleBinding 'write-silences-customer-sa' between
+// ClusterRole 'write-silences' and ServiceAccount 'automation'.
 func (b *Bootstrap) createWriteSilencesClusterRoleBindingToAutomationSA(ctx context.Context) error {
 	clusterRoleBindingName := key.WriteSilencesAutomationSARoleBindingName()
 
@@ -1071,7 +1177,11 @@ func (b *Bootstrap) createWriteSilencesClusterRoleBindingToAutomationSA(ctx cont
 	return nil
 }
 
-// Grant cluster-admin access for automation service account to default namespace.
+// Ensure labels on the ClusterRole 'cluster-admin':
+//
+// - 'ui.giantswarm.io/display=true'
+// - 'giantswarm.io/managed-by=Kubernetes'
+//
 func (b *Bootstrap) labelDefaultClusterRoles(ctx context.Context) error {
 	labelsToSet := map[string]string{
 		label.DisplayInUserInterface: "true",
