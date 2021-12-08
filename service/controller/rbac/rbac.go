@@ -11,6 +11,7 @@ import (
 	"github.com/giantswarm/operatorkit/v5/pkg/controller"
 	"github.com/giantswarm/operatorkit/v5/pkg/resource"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 
 	legacylabel "github.com/giantswarm/rbac-operator/pkg/label"
@@ -43,7 +44,8 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 
 	var namespaceAuthController *controller.Controller
 	{
-		selector := controller.NewSelector(func(labels controller.Labels) bool {
+		labels.Parse(label.Organization)
+		selector := newWrongSelector(func(labels labels.Labels) bool {
 			return labels.Has(label.Organization) || labels.Has(legacylabel.LegacyCustomer)
 		})
 
