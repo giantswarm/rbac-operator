@@ -44,7 +44,6 @@ func NewRBAC(config RBACConfig) (*RBAC, error) {
 
 	var namespaceAuthController *controller.Controller
 	{
-		labels.Parse(label.Organization)
 		selector := newWrongSelector(func(labels labels.Labels) bool {
 			return labels.Has(label.Organization) || labels.Has(legacylabel.LegacyCustomer)
 		})
