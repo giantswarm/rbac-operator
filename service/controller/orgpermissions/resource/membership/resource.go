@@ -1,7 +1,7 @@
 package membership
 
 import (
-	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	rbacv1 "k8s.io/api/rbac/v1"

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix missing selfLink issue by updating to operatorkit@v4.3.1.
+
 ## [0.18.3] - 2021-11-22
 
 ### Added
