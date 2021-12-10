@@ -135,6 +135,19 @@ workflows:
             tags:
               only: /^v.*/
 
+      # deploy to openstack installations (only tags)
+      - architect/push-to-app-collection:
+          name: push-rbac-operator-to-openstack-app-collection
+          app_name: "rbac-operator"
+          app_collection_repo: "openstack-app-collection"
+          requires:
+            - push-rbac-operator-to-control-plane-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+
       # deploy to vmware installations (only tags)
       - architect/push-to-app-collection:
           name: push-rbac-operator-to-vmware-app-collection
