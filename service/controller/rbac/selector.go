@@ -6,7 +6,7 @@ import (
 
 /*
 	For some reason selector package was moved under internal package in
-	operatorkit@v4.3.1 and is not accessible outside. This adapted
+	operatorkit@v4.3.1 and is not accessible outside. This is an adapted
 	copy/paste from the operatorkit package.
 */
 
