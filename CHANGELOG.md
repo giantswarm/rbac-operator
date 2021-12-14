@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add user-friendly descriptions to created `ClusterRole` resources, via annotations using the `ui.giantswarm.io/description` key.
+
 ## [0.18.4] - 2021-12-10
 
 ### Fixed
