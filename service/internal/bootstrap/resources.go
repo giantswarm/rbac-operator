@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
+	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -17,10 +18,6 @@ import (
 
 	"github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/pkg/project"
-)
-
-const (
-	descriptionAnnotationKey string = "ui.giantswarm.io/description"
 )
 
 // Ensures the 'automation' service account in the default namespace.
@@ -111,7 +108,7 @@ func (b *Bootstrap) createReadAllClusterRole(ctx context.Context) error {
 				label.DisplayInUserInterface: "true",
 			},
 			Annotations: map[string]string{
-				descriptionAnnotationKey: "Grants read-only (get, list, watch) permissions to almost all resource types known on the management cluster, with exception of ConfigMap and Secret.",
+				annotation.Notes: "Grants read-only (get, list, watch) permissions to almost all resource types known on the management cluster, with exception of ConfigMap and Secret.",
 			},
 		},
 		Rules: policyRules,
@@ -164,7 +161,7 @@ func (b *Bootstrap) createWriteOrganizationsClusterRole(ctx context.Context) err
 				label.DisplayInUserInterface: "true",
 			},
 			Annotations: map[string]string{
-				descriptionAnnotationKey: "Grants full permissions for the organizations.security.giantswarm.io resource type.",
+				annotation.Notes: "Grants full permissions for the organizations.security.giantswarm.io resource type.",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{policyRule},
@@ -630,7 +627,7 @@ func (b *Bootstrap) createWriteFluxResourcesClusterRole(ctx context.Context) err
 				label.DisplayInUserInterface: "true",
 			},
 			Annotations: map[string]string{
-				descriptionAnnotationKey: "Grants full permissions to FluxCD related resource types.",
+				annotation.Notes: "Grants full permissions to FluxCD related resource types.",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{policyRule},
@@ -753,7 +750,7 @@ func (b *Bootstrap) createWriteClustersClusterRole(ctx context.Context) error {
 				label.DisplayInUserInterface: "true",
 			},
 			Annotations: map[string]string{
-				descriptionAnnotationKey: "Grants full permissions to resources for clusters, excluding node pools.",
+				annotation.Notes: "Grants full permissions to resources for clusters, excluding node pools.",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{policyRule},
@@ -877,7 +874,7 @@ func (b *Bootstrap) createWriteNodePoolsClusterRole(ctx context.Context) error {
 				label.DisplayInUserInterface: "true",
 			},
 			Annotations: map[string]string{
-				descriptionAnnotationKey: "Grants full permissions on resources representing node pools.",
+				annotation.Notes: "Grants full permissions on resources representing node pools.",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{policyRule},
@@ -995,7 +992,7 @@ func (b *Bootstrap) createWriteClientCertsClusterRole(ctx context.Context) error
 				label.DisplayInUserInterface: "true",
 			},
 			Annotations: map[string]string{
-				descriptionAnnotationKey: "Grants full permissions on certconfigs.core.giantswarm.io resources.",
+				annotation.Notes: "Grants full permissions on certconfigs.core.giantswarm.io resources.",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{policyRule},
@@ -1110,7 +1107,7 @@ func (b *Bootstrap) createWriteSilencesClusterRole(ctx context.Context) error {
 				label.DisplayInUserInterface: "true",
 			},
 			Annotations: map[string]string{
-				descriptionAnnotationKey: "Grants full permissions for silences.monitoring.giantswarm.io resources.",
+				annotation.Notes: "Grants full permissions for silences.monitoring.giantswarm.io resources.",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{policyRule},
