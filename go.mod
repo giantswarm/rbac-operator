@@ -13,9 +13,9 @@ require (
 	github.com/giantswarm/operatorkit/v4 v4.3.1
 	github.com/prometheus/client_golang v1.11.0
 	github.com/spf13/viper v1.9.0
-	k8s.io/api v0.18.19
-	k8s.io/apimachinery v0.18.19
-	k8s.io/client-go v0.18.19
+	k8s.io/api v0.20.14
+	k8s.io/apimachinery v0.20.14
+	k8s.io/client-go v0.20.14
 )
 
 replace sigs.k8s.io/cluster-api => github.com/giantswarm/cluster-api v0.3.13-gs
