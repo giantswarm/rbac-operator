@@ -15,11 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Require Go v1.17
-
-### Fixed
-
-- Fixed log messages for updating ClusterRoles.
+- Change the CI build process to use architect-orb.
+- Adapt code to mitigate warnings occurring for common code checks.
+- Modify log messages for updating ClusterRoles.
+- Require Go v1.16.
 
 ## [0.18.4] - 2021-12-10
 
