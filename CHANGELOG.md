@@ -7,17 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0] - 2021-12-17
+
 ### Added
 
 - Add user-friendly descriptions to created `ClusterRole` resources, via annotations using the `giantswarm.io/notes` key.
 
 ### Changed
 
-- Require Go v1.17
-
-### Fixed
-
-- Fixed log messages for updating ClusterRoles.
+- Change the CI build process to use architect-orb.
+- Adapt code to mitigate warnings occurring for common code checks.
+- Modify log messages for updating ClusterRoles.
+- Require Go v1.16.
 
 ## [0.18.4] - 2021-12-10
 
@@ -229,7 +230,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.18.4...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.19.0...HEAD
+[0.19.0]: https://github.com/giantswarm/rbac-operator/compare/v0.18.4...v0.19.0
 [0.18.4]: https://github.com/giantswarm/rbac-operator/compare/v0.18.3...v0.18.4
 [0.18.3]: https://github.com/giantswarm/rbac-operator/compare/v0.18.2...v0.18.3
 [0.18.2]: https://github.com/giantswarm/rbac-operator/compare/v0.18.1...v0.18.2
