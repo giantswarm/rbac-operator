@@ -19,4 +19,8 @@ require (
 	k8s.io/client-go v0.18.19
 )
 
-replace sigs.k8s.io/cluster-api => github.com/giantswarm/cluster-api v0.3.13-gs
+replace (
+	github.com/coreos/etcd => go.etcd.io/etcd/v3 v3.5.1
+	github.com/dgrijalva/jwt-go => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
+	sigs.k8s.io/cluster-api => github.com/giantswarm/cluster-api v0.3.13-gs
+)
