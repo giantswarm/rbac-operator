@@ -24,10 +24,9 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	}
 
 	for _, clusterRole := range clusterRoles {
-
 		_, err = r.k8sClient.RbacV1().ClusterRoles().Get(ctx, clusterRole, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			// do nothing
+			continue
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
@@ -35,7 +34,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 
 			err = r.k8sClient.RbacV1().ClusterRoles().Delete(ctx, clusterRole, metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
-				// do nothing
+				continue
 			}
 			if err != nil {
 				return microerror.Mask(err)
@@ -51,10 +50,9 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	}
 
 	for _, roleBinding := range roleBindings {
-
 		_, err = r.k8sClient.RbacV1().RoleBindings(ns.Name).Get(ctx, roleBinding, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			// do nothing
+			continue
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
@@ -62,7 +60,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 
 			err = r.k8sClient.RbacV1().RoleBindings(ns.Name).Delete(ctx, roleBinding, metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
-				// do nothing
+				continue
 			}
 			if err != nil {
 				return microerror.Mask(err)
