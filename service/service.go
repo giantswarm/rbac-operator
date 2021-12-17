@@ -193,7 +193,12 @@ func (s *Service) Boot(ctx context.Context) {
 			panic(microerror.JSON(microerror.Mask(err)))
 		}
 
-		go s.operatorCollector.Boot(ctx)
+		go func() {
+			err := s.operatorCollector.Boot(ctx)
+			if err != nil {
+				panic(microerror.JSON(microerror.Mask(err)))
+			}
+		}()
 
 		go s.rbacController.Boot(ctx)
 
