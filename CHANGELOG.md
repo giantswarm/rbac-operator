@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Require Go v1.17
 
+### Fixed
+
+- Fixed log messages for updating ClusterRoles.
+
 ## [0.18.4] - 2021-12-10
 
 ### Fixed

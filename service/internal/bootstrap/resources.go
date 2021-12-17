@@ -130,7 +130,7 @@ func (b *Bootstrap) createReadAllClusterRole(ctx context.Context) error {
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole binding %#q", readOnlyClusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole %#q", readOnlyClusterRole.Name))
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, readOnlyClusterRole, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
@@ -183,7 +183,7 @@ func (b *Bootstrap) createWriteOrganizationsClusterRole(ctx context.Context) err
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole binding %#q", orgAdminClusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole %#q", orgAdminClusterRole.Name))
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, orgAdminClusterRole, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
@@ -649,7 +649,7 @@ func (b *Bootstrap) createWriteFluxResourcesClusterRole(ctx context.Context) err
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole binding %#q", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole %#q", clusterRole.Name))
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, clusterRole, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
@@ -772,7 +772,7 @@ func (b *Bootstrap) createWriteClustersClusterRole(ctx context.Context) error {
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole binding %#q", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole %#q", clusterRole.Name))
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, clusterRole, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
@@ -896,7 +896,7 @@ func (b *Bootstrap) createWriteNodePoolsClusterRole(ctx context.Context) error {
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole binding %#q", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole %#q", clusterRole.Name))
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, clusterRole, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
@@ -1014,7 +1014,7 @@ func (b *Bootstrap) createWriteClientCertsClusterRole(ctx context.Context) error
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole binding %#q", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole %#q", clusterRole.Name))
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, clusterRole, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
