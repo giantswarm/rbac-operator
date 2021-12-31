@@ -6,6 +6,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
 	"github.com/giantswarm/microerror"
+	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -13,6 +14,21 @@ import (
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/key"
+)
+
+var (
+	crdServiceAccounts = []string{
+		"helm-controller",
+		"image-automation-controller",
+		"image-reflector-controller",
+		"kustomize-controller",
+		"notification-controller",
+		"source-controller",
+	}
+	reconcilerServiceAccounts = []string{
+		"helm-controller",
+		"kustomize-controller",
+	}
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
@@ -29,25 +45,69 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: pkgkey.FluxPermissionsRoleBindingName,
+			Name: pkgkey.FluxCRDRoleBindingName,
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
 		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind:      "ServiceAccount",
-				Name:      pkgkey.DefaultServiceAccountName,
-				Namespace: ns.Name,
-			},
-		},
+		Subjects: []rbacv1.Subject{},
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
-			Name:     pkgkey.UpstreamFluxClusterRole,
+			Name:     pkgkey.UpstreamFluxCRDClusterRole,
 		},
 	}
 
+	for _, serviceAccount := range crdServiceAccounts {
+		roleBinding.Subjects = append(roleBinding.Subjects,
+			rbacv1.Subject{
+				Kind:      "ServiceAccount",
+				Name:      serviceAccount,
+				Namespace: ns.Name,
+			},
+		)
+	}
+
+	if err := r.createOrUpdateRoleBinding(ctx, ns, roleBinding); err != nil {
+		return microerror.Mask(err)
+	}
+
+	roleBinding = &rbacv1.RoleBinding{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "RoleBinding",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: pkgkey.FluxReconcilerRoleBindingName,
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+		},
+		Subjects: []rbacv1.Subject{},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     pkgkey.ClusterAdminClusterRoleName,
+		},
+	}
+
+	for _, serviceAccount := range reconcilerServiceAccounts {
+		roleBinding.Subjects = append(roleBinding.Subjects,
+			rbacv1.Subject{
+				Kind:      "ServiceAccount",
+				Name:      serviceAccount,
+				Namespace: ns.Name,
+			},
+		)
+	}
+
+	if err := r.createOrUpdateRoleBinding(ctx, ns, roleBinding); err != nil {
+		return microerror.Mask(err)
+	}
+	return nil
+}
+
+func (r *Resource) createOrUpdateRoleBinding(ctx context.Context, ns corev1.Namespace, roleBinding *rbacv1.RoleBinding) error {
 	existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Get(ctx, roleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating rolebinding %#q", roleBinding.Name))
