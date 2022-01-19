@@ -49,6 +49,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
+			Namespace: ns.Name,
 		},
 		Subjects: []rbacv1.Subject{},
 		RoleRef: rbacv1.RoleRef{
@@ -82,6 +83,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
+			Namespace: ns.Name,
 		},
 		Subjects: []rbacv1.Subject{},
 		RoleRef: rbacv1.RoleRef{
