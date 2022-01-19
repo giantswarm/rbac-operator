@@ -15,15 +15,11 @@ const (
 type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
-
-	WriteAllCustomerGroup string
 }
 
 type Resource struct {
 	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
-
-	writeAllCustomerGroup string
 }
 
 func New(config Config) (*Resource, error) {
@@ -34,15 +30,9 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.WriteAllCustomerGroup == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.WriteAllCustomerGroup must not be empty", config)
-	}
-
 	r := &Resource{
 		k8sClient: config.K8sClient.K8sClient(),
 		logger:    config.Logger,
-
-		writeAllCustomerGroup: config.WriteAllCustomerGroup,
 	}
 
 	return r, nil

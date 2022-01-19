@@ -27,8 +27,6 @@ func newRBACResources(config rbacResourcesConfig) ([]resource.Interface, error) 
 		c := fluxauth.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
-
-			WriteAllCustomerGroup: config.WriteAllCustomerGroup,
 		}
 
 		fluxAuthResource, err = fluxauth.New(c)
