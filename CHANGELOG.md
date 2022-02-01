@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Add user-friendly descriptions to created `ClusterRole` resources, via annotations using the `giantswarm.io/notes` key.
+
 ### Fixed
 
 - Add missing `imagePullSecret`.
