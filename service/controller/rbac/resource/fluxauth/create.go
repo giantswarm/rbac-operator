@@ -39,7 +39,74 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	// create "automation" ServiceAccount in org namespace
+	{
+		serviceAccount := &corev1.ServiceAccount{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "ServiceAccount",
+				APIVersion: "v1",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name: pkgkey.AutomationServiceAccountName,
+				Labels: map[string]string{
+					label.ManagedBy: project.Name(),
+				},
+				Namespace: ns.Name,
+			},
+		}
+
+		_, err := r.k8sClient.CoreV1().ServiceAccounts(ns.Name).Get(ctx, serviceAccount.Name, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating serviceaccount %#q", serviceAccount.Name))
+
+			_, err := r.k8sClient.CoreV1().ServiceAccounts(ns.Name).Create(ctx, serviceAccount, metav1.CreateOptions{})
+			if apierrors.IsAlreadyExists(err) {
+				// do nothing
+			} else if err != nil {
+				return microerror.Mask(err)
+			}
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("serviceaccount %#q has been created", serviceAccount.Name))
+		}
+	}
+
+	// create a RoleBinding granting :
+	// - cluster-admin access for "automation" ServiceAccount *in this org namespace*
+	// - cluster-admin access for "automation" ServiceAccount *in default namespace*
+	// cluster-admin permissions are limited in scope to org namespace
 	roleBinding := &rbacv1.RoleBinding{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "RoleBinding",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: pkgkey.FluxCRDRoleBindingName,
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+			Namespace: ns.Name,
+		},
+		Subjects: []rbacv1.Subject{
+			{
+				Kind:      "ServiceAccount",
+				Name:      pkgkey.AutomationServiceAccountName,
+				Namespace: ns.Name,
+			},
+			{
+				Kind:      "ServiceAccount",
+				Name:      pkgkey.AutomationServiceAccountName,
+				Namespace: pkgkey.DefaultNamespaceName,
+			},
+		},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     pkgkey.ClusterAdminClusterRoleName,
+		},
+	}
+
+	// create a RoleBinding allowing ServiceAccounts in flux-system to access
+	// Flux CRs in org namespace
+	roleBinding = &rbacv1.RoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "RoleBinding",
 			APIVersion: "rbac.authorization.k8s.io/v1",
@@ -73,6 +140,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	// create a RoleBinding allowing *some* ServiceAccounts in flux-system to
+	// reconcile (read, write) Flux CRs in org namespace
 	roleBinding = &rbacv1.RoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "RoleBinding",
