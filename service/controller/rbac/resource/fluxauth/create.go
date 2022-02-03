@@ -104,6 +104,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		},
 	}
 
+	if err := r.createOrUpdateRoleBinding(ctx, ns, roleBinding); err != nil {
+		return microerror.Mask(err)
+	}
+
 	// create a RoleBinding allowing ServiceAccounts in flux-system to access
 	// Flux CRs in org namespace
 	roleBinding = &rbacv1.RoleBinding{
