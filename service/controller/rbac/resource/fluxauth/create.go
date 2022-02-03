@@ -16,6 +16,8 @@ import (
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/key"
 )
 
+const fluxNamespace = "flux-system"
+
 var (
 	crdServiceAccounts = []string{
 		"helm-controller",
@@ -135,7 +137,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			rbacv1.Subject{
 				Kind:      "ServiceAccount",
 				Name:      serviceAccount,
-				Namespace: ns.Name,
+				Namespace: fluxNamespace,
 			},
 		)
 	}
@@ -171,7 +173,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			rbacv1.Subject{
 				Kind:      "ServiceAccount",
 				Name:      serviceAccount,
-				Namespace: ns.Name,
+				Namespace: fluxNamespace,
 			},
 		)
 	}
