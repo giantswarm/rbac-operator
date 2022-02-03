@@ -22,6 +22,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	roleBindings := []string{
 		pkgkey.FluxCRDRoleBindingName,
 		pkgkey.FluxReconcilerRoleBindingName,
+		pkgkey.WriteAllAutomationSARoleBindingName(),
 	}
 
 	for _, roleBinding := range roleBindings {
@@ -42,6 +43,25 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 			} else {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been deleted", roleBinding))
 			}
+		}
+	}
+
+	serviceAccountName := pkgkey.AutomationServiceAccountName
+	_, err = r.k8sClient.CoreV1().ServiceAccounts(ns.Name).Get(ctx, serviceAccountName, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		// pass
+	} else if err != nil {
+		return microerror.Mask(err)
+	} else {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q serviceaccount", serviceAccountName))
+
+		err = r.k8sClient.CoreV1().ServiceAccounts(ns.Name).Delete(ctx, serviceAccountName, metav1.DeleteOptions{})
+		if apierrors.IsNotFound(err) {
+			// pass
+		} else if err != nil {
+			return microerror.Mask(err)
+		} else {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("serviceaccount %#q has been deleted", serviceAccountName))
 		}
 	}
 
