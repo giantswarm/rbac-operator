@@ -79,7 +79,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: pkgkey.FluxCRDRoleBindingName,
+			Name: pkgkey.WriteAllAutomationSARoleBindingName(),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
