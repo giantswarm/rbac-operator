@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Create bindings for customer's Flux to reconcile organization namespace.
+- Create RBAC for customer-facing Flux to access organization namespaces.
+- Add `automation` ServiceAccount to organization namespaces with permissions to handle Flux resources in that namespace by default.
 
 ## [0.19.1] - 2022-02-02
 
