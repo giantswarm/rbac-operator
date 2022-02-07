@@ -9,7 +9,9 @@ pod:
     id: 1000
 
 registry:
-  domain: quay.io
+  domain: docker.io
+  pullSecret:
+    dockerConfigJSON: ""
 
 oidc:
   customer:
