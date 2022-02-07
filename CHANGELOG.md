@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Create bindings for customer's Flux to reconcile organization namespace.
+
 ## [0.19.1] - 2022-02-02
 
 ### Fixed
