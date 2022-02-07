@@ -3,6 +3,7 @@ package fluxauth
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
@@ -226,15 +227,7 @@ func needsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.RoleBinding) bo
 		return true
 	}
 
-	if desiredRoleBinding.Subjects[0].Name != existingRoleBinding.Subjects[0].Name {
-		return true
-	}
-
-	if desiredRoleBinding.Subjects[0].Namespace != existingRoleBinding.Subjects[0].Namespace {
-		return true
-	}
-
-	if desiredRoleBinding.RoleRef.Name != existingRoleBinding.RoleRef.Name {
+	if !reflect.DeepEqual(desiredRoleBinding.Subjects, existingRoleBinding.Subjects) {
 		return true
 	}
 
