@@ -226,5 +226,17 @@ func needsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.RoleBinding) bo
 		return true
 	}
 
-	return desiredRoleBinding.Subjects[0].Name != existingRoleBinding.Subjects[0].Name || desiredRoleBinding.Subjects[0].Namespace != existingRoleBinding.Subjects[0].Namespace || desiredRoleBinding.RoleRef.Name != existingRoleBinding.RoleRef.Name
+	if desiredRoleBinding.Subjects[0].Name != existingRoleBinding.Subjects[0].Name {
+		return true
+	}
+
+	if desiredRoleBinding.Subjects[0].Namespace != existingRoleBinding.Subjects[0].Namespace {
+		return true
+	}
+
+	if desiredRoleBinding.RoleRef.Name != existingRoleBinding.RoleRef.Name {
+		return true
+	}
+
+	return false
 }
