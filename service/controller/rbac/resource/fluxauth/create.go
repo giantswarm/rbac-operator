@@ -19,6 +19,9 @@ import (
 const fluxNamespace = "flux-system"
 
 var (
+	// upstream Flux ServiceAccounts which need permissions for
+	// "*.toolkit.fluxcd.io" resources in Organization namespace
+	// see: https://github.com/fluxcd/flux2/blob/main/manifests/rbac/controller.yaml
 	crdServiceAccounts = []string{
 		"helm-controller",
 		"image-automation-controller",
@@ -27,6 +30,9 @@ var (
 		"notification-controller",
 		"source-controller",
 	}
+	// upstream Flux ServiceAccounts which need cluster-admin access to
+	// reconcile resources in Organization namespace
+	// see: https://github.com/fluxcd/flux2/blob/main/manifests/rbac/reconciler.yaml
 	reconcilerServiceAccounts = []string{
 		"helm-controller",
 		"kustomize-controller",

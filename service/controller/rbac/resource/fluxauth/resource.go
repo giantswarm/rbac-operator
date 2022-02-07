@@ -1,3 +1,10 @@
+// fluxauth package is responsible for setting up RBAC required by
+// customer-facing Flux, operating in flux-system namespace.
+// This includes creating RoleBindings to upstream Flux roles in Organization
+// namespaces, RoleBindings allowing default Flux ServiceAccounts access to
+// said namespaces, as well as creating an `automation` ServiceAccount in every
+// Organization namespace, with enough permissions to reconcile Flux resources
+// there.
 package fluxauth
 
 import (
