@@ -9,7 +9,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
-
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/key"
 )
 

@@ -51,8 +51,8 @@ func newRBACResources(config rbacResourcesConfig) ([]resource.Interface, error) 
 	}
 
 	resources := []resource.Interface{
-		namespaceAuthResource,
 		fluxAuthResource,
+		namespaceAuthResource,
 	}
 
 	{
