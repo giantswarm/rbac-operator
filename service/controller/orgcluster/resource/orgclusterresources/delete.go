@@ -54,12 +54,10 @@ func (r *Resource) deleteRoleBinding(ctx context.Context, namespace string, role
 		err = r.k8sClient.K8sClient().RbacV1().RoleBindings(namespace).Delete(ctx, roleBinding, metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
 			// nothing to be done
-		}
-		if err != nil {
+		} else if err != nil {
 			return microerror.Mask(err)
-		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("RoleBinding %#q has been deleted.", roleBinding))
 		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("RoleBinding %#q has been deleted.", roleBinding))
 	}
 	return nil
 }
@@ -78,12 +76,10 @@ func (r *Resource) deleteRole(ctx context.Context, namespace string, role string
 		err = r.k8sClient.K8sClient().RbacV1().Roles(namespace).Delete(ctx, role, metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
 			// nothing to be done
-		}
-		if err != nil {
+		} else if err != nil {
 			return microerror.Mask(err)
-		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("Role %#q has been deleted.", role))
 		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("Role %#q has been deleted.", role))
 	}
 	return nil
 }
