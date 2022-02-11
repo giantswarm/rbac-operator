@@ -58,7 +58,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 		}
 		// Ensure RoleBinding in cluster namespace
-		err = r.ensureOrgClusterNSRoleBinding(ctx, subjects, cl.Name, referencedRole.roleBindingName)
+		err = r.ensureOrgClusterNSRoleBinding(ctx, subjects, cl.Name, referencedRole)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -92,7 +92,7 @@ func (r *Resource) ensureOrgClusterNSRole(ctx context.Context, clusterNamespace 
 	return nil
 }
 
-func (r *Resource) ensureOrgClusterNSRoleBinding(ctx context.Context, subjects []rbacv1.Subject, clusterNamespace string, referencedRole string) error {
+func (r *Resource) ensureOrgClusterNSRoleBinding(ctx context.Context, subjects []rbacv1.Subject, clusterNamespace string, referencedRole rolePair) error {
 	var err error
 
 	roleBinding := &rbacv1.RoleBinding{
@@ -101,7 +101,7 @@ func (r *Resource) ensureOrgClusterNSRoleBinding(ctx context.Context, subjects [
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: referencedRole,
+			Name: referencedRole.roleBindingName,
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
@@ -110,8 +110,8 @@ func (r *Resource) ensureOrgClusterNSRoleBinding(ctx context.Context, subjects [
 		Subjects: subjects,
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     referencedRole,
+			Kind:     "Role",
+			Name:     referencedRole.roleName,
 		},
 	}
 
