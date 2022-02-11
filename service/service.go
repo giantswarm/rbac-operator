@@ -224,5 +224,7 @@ func (s *Service) Boot(ctx context.Context) {
 		go s.rbacController.Boot(ctx)
 
 		go s.orgPermissionsController.Boot(ctx)
+
+		go s.orgClusterController.Boot(ctx)
 	})
 }
