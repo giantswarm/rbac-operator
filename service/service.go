@@ -13,10 +13,12 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
+	cluster "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/giantswarm/rbac-operator/flag"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/collector"
+	"github.com/giantswarm/rbac-operator/service/controller/orgcluster"
 	"github.com/giantswarm/rbac-operator/service/controller/orgpermissions"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac"
 	"github.com/giantswarm/rbac-operator/service/internal/bootstrap"
@@ -37,6 +39,7 @@ type Service struct {
 	bootstrapRunner          *bootstrap.Bootstrap
 	rbacController           *rbac.RBAC
 	orgPermissionsController *orgpermissions.OrgPermissions
+	orgClusterController     *orgcluster.OrgCluster
 	operatorCollector        *collector.Set
 }
 
@@ -87,7 +90,10 @@ func New(config Config) (*Service, error) {
 	var k8sClient k8sclient.Interface
 	{
 		c := k8sclient.ClientsConfig{
-			Logger:     config.Logger,
+			Logger: config.Logger,
+			SchemeBuilder: k8sclient.SchemeBuilder{
+				cluster.AddToScheme,
+			},
 			RestConfig: restConfig,
 		}
 
@@ -108,6 +114,20 @@ func New(config Config) (*Service, error) {
 		}
 
 		bootstrapRunner, err = bootstrap.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var orgClusterController *orgcluster.OrgCluster
+	{
+
+		c := orgcluster.OrgClusterConfig{
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+		}
+
+		orgClusterController, err = orgcluster.NewOrgCluster(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -179,6 +199,7 @@ func New(config Config) (*Service, error) {
 		bootstrapRunner:          bootstrapRunner,
 		rbacController:           rbacController,
 		orgPermissionsController: orgPermissionsController,
+		orgClusterController:     orgClusterController,
 		operatorCollector:        operatorCollector,
 	}
 

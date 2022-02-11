@@ -67,6 +67,16 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 		return microerror.Mask(err)
 	}
 
+	err = b.createReadOrgClusterAppsRole(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = b.createWriteOrgClusterAppsRole(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	err = b.createReadAllClusterRoleBindingToCustomerGroup(ctx)
 	if err != nil {
 		return microerror.Mask(err)
