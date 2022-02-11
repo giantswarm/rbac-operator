@@ -23,6 +23,16 @@ rules:
       - update
       - delete
   - apiGroups:
+      - cluster.x-k8s.io
+    resources:
+      - clusters
+    verbs:
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
       - "rbac.authorization.k8s.io"
     resources:
       - roles
