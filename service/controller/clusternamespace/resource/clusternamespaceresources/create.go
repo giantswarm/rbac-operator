@@ -1,18 +1,20 @@
-package orgclusterresources
+package clusternamespaceresources
 
 import (
 	"context"
 	"fmt"
 
+	securityv1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/security/v1alpha1"
 	"github.com/giantswarm/microerror"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
-	"github.com/giantswarm/rbac-operator/service/controller/orgcluster/key"
+	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace/key"
 )
 
 // Ensures that
@@ -22,22 +24,20 @@ import (
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	var err error
 
-	cl, err := key.ToCluster(obj)
+	cl, err := key.ToNamespace(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	orgNamespace := cl.Namespace
-	if !pkgkey.IsOrgNamespace(orgNamespace) {
-		return nil
-	}
-
-	// Check if cluster namespace exists
-	_, err = r.k8sClient.K8sClient().CoreV1().Namespaces().Get(ctx, cl.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		return nil
-	} else if err != nil {
+	// Fetch the organization
+	organization := securityv1alpha1.Organization{}
+	err = r.k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: pkgkey.Organization(&cl)}, &organization)
+	if err != nil {
 		return microerror.Mask(err)
+	}
+	orgNamespace := organization.Status.Namespace
+	if len(orgNamespace) < 1 {
+		return microerror.Maskf(unknownOrganizationNamespaceError, "Could not find the namespace for organization %s.", pkgkey.Organization(&cl))
 	}
 
 	// List roleBindings in org-namespace
@@ -53,7 +53,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	for _, referencedRole := range referencedClusterRoles() {
 
 		// Ensure Role in cluster namespace
-		err = r.ensureOrgClusterNSRole(ctx, cl.Name, referencedRole.roleName, referencedRole.policyRules)
+		err = r.ensureClusterNamespaceNSRole(ctx, cl.Name, referencedRole.roleName, referencedRole.policyRules)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -66,7 +66,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 		}
 		// Ensure RoleBinding in cluster namespace
-		err = r.ensureOrgClusterNSRoleBinding(ctx, subjects, cl.Name, referencedRole)
+		err = r.ensureClusterNamespaceNSRoleBinding(ctx, subjects, cl.Name, referencedRole)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -75,7 +75,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) ensureOrgClusterNSRole(ctx context.Context, clusterNamespace string, referencedRole string, rules []rbacv1.PolicyRule) error {
+func (r *Resource) ensureClusterNamespaceNSRole(ctx context.Context, clusterNamespace string, referencedRole string, rules []rbacv1.PolicyRule) error {
 	var err error
 
 	role := &rbacv1.Role{
@@ -100,7 +100,7 @@ func (r *Resource) ensureOrgClusterNSRole(ctx context.Context, clusterNamespace 
 	return nil
 }
 
-func (r *Resource) ensureOrgClusterNSRoleBinding(ctx context.Context, subjects []rbacv1.Subject, clusterNamespace string, referencedRole rolePair) error {
+func (r *Resource) ensureClusterNamespaceNSRoleBinding(ctx context.Context, subjects []rbacv1.Subject, clusterNamespace string, referencedRole rolePair) error {
 	var err error
 
 	roleBinding := &rbacv1.RoleBinding{

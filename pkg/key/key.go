@@ -3,6 +3,8 @@ package key
 import (
 	"fmt"
 	"strings"
+
+	"github.com/giantswarm/rbac-operator/pkg/label"
 )
 
 const (
@@ -10,24 +12,24 @@ const (
 )
 
 const (
-	AutomationServiceAccountName      = "automation"
-	ClusterAdminClusterRoleName       = "cluster-admin"
-	DefaultReadAllPermissionsName     = "read-all"
-	DefaultWriteAllPermissionsName    = "write-all"
-	DefaultNamespaceName              = "default"
-	FluxCRDRoleBindingName            = "flux-crd-controller"
-	FluxReconcilerRoleBindingName     = "flux-namespace-reconciler"
-	ReadOrgClusterAppsRoleBinding     = "read-cluster-apps"
-	ReadOrgClusterAppsRole            = "read-cluster-apps-in-cluster-ns"
-	UpstreamFluxCRDClusterRole        = "crd-controller"
-	WriteOrgClusterAppsRoleBinding    = "write-cluster-apps"
-	WriteOrgClusterAppsRole           = "write-cluster-apps-in-cluster-ns"
-	WriteOrganizationsPermissionsName = "write-organizations"
-	WriteFluxResourcesPermissionsName = "write-flux-resources"
-	WriteClustersPermissionsName      = "write-clusters"
-	WriteNodePoolsPermissionsName     = "write-nodepools"
-	WriteClientCertsPermissionsName   = "write-client-certificates"
-	WriteSilencesPermissionsName      = "write-silences"
+	AutomationServiceAccountName         = "automation"
+	ClusterAdminClusterRoleName          = "cluster-admin"
+	DefaultReadAllPermissionsName        = "read-all"
+	DefaultWriteAllPermissionsName       = "write-all"
+	DefaultNamespaceName                 = "default"
+	FluxCRDRoleBindingName               = "flux-crd-controller"
+	FluxReconcilerRoleBindingName        = "flux-namespace-reconciler"
+	ReadClusterNamespaceAppsRoleBinding  = "read-cluster-apps"
+	ReadClusterNamespaceAppsRole         = "read-cluster-apps-in-cluster-ns"
+	UpstreamFluxCRDClusterRole           = "crd-controller"
+	WriteClusterNamespaceAppsRoleBinding = "write-cluster-apps"
+	WriteClusterNamespaceAppsRole        = "write-cluster-apps-in-cluster-ns"
+	WriteOrganizationsPermissionsName    = "write-organizations"
+	WriteFluxResourcesPermissionsName    = "write-flux-resources"
+	WriteClustersPermissionsName         = "write-clusters"
+	WriteNodePoolsPermissionsName        = "write-nodepools"
+	WriteClientCertsPermissionsName      = "write-client-certificates"
+	WriteSilencesPermissionsName         = "write-silences"
 )
 
 func DefaultClusterRolesToDisplayInUI() []string {
@@ -40,7 +42,19 @@ func IsOrgNamespace(ns string) bool {
 	return strings.HasPrefix(ns, "org-")
 }
 
+func Cluster(getter label.LabelsGetter) string {
+	return getter.GetLabels()[label.Cluster]
+}
+
+func Organization(getter label.LabelsGetter) string {
+	return getter.GetLabels()[label.Organization]
+}
+
 func OrganizationName(ns string) string {
+	return strings.TrimPrefix(ns, "org-")
+}
+
+func OrganizationNamespace(org string) string {
 	return strings.TrimPrefix(ns, "org-")
 }
 

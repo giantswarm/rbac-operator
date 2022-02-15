@@ -1,4 +1,4 @@
-package orgclusterresources
+package clusternamespaceresources
 
 import (
 	"context"
@@ -8,29 +8,15 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
-	"github.com/giantswarm/rbac-operator/service/controller/orgcluster/key"
+	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace/key"
 )
 
 // Ensures that when a cluster is deleted, roles and roleBindings for cluster resource access are deleted as well
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	var err error
 
-	cl, err := key.ToCluster(obj)
+	cl, err := key.ToNamespace(obj)
 	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	orgNamespace := cl.Namespace
-	if !pkgkey.IsOrgNamespace(orgNamespace) {
-		return nil
-	}
-
-	// Check if cluster namespace exists
-	_, err = r.k8sClient.K8sClient().CoreV1().Namespaces().Get(ctx, cl.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		return nil
-	} else if err != nil {
 		return microerror.Mask(err)
 	}
 

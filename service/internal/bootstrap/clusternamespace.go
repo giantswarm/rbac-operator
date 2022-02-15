@@ -22,12 +22,12 @@ import (
 //
 // Purpose if this role is to enable read permissions (get, list, watch)
 // for app resources in the cluster namespace
-func (b *Bootstrap) createReadOrgClusterAppsRole(ctx context.Context) error {
+func (b *Bootstrap) createReadClusterNamespaceAppsRole(ctx context.Context) error {
 	var err error
 
 	role := &rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: key.ReadOrgClusterAppsRole,
+			Name: key.ReadClusterNamespaceAppsRole,
 			Labels: map[string]string{
 				label.ManagedBy:              project.Name(),
 				label.DisplayInUserInterface: "true",
@@ -49,12 +49,12 @@ func (b *Bootstrap) createReadOrgClusterAppsRole(ctx context.Context) error {
 //
 // Purpose if this role is to enable write permissions (get, list, watch, create, update, patch, delete)
 // for app resources in the cluster namespace
-func (b *Bootstrap) createWriteOrgClusterAppsRole(ctx context.Context) error {
+func (b *Bootstrap) createWriteClusterNamespaceAppsRole(ctx context.Context) error {
 	var err error
 
 	role := &rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: key.WriteOrgClusterAppsRole,
+			Name: key.WriteClusterNamespaceAppsRole,
 			Labels: map[string]string{
 				label.ManagedBy:              project.Name(),
 				label.DisplayInUserInterface: "true",

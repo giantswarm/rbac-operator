@@ -1,4 +1,4 @@
-package orgcluster
+package clusternamespace
 
 import (
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
@@ -8,32 +8,32 @@ import (
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/retryresource"
 
-	"github.com/giantswarm/rbac-operator/service/controller/orgcluster/resource/orgclusterresources"
+	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace/resource/clusternamespaceresources"
 )
 
-type orgClusterResourcesConfig struct {
+type clusterNamespaceResourcesConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 }
 
-func newOrgClusterResources(config orgClusterResourcesConfig) ([]resource.Interface, error) {
+func newClusterNamespaceResources(config clusterNamespaceResourcesConfig) ([]resource.Interface, error) {
 	var err error
 
-	var orgClusterResourcesResource resource.Interface
+	var clusterNamespaceResourcesResource resource.Interface
 	{
-		c := orgclusterresources.Config{
+		c := clusternamespaceresources.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
 
-		orgClusterResourcesResource, err = orgclusterresources.New(c)
+		clusterNamespaceResourcesResource, err = clusternamespaceresources.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
 	resources := []resource.Interface{
-		orgClusterResourcesResource,
+		clusterNamespaceResourcesResource,
 	}
 
 	{

@@ -67,12 +67,12 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 		return microerror.Mask(err)
 	}
 
-	err = b.createReadOrgClusterAppsRole(ctx)
+	err = b.createReadClusterNamespaceAppsRole(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	err = b.createWriteOrgClusterAppsRole(ctx)
+	err = b.createWriteClusterNamespaceAppsRole(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}

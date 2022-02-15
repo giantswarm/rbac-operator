@@ -1,4 +1,4 @@
-package orgcluster
+package clusternamespace
 
 import (
 	"k8s.io/apimachinery/pkg/labels"

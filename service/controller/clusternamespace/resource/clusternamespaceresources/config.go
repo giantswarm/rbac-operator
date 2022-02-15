@@ -1,4 +1,4 @@
-package orgclusterresources
+package clusternamespaceresources
 
 import (
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -17,26 +17,26 @@ type rolePair struct {
 func referencedClusterRoles() []rolePair {
 	return []rolePair{
 		{
-			roleName:        pkgkey.ReadOrgClusterAppsRole,
-			roleBindingName: pkgkey.ReadOrgClusterAppsRoleBinding,
+			roleName:        pkgkey.ReadClusterNamespaceAppsRole,
+			roleBindingName: pkgkey.ReadClusterNamespaceAppsRoleBinding,
 			policyRules:     readClusterAppsRules(),
 		},
 		{
-			roleName:        pkgkey.WriteOrgClusterAppsRole,
-			roleBindingName: pkgkey.WriteOrgClusterAppsRoleBinding,
+			roleName:        pkgkey.WriteClusterNamespaceAppsRole,
+			roleBindingName: pkgkey.WriteClusterNamespaceAppsRoleBinding,
 			policyRules:     writeClusterAppsRules(),
 		},
 	}
 }
 func readClusterAppsRules() []rbacv1.PolicyRule {
-	return getRules(orgClusterResources(), readAccess())
+	return getRules(clusterNamespaceResources(), readAccess())
 }
 func writeClusterAppsRules() []rbacv1.PolicyRule {
-	return getRules(orgClusterResources(), writeAccess())
+	return getRules(clusterNamespaceResources(), writeAccess())
 }
 
 // List of org cluster resources we want to grant access to
-func orgClusterResources() []metav1.APIResource {
+func clusterNamespaceResources() []metav1.APIResource {
 	return []metav1.APIResource{
 		{
 			Name:  "apps",

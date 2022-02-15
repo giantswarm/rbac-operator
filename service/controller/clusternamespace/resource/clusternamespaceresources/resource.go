@@ -1,7 +1,7 @@
-// orgclusterresources package is responsible for managing RBAC resources
+// clusternamespaceresources package is responsible for managing RBAC resources
 // that grant those with access to an organization namespace access to
 // namespaces belonging to the organizations clusters
-package orgclusterresources
+package clusternamespaceresources
 
 import (
 	"reflect"
@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	Name = "orgclusterresources"
+	Name = "clusternamespaceresources"
 )
 
 type Config struct {
