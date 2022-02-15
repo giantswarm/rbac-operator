@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add update option for `orgReadClusterRoleBinding` resource.
 
+### Changed
+
+- Specified Docker image to use in CircleCI
+
 ## [0.20.0] - 2022-02-07
 
 ### Added
