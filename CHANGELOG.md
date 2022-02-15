@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The `write_all_group` configuration key is now optional.
+
 ## [0.20.0] - 2022-02-07
 
 ### Added
