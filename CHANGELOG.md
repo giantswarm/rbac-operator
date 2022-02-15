@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add update option for `orgReadClusterRoleBinding` resource.
+
 ### Changed
 
 - The `write_all_group` configuration key is now optional.
