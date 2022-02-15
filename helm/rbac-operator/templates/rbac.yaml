@@ -23,14 +23,13 @@ rules:
       - update
       - delete
   - apiGroups:
-      - cluster.x-k8s.io
+      - "security.giantswarm.io"
     resources:
-      - clusters
+      - organizations
+      - organizations/status
     verbs:
       - get
       - list
-      - patch
-      - update
       - watch
   - apiGroups:
       - "rbac.authorization.k8s.io"

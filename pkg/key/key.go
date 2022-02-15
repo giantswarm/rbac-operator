@@ -54,10 +54,6 @@ func OrganizationName(ns string) string {
 	return strings.TrimPrefix(ns, "org-")
 }
 
-func OrganizationNamespace(org string) string {
-	return strings.TrimPrefix(ns, "org-")
-}
-
 func OrganizationReadClusterRoleName(ns string) string {
 	return fmt.Sprintf("organization-%s-read", strings.TrimPrefix(ns, "org-"))
 }
