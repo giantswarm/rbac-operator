@@ -32,6 +32,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	// Check if cluster namespace exists
+	_, err = r.k8sClient.K8sClient().CoreV1().Namespaces().Get(ctx, cl.Name, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		return nil
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
 	// List roleBindings in org-namespace
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("Listing RoleBindings in namespace %s.", orgNamespace))
 	orgRoleBindings, err := r.k8sClient.K8sClient().RbacV1().RoleBindings(orgNamespace).List(ctx, metav1.ListOptions{})

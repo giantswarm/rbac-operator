@@ -26,6 +26,14 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	// Check if cluster namespace exists
+	_, err = r.k8sClient.K8sClient().CoreV1().Namespaces().Get(ctx, cl.Name, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		return nil
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
 	// Delete RoleBindings in org Cluster namespace
 	for _, referencedRole := range referencedClusterRoles() {
 		err = r.deleteRoleBinding(ctx, cl.Name, referencedRole.roleBindingName)
