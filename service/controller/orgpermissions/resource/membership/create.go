@@ -3,6 +3,7 @@ package membership
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/giantswarm/microerror"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -51,8 +52,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			Name:     orgReadClusterRoleName,
 		},
 	}
+	err = r.createOrUpdateClusterRoleBinding(ctx, orgReadClusterRoleBinding)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	return nil
+}
 
-	_, err = r.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, orgReadClusterRoleBinding.Name, metav1.GetOptions{})
+func (r *Resource) createOrUpdateClusterRoleBinding(ctx context.Context, orgReadClusterRoleBinding *rbacv1.ClusterRoleBinding) error {
+	existingClusterRoleBinding, err := r.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, orgReadClusterRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrolebinding %#q", orgReadClusterRoleBinding.Name))
 
@@ -67,9 +75,29 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	} else if err != nil {
 		return microerror.Mask(err)
+
+	} else if needsUpdate(orgReadClusterRoleBinding, existingClusterRoleBinding) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrolebinding %#q", orgReadClusterRoleBinding.Name))
+		_, err := r.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, orgReadClusterRoleBinding, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", orgReadClusterRoleBinding.Name))
+
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q already exists", orgReadClusterRoleBinding.Name))
 	}
 
 	return nil
+}
+
+func needsUpdate(desiredClusterRoleBinding, existingClusterRoleBinding *rbacv1.ClusterRoleBinding) bool {
+	if len(existingClusterRoleBinding.Subjects) < 1 {
+		return true
+	}
+	if !reflect.DeepEqual(desiredClusterRoleBinding.Subjects, existingClusterRoleBinding.Subjects) {
+		return true
+	}
+
+	return false
 }
