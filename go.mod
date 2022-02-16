@@ -12,7 +12,7 @@ require (
 	github.com/giantswarm/microkit v1.0.0
 	github.com/giantswarm/micrologger v0.6.0
 	github.com/giantswarm/operatorkit/v4 v4.3.1
-	github.com/prometheus/client_golang v1.12.0
+	github.com/prometheus/client_golang v1.12.1
 	github.com/spf13/viper v1.10.1
 	k8s.io/api v0.18.19
 	k8s.io/apimachinery v0.18.19
