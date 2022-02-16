@@ -6,4 +6,4 @@ name: rbac-operator
 version: [[ .Version ]]
 annotations:
   application.giantswarm.io/team: "rainbow"
-  config.giantswarm.io/version: 1.x.x
+  config.giantswarm.io/version: remove-customer-write-all-group
