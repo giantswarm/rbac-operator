@@ -6,13 +6,13 @@ require (
 	github.com/giantswarm/apiextensions/v3 v3.39.0
 	github.com/giantswarm/exporterkit v1.0.0
 	github.com/giantswarm/k8sclient/v5 v5.12.0
-	github.com/giantswarm/k8smetadata v0.8.0
+	github.com/giantswarm/k8smetadata v0.9.2
 	github.com/giantswarm/microendpoint v1.0.0
 	github.com/giantswarm/microerror v0.4.0
 	github.com/giantswarm/microkit v1.0.0
 	github.com/giantswarm/micrologger v0.6.0
 	github.com/giantswarm/operatorkit/v4 v4.3.1
-	github.com/prometheus/client_golang v1.12.0
+	github.com/prometheus/client_golang v1.12.1
 	github.com/spf13/viper v1.10.1
 	k8s.io/api v0.18.19
 	k8s.io/apimachinery v0.18.19
