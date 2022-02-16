@@ -82,6 +82,11 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 		return microerror.Mask(err)
 	}
 
+	err = b.createReadDefaultCatalogsRole(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	err = b.createWriteAllRoleBindingToCustomerGroup(ctx)
 	if err != nil {
 		return microerror.Mask(err)
