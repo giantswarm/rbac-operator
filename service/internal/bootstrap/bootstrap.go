@@ -77,6 +77,11 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 		return microerror.Mask(err)
 	}
 
+	err = b.createReadReleasesClusterRole(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	err = b.createWriteAllClusterRoleBindingToGSGroup(ctx)
 	if err != nil {
 		return microerror.Mask(err)
