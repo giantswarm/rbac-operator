@@ -8,28 +8,51 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace/key"
+	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
+	"github.com/giantswarm/rbac-operator/service/controller/rbac/key"
 )
 
-// Ensures that when a cluster is deleted, roles and roleBindings for cluster resource access are deleted as well
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	var err error
 
-	cl, err := key.ToNamespace(obj)
+	ns, err := key.ToNamespace(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	organization := pkgkey.OrganizationName(ns.Name)
+
+	// Delete RoleBinding for default app catalogs access
+	err = r.deleteRoleBinding(ctx, pkgkey.DefaultNamespaceName, pkgkey.OrganizationReadDefaultCatalogsRoleBindingName(organization))
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	// Delete RoleBindings in org Cluster namespace
-	for _, referencedRole := range referencedClusterRoles() {
-		err = r.deleteRoleBinding(ctx, cl.Name, referencedRole.roleBindingName)
-		if err != nil {
+	// Delete ClusterRoleBinding for releases access
+	err = r.deleteClusterRoleBinding(ctx, pkgkey.OrganizationReadReleasesClusterRoleBindingName(organization))
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	return nil
+}
+
+func (r *Resource) deleteClusterRoleBinding(ctx context.Context, clusterRoleBinding string) error {
+	var err error
+
+	_, err = r.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, clusterRoleBinding, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		// nothing to be done
+	} else if err != nil {
+		return microerror.Mask(err)
+	} else {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("Deleting %#q clusterRoleBinding.", clusterRoleBinding))
+
+		err = r.k8sClient.RbacV1().ClusterRoleBindings().Delete(ctx, clusterRoleBinding, metav1.DeleteOptions{})
+		if apierrors.IsNotFound(err) {
+			// nothing to be done
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
-		err = r.deleteRole(ctx, cl.Name, referencedRole.roleName)
-		if err != nil {
-			return microerror.Mask(err)
-		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ClusterRoleBinding %#q has been deleted.", clusterRoleBinding))
 	}
 	return nil
 }
@@ -37,7 +60,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 func (r *Resource) deleteRoleBinding(ctx context.Context, namespace string, roleBinding string) error {
 	var err error
 
-	_, err = r.k8sClient.K8sClient().RbacV1().RoleBindings(namespace).Get(ctx, roleBinding, metav1.GetOptions{})
+	_, err = r.k8sClient.RbacV1().RoleBindings(namespace).Get(ctx, roleBinding, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// nothing to be done
 	} else if err != nil {
@@ -45,35 +68,13 @@ func (r *Resource) deleteRoleBinding(ctx context.Context, namespace string, role
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("Deleting %#q roleBinding.", roleBinding))
 
-		err = r.k8sClient.K8sClient().RbacV1().RoleBindings(namespace).Delete(ctx, roleBinding, metav1.DeleteOptions{})
+		err = r.k8sClient.RbacV1().RoleBindings(namespace).Delete(ctx, roleBinding, metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
 			// nothing to be done
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("RoleBinding %#q has been deleted.", roleBinding))
-	}
-	return nil
-}
-
-func (r *Resource) deleteRole(ctx context.Context, namespace string, role string) error {
-	var err error
-
-	_, err = r.k8sClient.K8sClient().RbacV1().Roles(namespace).Get(ctx, role, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		// nothing to be done
-	} else if err != nil {
-		return microerror.Mask(err)
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("Deleting %#q role.", role))
-
-		err = r.k8sClient.K8sClient().RbacV1().Roles(namespace).Delete(ctx, role, metav1.DeleteOptions{})
-		if apierrors.IsNotFound(err) {
-			// nothing to be done
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("Role %#q has been deleted.", role))
 	}
 	return nil
 }

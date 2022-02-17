@@ -10,7 +10,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	rbacv1 "k8s.io/api/rbac/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 const (
@@ -23,7 +23,7 @@ type Config struct {
 }
 
 type Resource struct {
-	k8sClient k8sclient.Interface
+	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
 }
 
@@ -36,7 +36,7 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		k8sClient: config.K8sClient,
+		k8sClient: config.K8sClient.K8sClient(),
 		logger:    config.Logger,
 	}
 
@@ -54,8 +54,17 @@ func roleBindingHasReference(roleBinding rbacv1.RoleBinding) bool {
 	return false
 }
 
-// RoleBinding needs an update with the list of subjects has changed
-func roleBindingNeedsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.RoleBinding) bool {
+func roleBindingHasSubject(roleBinding rbacv1.RoleBinding) bool {
+	for _, subject := range roleBinding.Subjects {
+		if (subject.Kind == "Group" || subject.Kind == "User") && subject.Name != "" {
+			return true
+		}
+	}
+	return false
+}
+
+// ClusterRoleBinding needs an update with the list of subjects has changed
+func clusterRoleBindingNeedsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.ClusterRoleBinding) bool {
 	if len(existingRoleBinding.Subjects) < 1 {
 		return true
 	}
@@ -67,28 +76,15 @@ func roleBindingNeedsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.Role
 	return false
 }
 
-// Role needs an update if the rules have changed
-func roleNeedsUpdate(desiredRole, existingRole *rbacv1.Role) bool {
-	if len(existingRole.Rules) < 1 {
+// RoleBinding needs an update with the list of subjects has changed
+func roleBindingNeedsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.RoleBinding) bool {
+	if len(existingRoleBinding.Subjects) < 1 {
 		return true
 	}
 
-	if !reflect.DeepEqual(desiredRole.Rules, existingRole.Rules) {
+	if !reflect.DeepEqual(desiredRoleBinding.Subjects, existingRoleBinding.Subjects) {
 		return true
 	}
 
 	return false
-}
-
-func getRules(resources []metav1.APIResource, verbs []string) []rbacv1.PolicyRule {
-	var policyRules []rbacv1.PolicyRule
-	for _, resource := range resources {
-		policyRule := rbacv1.PolicyRule{
-			APIGroups: []string{resource.Group},
-			Resources: []string{resource.Name},
-			Verbs:     verbs,
-		}
-		policyRules = append(policyRules, policyRule)
-	}
-	return policyRules
 }

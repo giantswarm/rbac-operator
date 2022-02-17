@@ -50,6 +50,14 @@ func OrganizationReadClusterRoleBindingName(roleBindingName, organization string
 	return fmt.Sprintf("%s-organization-%s-read", roleBindingName, organization)
 }
 
+func OrganizationReadDefaultCatalogsRoleBindingName(organization string) string {
+	return fmt.Sprintf("default-catalogs-organization-%s-read", organization)
+}
+
+func OrganizationReadReleasesClusterRoleBindingName(organization string) string {
+	return fmt.Sprintf("releases-organization-%s-read", organization)
+}
+
 func ReadAllCustomerGroupClusterRoleBindingName() string {
 	return fmt.Sprintf("%s-customer-group", DefaultReadAllPermissionsName)
 }
