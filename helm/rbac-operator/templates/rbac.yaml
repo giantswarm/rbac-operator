@@ -23,6 +23,15 @@ rules:
       - update
       - delete
   - apiGroups:
+      - "security.giantswarm.io"
+    resources:
+      - organizations
+      - organizations/status
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
       - "rbac.authorization.k8s.io"
     resources:
       - roles

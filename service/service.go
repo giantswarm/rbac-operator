@@ -6,6 +6,7 @@ import (
 	"context"
 	"sync"
 
+	securityv1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/security/v1alpha1"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
@@ -17,6 +18,7 @@ import (
 	"github.com/giantswarm/rbac-operator/flag"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/collector"
+	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace"
 	"github.com/giantswarm/rbac-operator/service/controller/orgpermissions"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac"
 	"github.com/giantswarm/rbac-operator/service/internal/bootstrap"
@@ -33,11 +35,12 @@ type Config struct {
 type Service struct {
 	Version *version.Service
 
-	bootOnce                 sync.Once
-	bootstrapRunner          *bootstrap.Bootstrap
-	rbacController           *rbac.RBAC
-	orgPermissionsController *orgpermissions.OrgPermissions
-	operatorCollector        *collector.Set
+	bootOnce                   sync.Once
+	bootstrapRunner            *bootstrap.Bootstrap
+	rbacController             *rbac.RBAC
+	orgPermissionsController   *orgpermissions.OrgPermissions
+	clusterNamespaceController *clusternamespace.ClusterNamespace
+	operatorCollector          *collector.Set
 }
 
 // New creates a new configured service object.
@@ -87,7 +90,10 @@ func New(config Config) (*Service, error) {
 	var k8sClient k8sclient.Interface
 	{
 		c := k8sclient.ClientsConfig{
-			Logger:     config.Logger,
+			Logger: config.Logger,
+			SchemeBuilder: k8sclient.SchemeBuilder{
+				securityv1alpha1.AddToScheme,
+			},
 			RestConfig: restConfig,
 		}
 
@@ -108,6 +114,20 @@ func New(config Config) (*Service, error) {
 		}
 
 		bootstrapRunner, err = bootstrap.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var clusterNamespaceController *clusternamespace.ClusterNamespace
+	{
+
+		c := clusternamespace.ClusterNamespaceConfig{
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+		}
+
+		clusterNamespaceController, err = clusternamespace.NewClusterNamespace(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -175,11 +195,12 @@ func New(config Config) (*Service, error) {
 	s := &Service{
 		Version: versionService,
 
-		bootOnce:                 sync.Once{},
-		bootstrapRunner:          bootstrapRunner,
-		rbacController:           rbacController,
-		orgPermissionsController: orgPermissionsController,
-		operatorCollector:        operatorCollector,
+		bootOnce:                   sync.Once{},
+		bootstrapRunner:            bootstrapRunner,
+		rbacController:             rbacController,
+		orgPermissionsController:   orgPermissionsController,
+		clusterNamespaceController: clusterNamespaceController,
+		operatorCollector:          operatorCollector,
 	}
 
 	return s, nil
@@ -203,5 +224,7 @@ func (s *Service) Boot(ctx context.Context) {
 		go s.rbacController.Boot(ctx)
 
 		go s.orgPermissionsController.Boot(ctx)
+
+		go s.clusterNamespaceController.Boot(ctx)
 	})
 }
