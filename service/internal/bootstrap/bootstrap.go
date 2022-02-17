@@ -62,6 +62,16 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 		return microerror.Mask(err)
 	}
 
+	err = b.createReadClusterNamespaceAppsRole(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = b.createWriteClusterNamespaceAppsRole(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	err = b.createReadAllClusterRoleBindingToAutomationSA(ctx)
 	if err != nil {
 		return microerror.Mask(err)

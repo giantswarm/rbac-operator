@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add cluster-namespace controller which ensures that RBAC resources to access resources in cluster namespaces can be granted to those with access to the clusters organization
+- Add bootstrapping for the `read-cluster-apps` and `write-cluster-apps` clusterRoles.
 - Add update option for `orgReadClusterRoleBinding` resource.
 
 ### Changed
