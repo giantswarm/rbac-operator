@@ -23,147 +23,156 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	orgReadClusterRoleName := pkgkey.OrganizationReadClusterRoleName(ns.Name)
+	// Create ClusterRole allowing 'get' access to Organization CR
+	{
+		orgReadClusterRoleName := pkgkey.OrganizationReadClusterRoleName(ns.Name)
 
-	orgReadClusterRole := &rbacv1.ClusterRole{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "ClusterRole",
-			APIVersion: "rbac.authorization.k8s.io/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: orgReadClusterRoleName,
-			Labels: map[string]string{
-				label.ManagedBy: project.Name(),
+		orgReadClusterRole := &rbacv1.ClusterRole{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "ClusterRole",
+				APIVersion: "rbac.authorization.k8s.io/v1",
 			},
-		},
-		Rules: []rbacv1.PolicyRule{
-			{
-				APIGroups:     []string{"security.giantswarm.io"},
-				Resources:     []string{"organizations"},
-				ResourceNames: []string{pkgkey.OrganizationName(ns.Name)},
-				Verbs:         []string{"get"},
+			ObjectMeta: metav1.ObjectMeta{
+				Name: orgReadClusterRoleName,
+				Labels: map[string]string{
+					label.ManagedBy: project.Name(),
+				},
 			},
-		},
-	}
+			Rules: []rbacv1.PolicyRule{
+				{
+					APIGroups:     []string{"security.giantswarm.io"},
+					Resources:     []string{"organizations"},
+					ResourceNames: []string{pkgkey.OrganizationName(ns.Name)},
+					Verbs:         []string{"get"},
+				},
+			},
+		}
 
-	_, err = r.k8sClient.RbacV1().ClusterRoles().Get(ctx, orgReadClusterRole.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", orgReadClusterRole.Name))
+		_, err = r.k8sClient.RbacV1().ClusterRoles().Get(ctx, orgReadClusterRole.Name, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", orgReadClusterRole.Name))
 
-		_, err := r.k8sClient.RbacV1().ClusterRoles().Create(ctx, orgReadClusterRole, metav1.CreateOptions{})
-		if apierrors.IsAlreadyExists(err) {
-			// do nothing
+			_, err := r.k8sClient.RbacV1().ClusterRoles().Create(ctx, orgReadClusterRole, metav1.CreateOptions{})
+			if apierrors.IsAlreadyExists(err) {
+				// do nothing
+			} else if err != nil {
+				return microerror.Mask(err)
+			}
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been created", orgReadClusterRole.Name))
+
 		} else if err != nil {
 			return microerror.Mask(err)
+		} else {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q already exists", orgReadClusterRole.Name))
+		}
+	}
+
+	// Bind the ClusterRole created before to the writeAllCustomerGroup (if set)
+	if r.writeAllCustomerGroup != "" {
+		roleBindingToCustomerGroupName := pkgkey.WriteAllCustomerGroupRoleBindingName()
+
+		writeAllRoleBindingToCustomerGroup := &rbacv1.RoleBinding{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "RoleBinding",
+				APIVersion: "rbac.authorization.k8s.io/v1",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name: roleBindingToCustomerGroupName,
+				Labels: map[string]string{
+					label.ManagedBy: project.Name(),
+				},
+			},
+			Subjects: []rbacv1.Subject{
+				{
+					Kind: "Group",
+					Name: r.writeAllCustomerGroup,
+				},
+			},
+			RoleRef: rbacv1.RoleRef{
+				APIGroup: "rbac.authorization.k8s.io",
+				Kind:     "ClusterRole",
+				Name:     pkgkey.ClusterAdminClusterRoleName,
+			},
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been created", orgReadClusterRole.Name))
+		roleBinding := writeAllRoleBindingToCustomerGroup
+		existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Get(ctx, roleBinding.Name, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating rolebinding %#q", roleBinding.Name))
 
-	} else if err != nil {
-		return microerror.Mask(err)
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q already exists", orgReadClusterRole.Name))
-	}
+			_, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Create(ctx, roleBinding, metav1.CreateOptions{})
+			if apierrors.IsAlreadyExists(err) {
+				// do nothing
+			} else if err != nil {
+				return microerror.Mask(err)
+			}
 
-	roleBindingToCustomerGroupName := pkgkey.WriteAllCustomerGroupRoleBindingName()
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q has been created", roleBinding.Name))
 
-	writeAllRoleBindingToCustomerGroup := &rbacv1.RoleBinding{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "RoleBinding",
-			APIVersion: "rbac.authorization.k8s.io/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: roleBindingToCustomerGroupName,
-			Labels: map[string]string{
-				label.ManagedBy: project.Name(),
-			},
-		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind: "Group",
-				Name: r.writeAllCustomerGroup,
-			},
-		},
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     pkgkey.ClusterAdminClusterRoleName,
-		},
-	}
-
-	roleBinding := writeAllRoleBindingToCustomerGroup
-	existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Get(ctx, roleBinding.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating rolebinding %#q", roleBinding.Name))
-
-		_, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Create(ctx, roleBinding, metav1.CreateOptions{})
-		if apierrors.IsAlreadyExists(err) {
-			// do nothing
 		} else if err != nil {
 			return microerror.Mask(err)
+		} else if needsUpdate(roleBinding, existingRoleBinding) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating role binding %#q", roleBinding.Name))
+			_, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Update(ctx, roleBinding, metav1.UpdateOptions{})
+			if err != nil {
+				return microerror.Mask(err)
+			}
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been updated", roleBinding.Name))
+
+		} else {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q already exists", roleBinding.Name))
 		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q has been created", roleBinding.Name))
-
-	} else if err != nil {
-		return microerror.Mask(err)
-	} else if needsUpdate(roleBinding, existingRoleBinding) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating role binding %#q", roleBinding.Name))
-		_, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Update(ctx, roleBinding, metav1.UpdateOptions{})
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been updated", roleBinding.Name))
-
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q already exists", roleBinding.Name))
 	}
 
-	roleBindingToAutomationSAName := pkgkey.WriteAllAutomationSARoleBindingName()
+	// Bind ClusterRole 'cluster-admin' to the 'automation' SA in the 'default' namespace.
+	{
+		roleBindingToAutomationSAName := pkgkey.WriteAllAutomationSARoleBindingName()
 
-	writeAllRoleBindingToAutomationSA := &rbacv1.RoleBinding{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "RoleBinding",
-			APIVersion: "rbac.authorization.k8s.io/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: roleBindingToAutomationSAName,
-			Labels: map[string]string{
-				label.ManagedBy: project.Name(),
+		writeAllRoleBindingToAutomationSA := &rbacv1.RoleBinding{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "RoleBinding",
+				APIVersion: "rbac.authorization.k8s.io/v1",
 			},
-		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind:      "ServiceAccount",
-				Name:      pkgkey.AutomationServiceAccountName,
-				Namespace: pkgkey.DefaultNamespaceName,
+			ObjectMeta: metav1.ObjectMeta{
+				Name: roleBindingToAutomationSAName,
+				Labels: map[string]string{
+					label.ManagedBy: project.Name(),
+				},
 			},
-		},
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     pkgkey.ClusterAdminClusterRoleName,
-		},
-	}
+			Subjects: []rbacv1.Subject{
+				{
+					Kind:      "ServiceAccount",
+					Name:      pkgkey.AutomationServiceAccountName,
+					Namespace: pkgkey.DefaultNamespaceName,
+				},
+			},
+			RoleRef: rbacv1.RoleRef{
+				APIGroup: "rbac.authorization.k8s.io",
+				Kind:     "ClusterRole",
+				Name:     pkgkey.ClusterAdminClusterRoleName,
+			},
+		}
 
-	roleBinding = writeAllRoleBindingToAutomationSA
-	_, err = r.k8sClient.RbacV1().RoleBindings(ns.Name).Get(ctx, roleBinding.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating rolebinding %#q", roleBinding.Name))
+		roleBinding := writeAllRoleBindingToAutomationSA
+		_, err = r.k8sClient.RbacV1().RoleBindings(ns.Name).Get(ctx, roleBinding.Name, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating rolebinding %#q", roleBinding.Name))
 
-		_, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Create(ctx, roleBinding, metav1.CreateOptions{})
-		if apierrors.IsAlreadyExists(err) {
-			// do nothing
+			_, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Create(ctx, roleBinding, metav1.CreateOptions{})
+			if apierrors.IsAlreadyExists(err) {
+				// do nothing
+			} else if err != nil {
+				return microerror.Mask(err)
+			}
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q has been created", roleBinding.Name))
+
 		} else if err != nil {
 			return microerror.Mask(err)
+		} else {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q already exists", roleBinding.Name))
 		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q has been created", roleBinding.Name))
-
-	} else if err != nil {
-		return microerror.Mask(err)
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q already exists", roleBinding.Name))
 	}
 
 	return nil

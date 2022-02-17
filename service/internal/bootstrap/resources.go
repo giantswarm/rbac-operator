@@ -197,6 +197,10 @@ func (b *Bootstrap) createWriteOrganizationsClusterRole(ctx context.Context) err
 // Ensures the ClusterRoleBinding 'write-organizations-customer-group' between
 // ClusterRole 'write-organizations' and the customer admin group.
 func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToCustomerGroup(ctx context.Context) error {
+	if b.customerAdminGroup == "" {
+		return microerror.Maskf(invalidConfigError, "empty customer admin group name given")
+	}
+
 	clusterRoleBindingName := key.WriteOrganizationsCustomerGroupClusterRoleBindingName()
 
 	writeOrganizationsClusterRoleBinding := &rbacv1.ClusterRoleBinding{
@@ -254,6 +258,10 @@ func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToCustomerGroup(ct
 // Ensures the ClusterRoleBinding 'read-all-customer-group' between
 // ClusterRole 'read-all' and the customer admin group.
 func (b *Bootstrap) createReadAllClusterRoleBindingToCustomerGroup(ctx context.Context) error {
+	if b.customerAdminGroup == "" {
+		return microerror.Maskf(invalidConfigError, "empty customer admin group name given")
+	}
+
 	clusterRoleBindingName := key.ReadAllCustomerGroupClusterRoleBindingName()
 
 	readAllClusterRoleBinding := &rbacv1.ClusterRoleBinding{
@@ -421,6 +429,10 @@ func (b *Bootstrap) createWriteAllClusterRoleBindingToGSGroup(ctx context.Contex
 // Ensures the ClusterRoleBinding 'write-all-customer-group' between
 // ClusterRole 'cluster-admin' and the customer admin group.
 func (b *Bootstrap) createWriteAllRoleBindingToCustomerGroup(ctx context.Context) error {
+	if b.customerAdminGroup == "" {
+		return microerror.Maskf(invalidConfigError, "empty customer admin group name given")
+	}
+
 	roleBindingName := key.WriteAllCustomerGroupRoleBindingName()
 
 	writeAllRoleBinding := &rbacv1.RoleBinding{

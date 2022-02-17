@@ -9,13 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+
 - Add creation of `read-default-catalogs` Role.
+- Add creation of `read-releases` ClusterRole.
 
 ## [0.21.0] - 2022-02-16
 
 ### Added
 
 - Add update option for `orgReadClusterRoleBinding` resource.
+
+### Changed
+
+- The `write_all_group` configuration key is now optional.
 
 ## [0.20.0] - 2022-02-07
 
