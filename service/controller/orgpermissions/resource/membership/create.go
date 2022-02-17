@@ -62,7 +62,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 func (r *Resource) createOrUpdateClusterRoleBinding(ctx context.Context, orgReadClusterRoleBinding *rbacv1.ClusterRoleBinding) error {
 	existingClusterRoleBinding, err := r.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, orgReadClusterRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrolebinding %#q", orgReadClusterRoleBinding.Name))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q", orgReadClusterRoleBinding.Name))
 
 		_, err := r.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, orgReadClusterRoleBinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -71,21 +71,18 @@ func (r *Resource) createOrUpdateClusterRoleBinding(ctx context.Context, orgRead
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been created", orgReadClusterRoleBinding.Name))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been created", orgReadClusterRoleBinding.Name))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 
 	} else if needsUpdate(orgReadClusterRoleBinding, existingClusterRoleBinding) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrolebinding %#q", orgReadClusterRoleBinding.Name))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrolebinding %#q", orgReadClusterRoleBinding.Name))
 		_, err := r.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, orgReadClusterRoleBinding, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", orgReadClusterRoleBinding.Name))
-
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q already exists", orgReadClusterRoleBinding.Name))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", orgReadClusterRoleBinding.Name))
 	}
 
 	return nil
