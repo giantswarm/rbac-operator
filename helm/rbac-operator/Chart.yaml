@@ -5,5 +5,5 @@ home: https://github.com/giantswarm/rbac-operator
 name: rbac-operator
 version: [[ .Version ]]
 annotations:
-  application.giantswarm.io/team: "rainbow"
+  application.giantswarm.io/team: rainbow
   config.giantswarm.io/version: 1.x.x
