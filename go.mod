@@ -6,7 +6,7 @@ require (
 	github.com/giantswarm/apiextensions/v3 v3.39.0
 	github.com/giantswarm/exporterkit v1.0.0
 	github.com/giantswarm/k8sclient/v5 v5.12.0
-	github.com/giantswarm/k8smetadata v0.9.2
+	github.com/giantswarm/k8smetadata v0.9.3
 	github.com/giantswarm/microendpoint v1.0.0
 	github.com/giantswarm/microerror v0.4.0
 	github.com/giantswarm/microkit v1.0.0
