@@ -140,17 +140,17 @@ func (r *Resource) createOrUpdateRole(ctx context.Context, namespace string, rol
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Role %#q has been created.", role.Name))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Role %#q in namespace %s has been created.", role.Name, namespace))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else if roleNeedsUpdate(role, existingRole) {
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Updating Role %#q.", role.Name))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Updating Role %#q in namespace %s.", role.Name, namespace))
 		_, err := r.k8sClient.K8sClient().RbacV1().Roles(namespace).Update(ctx, role, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Role %#q has been updated.", role.Name))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Role %#q in namespace %s has been updated.", role.Name, namespace))
 
 	}
 
