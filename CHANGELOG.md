@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-
 - Add creation of `read-default-catalogs` Role.
 - Add creation of `read-releases` ClusterRole.
+- In the `clusternamespace` controller, remove logging for non-operations and add namespace info to log messages.
 
 ## [0.21.0] - 2022-02-16
 
