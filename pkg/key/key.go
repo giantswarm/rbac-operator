@@ -21,6 +21,8 @@ const (
 	FluxReconcilerRoleBindingName        = "flux-namespace-reconciler"
 	ReadClusterNamespaceAppsRoleBinding  = "read-cluster-apps"
 	ReadClusterNamespaceAppsRole         = "read-cluster-apps-in-cluster-ns"
+  ReadDefaultCatalogsRole              = "read-default-catalogs"
+  ReadReleasesRole                     = "read-releases"
 	UpstreamFluxCRDClusterRole           = "crd-controller"
 	WriteClusterNamespaceAppsRoleBinding = "write-cluster-apps"
 	WriteClusterNamespaceAppsRole        = "write-cluster-apps-in-cluster-ns"

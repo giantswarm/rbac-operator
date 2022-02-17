@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+
+- Add creation of `read-default-catalogs` Role.
+- Add creation of `read-releases` ClusterRole.
+
 ## [0.21.0] - 2022-02-16
 
 ### Added
@@ -14,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add cluster-namespace controller which ensures that RBAC resources to access resources in cluster namespaces can be granted to those with access to the clusters organization
 - Add bootstrapping for the `read-cluster-apps` and `write-cluster-apps` clusterRoles.
 - Add update option for `orgReadClusterRoleBinding` resource.
+
+### Changed
+
+- The `write_all_group` configuration key is now optional.
 
 ## [0.20.0] - 2022-02-07
 

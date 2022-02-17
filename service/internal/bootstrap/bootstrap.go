@@ -34,11 +34,6 @@ func New(config Config) (*Bootstrap, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
-
-	if config.CustomerAdminGroup == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CustomerAdminGroup must not be empty", config)
-	}
-
 	if config.GSAdminGroup == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.GSAdminGroup must not be empty", config)
 	}
@@ -77,22 +72,22 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 		return microerror.Mask(err)
 	}
 
-	err = b.createReadAllClusterRoleBindingToCustomerGroup(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	err = b.createReadAllClusterRoleBindingToAutomationSA(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	err = b.createWriteAllClusterRoleBindingToGSGroup(ctx)
+	err = b.createReadReleasesClusterRole(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	err = b.createWriteAllRoleBindingToCustomerGroup(ctx)
+	err = b.createReadDefaultCatalogsRole(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = b.createWriteAllClusterRoleBindingToGSGroup(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -103,11 +98,6 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 	}
 
 	err = b.createWriteOrganizationsClusterRole(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = b.createWriteOrganizationsClusterRoleBindingToCustomerGroup(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -170,6 +160,23 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 	err = b.labelDefaultClusterRoles(ctx)
 	if err != nil {
 		return microerror.Mask(err)
+	}
+
+	if b.customerAdminGroup != "" {
+		err = b.createReadAllClusterRoleBindingToCustomerGroup(ctx)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		err = b.createWriteAllRoleBindingToCustomerGroup(ctx)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		err = b.createWriteOrganizationsClusterRoleBindingToCustomerGroup(ctx)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 	}
 
 	return nil
