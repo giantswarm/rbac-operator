@@ -19,6 +19,7 @@ const (
 	FluxReconcilerRoleBindingName     = "flux-namespace-reconciler"
 	ReadReleasesRole                  = "read-releases"
 	UpstreamFluxCRDClusterRole        = "crd-controller"
+	ReadDefaultCatalogsRole           = "read-default-catalogs"
 	WriteOrganizationsPermissionsName = "write-organizations"
 	WriteFluxResourcesPermissionsName = "write-flux-resources"
 	WriteClustersPermissionsName      = "write-clusters"
