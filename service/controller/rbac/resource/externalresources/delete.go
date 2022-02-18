@@ -66,7 +66,7 @@ func (r *Resource) deleteRoleBinding(ctx context.Context, namespace string, role
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("Deleting %#q roleBinding.", roleBinding))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("deleting rolebinding %#q from namespace %s", roleBinding, namespace))
 
 		err = r.k8sClient.RbacV1().RoleBindings(namespace).Delete(ctx, roleBinding, metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
