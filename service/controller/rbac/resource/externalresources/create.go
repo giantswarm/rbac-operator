@@ -28,12 +28,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	orgNamespace := ns.Name
 
 	// List roleBindings in org-namespace
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("Listing RoleBindings in namespace %s.", orgNamespace))
 	orgRoleBindings, err := r.k8sClient.RbacV1().RoleBindings(orgNamespace).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	} else if len(orgRoleBindings.Items) == 0 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("No RoleBindings found in namespace %s.", orgNamespace))
 		return nil
 	}
 
