@@ -31,7 +31,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q role binding", roleBinding))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("deleting %#q rolebinding from namespace %s", roleBinding, ns.Name))
 
 			err = r.k8sClient.RbacV1().RoleBindings(ns.Name).Delete(ctx, roleBinding, metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
@@ -40,7 +40,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 			if err != nil {
 				return microerror.Mask(err)
 			} else {
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been deleted", roleBinding))
+				r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q has been deleted from namespace %s", roleBinding, ns.Name))
 			}
 		}
 	}
@@ -52,7 +52,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q serviceaccount", serviceAccountName))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("deleting serviceaccount %#q from namespace %s", serviceAccountName, ns.Name))
 
 		err = r.k8sClient.CoreV1().ServiceAccounts(ns.Name).Delete(ctx, serviceAccountName, metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
@@ -60,7 +60,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("serviceaccount %#q has been deleted", serviceAccountName))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("serviceaccount %#q has been deleted from namespace %s", serviceAccountName, ns.Name))
 		}
 	}
 

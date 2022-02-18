@@ -50,7 +50,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		_, err = r.k8sClient.RbacV1().ClusterRoles().Get(ctx, orgReadClusterRole.Name, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", orgReadClusterRole.Name))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrole %#q", orgReadClusterRole.Name))
 
 			_, err := r.k8sClient.RbacV1().ClusterRoles().Create(ctx, orgReadClusterRole, metav1.CreateOptions{})
 			if apierrors.IsAlreadyExists(err) {
@@ -59,12 +59,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been created", orgReadClusterRole.Name))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been created", orgReadClusterRole.Name))
 
 		} else if err != nil {
 			return microerror.Mask(err)
-		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q already exists", orgReadClusterRole.Name))
 		}
 	}
 
@@ -99,7 +97,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		roleBinding := writeAllRoleBindingToCustomerGroup
 		existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Get(ctx, roleBinding.Name, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating rolebinding %#q", roleBinding.Name))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating rolebinding %#q in namespace %s", roleBinding.Name, ns.Name))
 
 			_, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Create(ctx, roleBinding, metav1.CreateOptions{})
 			if apierrors.IsAlreadyExists(err) {
@@ -108,20 +106,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q has been created", roleBinding.Name))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been created", roleBinding.Name, ns.Name))
 
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else if needsUpdate(roleBinding, existingRoleBinding) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating role binding %#q", roleBinding.Name))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating rolebinding %#q in namespace %s", roleBinding.Name, ns.Name))
 			_, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Update(ctx, roleBinding, metav1.UpdateOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role binding %#q has been updated", roleBinding.Name))
-
-		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q already exists", roleBinding.Name))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been updated", roleBinding.Name, ns.Name))
 		}
 	}
 
@@ -157,7 +152,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		roleBinding := writeAllRoleBindingToAutomationSA
 		_, err = r.k8sClient.RbacV1().RoleBindings(ns.Name).Get(ctx, roleBinding.Name, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating rolebinding %#q", roleBinding.Name))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating rolebinding %#q in namespace %s", roleBinding.Name, ns.Name))
 
 			_, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Create(ctx, roleBinding, metav1.CreateOptions{})
 			if apierrors.IsAlreadyExists(err) {
@@ -166,12 +161,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q has been created", roleBinding.Name))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been created", roleBinding.Name, ns.Name))
 
 		} else if err != nil {
 			return microerror.Mask(err)
-		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q already exists", roleBinding.Name))
 		}
 	}
 
