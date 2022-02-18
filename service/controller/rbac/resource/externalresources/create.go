@@ -170,8 +170,6 @@ func (r *Resource) createOrUpdateRoleBinding(ctx context.Context, namespace stri
 		}
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q has been updated.", roleBinding.Name))
 
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q already exists.", roleBinding.Name))
 	}
 
 	return nil
