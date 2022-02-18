@@ -149,7 +149,7 @@ func (r *Resource) createOrUpdateClusterRoleBinding(ctx context.Context, cluster
 func (r *Resource) createOrUpdateRoleBinding(ctx context.Context, namespace string, roleBinding *rbacv1.RoleBinding) error {
 	existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(namespace).Get(ctx, roleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating rolebinding %#q.", roleBinding.Name))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating rolebinding %#q in namespace %s", roleBinding.Name, namespace))
 
 		_, err := r.k8sClient.RbacV1().RoleBindings(namespace).Create(ctx, roleBinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
