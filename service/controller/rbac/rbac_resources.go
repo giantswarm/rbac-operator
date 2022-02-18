@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/retryresource"
 
+	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/externalresources"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/fluxauth"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/namespaceauth"
 )
@@ -21,6 +22,19 @@ type rbacResourcesConfig struct {
 
 func newRBACResources(config rbacResourcesConfig) ([]resource.Interface, error) {
 	var err error
+
+	var externalResourcesResource resource.Interface
+	{
+		c := externalresources.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+
+		externalResourcesResource, err = externalresources.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
 
 	var fluxAuthResource resource.Interface
 	{
@@ -53,6 +67,7 @@ func newRBACResources(config rbacResourcesConfig) ([]resource.Interface, error) 
 	resources := []resource.Interface{
 		fluxAuthResource,
 		namespaceAuthResource,
+		externalResourcesResource,
 	}
 
 	{
