@@ -36,12 +36,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	// Collect the subjects that need access
-	var subjects []rbacv1.Subject
-	for _, roleBinding := range orgRoleBindings.Items {
-		if roleBindingHasReference(roleBinding) && roleBindingHasSubject(roleBinding) {
-			subjects = append(subjects, roleBinding.Subjects...)
-		}
-	}
+	subjects := getUniqueSubjects(orgRoleBindings)
 	// Ensure RoleBinding for default app catalogs access
 	err = r.ensureDefaultCatalogsRoleBinding(ctx, subjects, pkgkey.OrganizationName(orgNamespace))
 	if err != nil {

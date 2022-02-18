@@ -47,6 +47,22 @@ func (r *Resource) Name() string {
 	return Name
 }
 
+func getUniqueSubjects(orgRoleBindings *rbacv1.RoleBindingList) []rbacv1.Subject {
+	uniqueSubjects := make(map[string]rbacv1.Subject)
+	for _, roleBinding := range orgRoleBindings.Items {
+		if roleBindingHasReference(roleBinding) && roleBindingHasSubject(roleBinding) {
+			for _, subject := range roleBinding.Subjects {
+				uniqueSubjects[subject.Kind+subject.Name] = subject
+			}
+		}
+	}
+	var subjects []rbacv1.Subject
+	for _, value := range uniqueSubjects {
+		subjects = append(subjects, value)
+	}
+	return subjects
+}
+
 func roleBindingHasReference(roleBinding rbacv1.RoleBinding) bool {
 	if roleBinding.RoleRef.Name != "" && roleBinding.RoleRef.Kind != "" {
 		return true
