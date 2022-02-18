@@ -139,7 +139,7 @@ func (r *Resource) createOrUpdateClusterRoleBinding(ctx context.Context, cluster
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", clusterrolebinding.Name))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", clusterrolebinding.Name))
 	}
 	return nil
 }
