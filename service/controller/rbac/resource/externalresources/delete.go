@@ -52,7 +52,7 @@ func (r *Resource) deleteClusterRoleBinding(ctx context.Context, clusterRoleBind
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ClusterRoleBinding %#q has been deleted.", clusterRoleBinding))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been deleted", clusterRoleBinding))
 	}
 	return nil
 }
