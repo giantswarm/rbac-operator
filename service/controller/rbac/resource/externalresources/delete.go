@@ -44,7 +44,7 @@ func (r *Resource) deleteClusterRoleBinding(ctx context.Context, clusterRoleBind
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("Deleting %#q clusterRoleBinding.", clusterRoleBinding))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("deleting  clusterrolebinding %#q", clusterRoleBinding))
 
 		err = r.k8sClient.RbacV1().ClusterRoleBindings().Delete(ctx, clusterRoleBinding, metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
