@@ -120,7 +120,7 @@ func (r *Resource) ensureDefaultCatalogsRoleBinding(ctx context.Context, subject
 func (r *Resource) createOrUpdateClusterRoleBinding(ctx context.Context, clusterrolebinding *rbacv1.ClusterRoleBinding) error {
 	existingClusterRoleBinding, err := r.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, clusterrolebinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrolebinding %#q", clusterrolebinding.Name))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q", clusterrolebinding.Name))
 
 		_, err := r.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, clusterrolebinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
