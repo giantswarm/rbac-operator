@@ -74,7 +74,7 @@ func (r *Resource) deleteRoleBinding(ctx context.Context, namespace string, role
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("RoleBinding %#q has been deleted.", roleBinding))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q has been deleted from namespace %s", roleBinding, namespace))
 	}
 	return nil
 }
