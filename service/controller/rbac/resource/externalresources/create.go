@@ -168,7 +168,7 @@ func (r *Resource) createOrUpdateRoleBinding(ctx context.Context, namespace stri
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q has been updated.", roleBinding.Name))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been updated.", roleBinding.Name, namespace))
 
 	}
 
