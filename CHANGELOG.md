@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.0] - 2022-02-18
+
 ### Added
 
 - Add `externalresources` resource that binds `read-default-catalogs` and `read-releases` roles for any subject with org-namespace access.
@@ -264,7 +266,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/giantswarm/compare/v0.21.0...HEAD
+[Unreleased]: https://github.com/giantswarm/giantswarm/compare/v0.22.0...HEAD
+[0.22.0]: https://github.com/giantswarm/giantswarm/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/giantswarm/giantswarm/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/giantswarm/giantswarm/compare/v0.19.1...v0.20.0
 [0.19.1]: https://github.com/giantswarm/giantswarm/compare/v0.19.0...v0.19.1
