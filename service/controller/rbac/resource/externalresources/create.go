@@ -163,7 +163,7 @@ func (r *Resource) createOrUpdateRoleBinding(ctx context.Context, namespace stri
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else if roleBindingNeedsUpdate(roleBinding, existingRoleBinding) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating rolebinding %#q.", roleBinding.Name))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating rolebinding %#q in namespace %s", roleBinding.Name, namespace))
 		_, err := r.k8sClient.RbacV1().RoleBindings(namespace).Update(ctx, roleBinding, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
