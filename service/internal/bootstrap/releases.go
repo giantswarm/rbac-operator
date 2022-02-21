@@ -30,7 +30,7 @@ func (b *Bootstrap) createReadReleasesClusterRole(ctx context.Context) error {
 				label.DisplayInUserInterface: "false",
 			},
 			Annotations: map[string]string{
-				annotation.Notes: "Grants permissions needed for fetching Release CRs, which are cluster scoped. Supposed to be bound via ClusterRoleBinding in the cluster scope.",
+				annotation.Notes: "Grants permissions needed for fetching Release CRs, which are cluster scoped. Will be granted automatically to any subject bound in an Organization namespace.",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{

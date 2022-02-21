@@ -31,7 +31,7 @@ func (b *Bootstrap) createReadDefaultCatalogsRole(ctx context.Context) error {
 				label.DisplayInUserInterface: "false",
 			},
 			Annotations: map[string]string{
-				annotation.Notes: "Grants permissions needed for fetching Catalog and App Catalog Entry CRs in the default namespace. Supposed to be bound via RoleBinding.",
+				annotation.Notes: "Grants permissions needed for fetching Catalog and AppCatalogEntry CRs in the default namespace. Will be granted automatically to any subject bound to an Organization namespace.",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{
