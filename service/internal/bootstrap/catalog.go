@@ -31,7 +31,7 @@ func (b *Bootstrap) createReadDefaultCatalogsRole(ctx context.Context) error {
 				label.DisplayInUserInterface: "false",
 			},
 			Annotations: map[string]string{
-				annotation.Notes: "Grants permissions needed for fetching Catalog and App Catalog Entry CRs in the default namespace. Supposed to be bound via RoleBinding.",
+				annotation.Notes: "Grants permissions needed for fetching Catalog and AppCatalogEntry CRs in the default namespace. Will be granted automatically to any subject bound to an Organization namespace.",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{
@@ -59,7 +59,7 @@ func (b *Bootstrap) createOrUpdateRole(ctx context.Context, role *rbacv1.Role, n
 	var err error
 	_, err = b.k8sClient.RbacV1().Roles(namespace).Get(ctx, role.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating role %#q", role.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating role %#q in namespace %s", role.Name, namespace))
 
 		_, err := b.k8sClient.RbacV1().Roles(namespace).Create(ctx, role, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -68,17 +68,17 @@ func (b *Bootstrap) createOrUpdateRole(ctx context.Context, role *rbacv1.Role, n
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role %#q has been created", role.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("role %#q in namespace %s has been created", role.Name, namespace))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating role %#q", role.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating role %#q in namespace %s", role.Name, namespace))
 		_, err := b.k8sClient.RbacV1().Roles(namespace).Update(ctx, role, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("role %#q has been updated", role.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("role %#q in namespace %s has been updated", role.Name, namespace))
 	}
 
 	return nil

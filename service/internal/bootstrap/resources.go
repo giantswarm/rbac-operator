@@ -34,7 +34,7 @@ func (b *Bootstrap) createAutomationServiceAccount(ctx context.Context) error {
 
 	_, err := b.k8sClient.CoreV1().ServiceAccounts(key.DefaultNamespaceName).Get(ctx, automationSA.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating service account %#q", automationSA.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating serviceaccount %#q in namespace %s", automationSA.Name, key.DefaultNamespaceName))
 
 		_, err := b.k8sClient.CoreV1().ServiceAccounts(key.DefaultNamespaceName).Create(ctx, automationSA, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -43,19 +43,19 @@ func (b *Bootstrap) createAutomationServiceAccount(ctx context.Context) error {
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("service account %#q has been created", automationSA.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("serviceaccount %#q in namespace %s has been created", automationSA.Name, key.DefaultNamespaceName))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating %#q service account", automationSA.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating serviceaccount %#q in namespace %s", automationSA.Name, key.DefaultNamespaceName))
 
 		_, err := b.k8sClient.CoreV1().ServiceAccounts(key.DefaultNamespaceName).Update(ctx, automationSA, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("service account %#q has been updated", automationSA.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("serviceaccount %#q in namespace %s has been updated", automationSA.Name, key.DefaultNamespaceName))
 	}
 
 	return nil
@@ -116,7 +116,7 @@ func (b *Bootstrap) createReadAllClusterRole(ctx context.Context) error {
 
 	_, err = b.k8sClient.RbacV1().ClusterRoles().Get(ctx, readOnlyClusterRole.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", readOnlyClusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrole %#q", readOnlyClusterRole.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Create(ctx, readOnlyClusterRole, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -125,17 +125,17 @@ func (b *Bootstrap) createReadAllClusterRole(ctx context.Context) error {
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been created", readOnlyClusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been created", readOnlyClusterRole.Name))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole %#q", readOnlyClusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrole %#q", readOnlyClusterRole.Name))
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, readOnlyClusterRole, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been updated", readOnlyClusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been updated", readOnlyClusterRole.Name))
 	}
 
 	return nil
@@ -161,7 +161,7 @@ func (b *Bootstrap) createWriteOrganizationsClusterRole(ctx context.Context) err
 				label.DisplayInUserInterface: "true",
 			},
 			Annotations: map[string]string{
-				annotation.Notes: "Grants full permissions for the organizations.security.giantswarm.io resource type.",
+				annotation.Notes: "Grants full permissions to Organization CRs.",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{policyRule},
@@ -169,7 +169,7 @@ func (b *Bootstrap) createWriteOrganizationsClusterRole(ctx context.Context) err
 
 	_, err := b.k8sClient.RbacV1().ClusterRoles().Get(ctx, orgAdminClusterRole.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", orgAdminClusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrole %#q", orgAdminClusterRole.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Create(ctx, orgAdminClusterRole, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -178,17 +178,17 @@ func (b *Bootstrap) createWriteOrganizationsClusterRole(ctx context.Context) err
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been created", orgAdminClusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been created", orgAdminClusterRole.Name))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole %#q", orgAdminClusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrole %#q", orgAdminClusterRole.Name))
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, orgAdminClusterRole, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been updated", orgAdminClusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been updated", orgAdminClusterRole.Name))
 	}
 
 	return nil
@@ -229,7 +229,7 @@ func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToCustomerGroup(ct
 
 	_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, writeOrganizationsClusterRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrolebinding %#q", writeOrganizationsClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q", writeOrganizationsClusterRoleBinding.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, writeOrganizationsClusterRoleBinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -238,18 +238,18 @@ func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToCustomerGroup(ct
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been created", writeOrganizationsClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been created", writeOrganizationsClusterRoleBinding.Name))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrolebinding %#q", writeOrganizationsClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrolebinding %#q", writeOrganizationsClusterRoleBinding.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, writeOrganizationsClusterRoleBinding, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", writeOrganizationsClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", writeOrganizationsClusterRoleBinding.Name))
 	}
 
 	return nil
@@ -290,7 +290,7 @@ func (b *Bootstrap) createReadAllClusterRoleBindingToCustomerGroup(ctx context.C
 
 	_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, readAllClusterRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrolebinding %#q", readAllClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q", readAllClusterRoleBinding.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, readAllClusterRoleBinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -299,18 +299,18 @@ func (b *Bootstrap) createReadAllClusterRoleBindingToCustomerGroup(ctx context.C
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been created", readAllClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been created", readAllClusterRoleBinding.Name))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrolebinding %#q", readAllClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrolebinding %#q", readAllClusterRoleBinding.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, readAllClusterRoleBinding, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", readAllClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", readAllClusterRoleBinding.Name))
 	}
 
 	return nil
@@ -348,7 +348,7 @@ func (b *Bootstrap) createReadAllClusterRoleBindingToAutomationSA(ctx context.Co
 
 	_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, readAllClusterRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrolebinding %#q", readAllClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q", readAllClusterRoleBinding.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, readAllClusterRoleBinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -357,12 +357,10 @@ func (b *Bootstrap) createReadAllClusterRoleBindingToAutomationSA(ctx context.Co
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been created", readAllClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been created", readAllClusterRoleBinding.Name))
 
 	} else if err != nil {
 		return microerror.Mask(err)
-	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q already exists", readAllClusterRoleBinding.Name))
 	}
 
 	return nil
@@ -399,7 +397,7 @@ func (b *Bootstrap) createWriteAllClusterRoleBindingToGSGroup(ctx context.Contex
 
 	_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, readAllClusterRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrolebinding %#q", readAllClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q", readAllClusterRoleBinding.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, readAllClusterRoleBinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -408,19 +406,19 @@ func (b *Bootstrap) createWriteAllClusterRoleBindingToGSGroup(ctx context.Contex
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been created", readAllClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been created", readAllClusterRoleBinding.Name))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrolebinding %#q", readAllClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrolebinding %#q", readAllClusterRoleBinding.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, readAllClusterRoleBinding, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", readAllClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", readAllClusterRoleBinding.Name))
 	}
 
 	return nil
@@ -462,7 +460,7 @@ func (b *Bootstrap) createWriteAllRoleBindingToCustomerGroup(ctx context.Context
 	ns := key.DefaultNamespaceName
 	_, err := b.k8sClient.RbacV1().RoleBindings(ns).Get(ctx, writeAllRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating rolebinding %#q/%#q", ns, writeAllRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating rolebinding %#q in namespace %s", writeAllRoleBinding.Name, ns))
 
 		_, err := b.k8sClient.RbacV1().RoleBindings(ns).Create(ctx, writeAllRoleBinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -471,19 +469,19 @@ func (b *Bootstrap) createWriteAllRoleBindingToCustomerGroup(ctx context.Context
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q/%#q has been created", ns, writeAllRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been created", writeAllRoleBinding.Name, ns))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating rolebinding %#q/%#q", ns, writeAllRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating rolebinding %#q in namespace %s", writeAllRoleBinding.Name, ns))
 
 		_, err := b.k8sClient.RbacV1().RoleBindings(ns).Update(ctx, writeAllRoleBinding, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q/%#q has been updated", ns, writeAllRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been updated", writeAllRoleBinding.Name, ns))
 	}
 
 	return nil
@@ -523,7 +521,7 @@ func (b *Bootstrap) createWriteAllRoleBindingToAutomationSA(ctx context.Context)
 	ns := key.DefaultNamespaceName
 	_, err := b.k8sClient.RbacV1().RoleBindings(ns).Get(ctx, writeAllRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating rolebinding %#q/%#q", ns, writeAllRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating rolebinding %#q in namespace %s", writeAllRoleBinding.Name, ns))
 
 		_, err := b.k8sClient.RbacV1().RoleBindings(ns).Create(ctx, writeAllRoleBinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -532,12 +530,10 @@ func (b *Bootstrap) createWriteAllRoleBindingToAutomationSA(ctx context.Context)
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q/%#q has been created", ns, writeAllRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been created", writeAllRoleBinding.Name, ns))
 
 	} else if err != nil {
 		return microerror.Mask(err)
-	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("rolebinding %#q/%#q already exists", ns, writeAllRoleBinding.Name))
 	}
 
 	return nil
@@ -575,7 +571,7 @@ func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToAutomationSA(ctx
 
 	_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, writeOrganizationsClusterRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrolebinding %#q", writeOrganizationsClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q", writeOrganizationsClusterRoleBinding.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, writeOrganizationsClusterRoleBinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -584,18 +580,18 @@ func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToAutomationSA(ctx
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been created", writeOrganizationsClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been created", writeOrganizationsClusterRoleBinding.Name))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrolebinding %#q", writeOrganizationsClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrolebinding %#q", writeOrganizationsClusterRoleBinding.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, writeOrganizationsClusterRoleBinding, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", writeOrganizationsClusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", writeOrganizationsClusterRoleBinding.Name))
 	}
 
 	return nil
@@ -647,7 +643,7 @@ func (b *Bootstrap) createWriteFluxResourcesClusterRole(ctx context.Context) err
 
 	_, err := b.k8sClient.RbacV1().ClusterRoles().Get(ctx, clusterRole.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrole %#q", clusterRole.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Create(ctx, clusterRole, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -656,17 +652,17 @@ func (b *Bootstrap) createWriteFluxResourcesClusterRole(ctx context.Context) err
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been created", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been created", clusterRole.Name))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole %#q", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrole %#q", clusterRole.Name))
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, clusterRole, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been updated", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been updated", clusterRole.Name))
 	}
 
 	return nil
@@ -704,7 +700,7 @@ func (b *Bootstrap) createWriteFluxResourcesClusterRoleBindingToAutomationSA(ctx
 
 	_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, clusterRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrolebinding %#q", clusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q", clusterRoleBinding.Name))
 
 		_, err = b.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, clusterRoleBinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -713,20 +709,20 @@ func (b *Bootstrap) createWriteFluxResourcesClusterRoleBindingToAutomationSA(ctx
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been created", clusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been created", clusterRoleBinding.Name))
 
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
-	b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrolebinding %#q", clusterRoleBinding.Name))
+	b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrolebinding %#q", clusterRoleBinding.Name))
 
 	_, err = b.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, clusterRoleBinding, metav1.UpdateOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", clusterRoleBinding.Name))
+	b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", clusterRoleBinding.Name))
 
 	return nil
 }
@@ -770,7 +766,7 @@ func (b *Bootstrap) createWriteClustersClusterRole(ctx context.Context) error {
 
 	_, err := b.k8sClient.RbacV1().ClusterRoles().Get(ctx, clusterRole.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrole %#q", clusterRole.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Create(ctx, clusterRole, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -779,17 +775,17 @@ func (b *Bootstrap) createWriteClustersClusterRole(ctx context.Context) error {
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been created", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been created", clusterRole.Name))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole %#q", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrole %#q", clusterRole.Name))
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, clusterRole, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been updated", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been updated", clusterRole.Name))
 	}
 
 	return nil
@@ -827,7 +823,7 @@ func (b *Bootstrap) createWriteClustersClusterRoleBindingToAutomationSA(ctx cont
 
 	_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, clusterRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrolebinding %#q", clusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q", clusterRoleBinding.Name))
 
 		_, err = b.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, clusterRoleBinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -836,20 +832,20 @@ func (b *Bootstrap) createWriteClustersClusterRoleBindingToAutomationSA(ctx cont
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been created", clusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been created", clusterRoleBinding.Name))
 
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
-	b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrolebinding %#q", clusterRoleBinding.Name))
+	b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrolebinding %#q", clusterRoleBinding.Name))
 
 	_, err = b.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, clusterRoleBinding, metav1.UpdateOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", clusterRoleBinding.Name))
+	b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", clusterRoleBinding.Name))
 
 	return nil
 }
@@ -894,7 +890,7 @@ func (b *Bootstrap) createWriteNodePoolsClusterRole(ctx context.Context) error {
 
 	_, err := b.k8sClient.RbacV1().ClusterRoles().Get(ctx, clusterRole.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrole %#q", clusterRole.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Create(ctx, clusterRole, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -903,17 +899,17 @@ func (b *Bootstrap) createWriteNodePoolsClusterRole(ctx context.Context) error {
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been created", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been created", clusterRole.Name))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole %#q", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrole %#q", clusterRole.Name))
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, clusterRole, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been updated", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been updated", clusterRole.Name))
 	}
 
 	return nil
@@ -951,7 +947,7 @@ func (b *Bootstrap) createWriteNodePoolsClusterRoleBindingToAutomationSA(ctx con
 
 	_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, clusterRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrolebinding %#q", clusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q", clusterRoleBinding.Name))
 
 		_, err = b.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, clusterRoleBinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -960,20 +956,20 @@ func (b *Bootstrap) createWriteNodePoolsClusterRoleBindingToAutomationSA(ctx con
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been created", clusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been created", clusterRoleBinding.Name))
 
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
-	b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrolebinding %#q", clusterRoleBinding.Name))
+	b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrolebinding %#q", clusterRoleBinding.Name))
 
 	_, err = b.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, clusterRoleBinding, metav1.UpdateOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", clusterRoleBinding.Name))
+	b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", clusterRoleBinding.Name))
 
 	return nil
 }
@@ -1012,7 +1008,7 @@ func (b *Bootstrap) createWriteClientCertsClusterRole(ctx context.Context) error
 
 	_, err := b.k8sClient.RbacV1().ClusterRoles().Get(ctx, clusterRole.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrole %#q", clusterRole.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Create(ctx, clusterRole, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -1021,17 +1017,17 @@ func (b *Bootstrap) createWriteClientCertsClusterRole(ctx context.Context) error
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been created", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been created", clusterRole.Name))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole %#q", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrole %#q", clusterRole.Name))
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, clusterRole, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been updated", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been updated", clusterRole.Name))
 	}
 
 	return nil
@@ -1069,7 +1065,7 @@ func (b *Bootstrap) createWriteClientCertsClusterRoleBindingToAutomationSA(ctx c
 
 	_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, clusterRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrolebinding %#q", clusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q", clusterRoleBinding.Name))
 
 		_, err = b.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, clusterRoleBinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -1078,20 +1074,20 @@ func (b *Bootstrap) createWriteClientCertsClusterRoleBindingToAutomationSA(ctx c
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been created", clusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been created", clusterRoleBinding.Name))
 
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
-	b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrolebinding %#q", clusterRoleBinding.Name))
+	b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrolebinding %#q", clusterRoleBinding.Name))
 
 	_, err = b.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, clusterRoleBinding, metav1.UpdateOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", clusterRoleBinding.Name))
+	b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", clusterRoleBinding.Name))
 
 	return nil
 }
@@ -1127,7 +1123,7 @@ func (b *Bootstrap) createWriteSilencesClusterRole(ctx context.Context) error {
 
 	_, err := b.k8sClient.RbacV1().ClusterRoles().Get(ctx, clusterRole.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrole %#q", clusterRole.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Create(ctx, clusterRole, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -1136,17 +1132,17 @@ func (b *Bootstrap) createWriteSilencesClusterRole(ctx context.Context) error {
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been created", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been created", clusterRole.Name))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole binding %#q", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrole binding %#q", clusterRole.Name))
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, clusterRole, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been updated", clusterRole.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been updated", clusterRole.Name))
 	}
 
 	return nil
@@ -1184,7 +1180,7 @@ func (b *Bootstrap) createWriteSilencesClusterRoleBindingToAutomationSA(ctx cont
 
 	_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, clusterRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrolebinding %#q", clusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q", clusterRoleBinding.Name))
 
 		_, err = b.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, clusterRoleBinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -1193,20 +1189,20 @@ func (b *Bootstrap) createWriteSilencesClusterRoleBindingToAutomationSA(ctx cont
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been created", clusterRoleBinding.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been created", clusterRoleBinding.Name))
 
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
-	b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrolebinding %#q", clusterRoleBinding.Name))
+	b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrolebinding %#q", clusterRoleBinding.Name))
 
 	_, err = b.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, clusterRoleBinding, metav1.UpdateOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", clusterRoleBinding.Name))
+	b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", clusterRoleBinding.Name))
 
 	return nil
 }
@@ -1227,22 +1223,21 @@ func (b *Bootstrap) labelDefaultClusterRoles(ctx context.Context) error {
 	for _, clusterRole := range clusterRoles {
 		clusterRoleToLabel, err := b.k8sClient.RbacV1().ClusterRoles().Get(ctx, clusterRole, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q doesn't exist", clusterRole))
+			b.logger.LogCtx(ctx, "level", "warn", "message", fmt.Sprintf("clusterrole %#q does not exist", clusterRole))
 			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
 		needsUpdate := false
-		for k, v := range labelsToSet {
-			if existingValue, ok := clusterRoleToLabel.Labels[k]; ok && existingValue == v {
-				b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q is already labeled with %s", clusterRole, k))
+		for k, label := range labelsToSet {
+			if existingValue, ok := clusterRoleToLabel.Labels[k]; ok && existingValue == label {
 				continue
 			}
 
-			b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("labeling clusterrole %#q with %s", clusterRole, k))
+			b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("adding label %s to clusterrole %#q", label, clusterRole))
 
-			clusterRoleToLabel.Labels[k] = v
+			clusterRoleToLabel.Labels[k] = label
 			needsUpdate = true
 		}
 
@@ -1254,7 +1249,7 @@ func (b *Bootstrap) labelDefaultClusterRoles(ctx context.Context) error {
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been labeled", clusterRole))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been updated with labels", clusterRole))
 	}
 
 	return nil

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Update some role descriptions.
+- Enhance log messages in the bootstrapping part, remove unneeded messages.
+
 ## [0.22.0] - 2022-02-18
 
 ### Added
