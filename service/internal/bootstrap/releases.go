@@ -53,7 +53,7 @@ func (b *Bootstrap) createOrUpdateClusterRole(ctx context.Context, role *rbacv1.
 	var err error
 	_, err = b.k8sClient.RbacV1().ClusterRoles().Get(ctx, role.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating clusterrole %#q", role.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrole %#q", role.Name))
 
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Create(ctx, role, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -62,17 +62,17 @@ func (b *Bootstrap) createOrUpdateClusterRole(ctx context.Context, role *rbacv1.
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been created", role.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been created", role.Name))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrole %#q", role.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrole %#q", role.Name))
 		_, err := b.k8sClient.RbacV1().ClusterRoles().Update(ctx, role, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		b.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("clusterrole %#q has been updated", role.Name))
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been updated", role.Name))
 	}
 
 	return nil
