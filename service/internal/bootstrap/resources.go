@@ -161,7 +161,7 @@ func (b *Bootstrap) createWriteOrganizationsClusterRole(ctx context.Context) err
 				label.DisplayInUserInterface: "true",
 			},
 			Annotations: map[string]string{
-				annotation.Notes: "Grants full permissions for the organizations.security.giantswarm.io resource type.",
+				annotation.Notes: "Grants full permissions to Organization CRs.",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{policyRule},
