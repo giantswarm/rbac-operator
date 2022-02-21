@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.1] - 2022-02-21
+
 - Update some role descriptions.
 - Enhance log messages in the bootstrapping part, remove unneeded messages.
 
@@ -267,7 +269,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.22.0...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.22.1...HEAD
+[0.22.1]: https://github.com/giantswarm/rbac-operator/compare/v0.22.0...v0.22.1
 [0.22.0]: https://github.com/giantswarm/rbac-operator/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/giantswarm/rbac-operator/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/giantswarm/rbac-operator/compare/v0.19.1...v0.20.0
