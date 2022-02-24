@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Renamed role `read-cluster-apps-in-cluster-ns` to `read-in-cluster-ns`
+- Renamed role `write-cluster-apps-in-cluster-ns` to `write-in-cluster-ns`
+- Renamed role binding `read-cluster-app` to `read-in-cluster-ns`
+- Renamed role binding `write-cluster-apps` to `write-in-cluster-ns`
+
 ## [0.22.1] - 2022-02-21
 
 - Update some role descriptions.
