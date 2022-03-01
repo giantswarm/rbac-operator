@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Dynamically bind `read-in-cluster-ns` clusterRole if `read-all` clusterRole is bound in an org-namespace
+- Dynamically bind `write-in-cluster-ns` clusterRole if `cluster-admin` clusterRole is bound in an org-namespace 
+
+
 ### Changed
 
 - Renamed role `read-cluster-apps-in-cluster-ns` to `read-in-cluster-ns`
