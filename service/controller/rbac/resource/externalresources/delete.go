@@ -19,7 +19,12 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	organization := pkgkey.OrganizationName(ns.Name)
+	orgNamespace := ns.Name
+	organization := pkgkey.OrganizationName(orgNamespace)
+
+	if !pkgkey.IsOrgNamespace(orgNamespace) {
+		return nil
+	}
 
 	// Delete RoleBinding for default app catalogs access
 	err = r.deleteRoleBinding(ctx, pkgkey.DefaultNamespaceName, pkgkey.OrganizationReadDefaultCatalogsRoleBindingName(organization))
@@ -33,14 +38,14 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	// Delete ClusterRoleBinding to read cluster namespaces
-	err = r.deleteClusterRoleBinding(ctx, pkgkey.OrganizationReadClusterNamespaceRoleBindingName(organization))
+	// Delete RoleBinding to read cluster namespaces
+	err = r.deleteRoleBinding(ctx, orgNamespace, pkgkey.OrganizationReadClusterNamespaceRoleBindingName(organization))
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	// Delete ClusterRoleBinding to write in cluster namespaces
-	err = r.deleteClusterRoleBinding(ctx, pkgkey.OrganizationWriteClusterNamespaceRoleBindingName(organization))
+	// Delete RoleBinding to write in cluster namespaces
+	err = r.deleteRoleBinding(ctx, orgNamespace, pkgkey.OrganizationWriteClusterNamespaceRoleBindingName(organization))
 	if err != nil {
 		return microerror.Mask(err)
 	}

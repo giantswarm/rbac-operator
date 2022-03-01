@@ -24,6 +24,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 	orgNamespace := ns.Name
 
+	if !pkgkey.IsOrgNamespace(orgNamespace) {
+		return nil
+	}
+
 	// List roleBindings in org-namespace
 	orgRoleBindings, err := r.k8sClient.RbacV1().RoleBindings(orgNamespace).List(ctx, metav1.ListOptions{})
 	if err != nil {
