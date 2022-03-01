@@ -28,7 +28,7 @@ func (b *Bootstrap) createReadClusterNamespaceAppsRole(ctx context.Context) erro
 			Name: key.ReadClusterNamespaceAppsRole,
 			Labels: map[string]string{
 				label.ManagedBy:              project.Name(),
-				label.DisplayInUserInterface: "true",
+				label.DisplayInUserInterface: "false",
 			},
 			Annotations: map[string]string{
 				annotation.Notes: "If referenced within an organization namespace, grants read-only (get, list, watch) permissions to app resources in cluster namespaces belonging to the organization.",
@@ -55,7 +55,7 @@ func (b *Bootstrap) createWriteClusterNamespaceAppsRole(ctx context.Context) err
 			Name: key.WriteClusterNamespaceAppsRole,
 			Labels: map[string]string{
 				label.ManagedBy:              project.Name(),
-				label.DisplayInUserInterface: "true",
+				label.DisplayInUserInterface: "false",
 			},
 			Annotations: map[string]string{
 				annotation.Notes: "If referenced within an organization namespace, grants read and write permissions to app resources in cluster namespaces belonging to the organization.",
