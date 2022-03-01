@@ -53,15 +53,16 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 // - write-access toresources in the org cluster namespaces
 func (r *Resource) ensureClusterNamespaceAccess(ctx context.Context, orgNamespace string, orgRoleBindings *rbacv1.RoleBindingList) error {
 	var err error
+	organization := pkgkey.OrganizationName(orgNamespace)
 
 	subjects := getUniqueSubjectsWithClusterRoleRef(orgRoleBindings, pkgkey.DefaultReadAllPermissionsName)
-	err = r.ensureRoleBindingToClusterRole(ctx, subjects, pkgkey.ReadClusterNamespaceAppsRole, orgNamespace, pkgkey.ReadClusterNamespaceAppsRoleBinding)
+	err = r.ensureRoleBindingToClusterRole(ctx, subjects, pkgkey.ReadClusterNamespaceAppsRole, orgNamespace, pkgkey.OrganizationReadClusterNamespaceRoleBindingName(organization))
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
 	subjects = getUniqueSubjectsWithClusterRoleRef(orgRoleBindings, pkgkey.ClusterAdminClusterRoleName)
-	err = r.ensureRoleBindingToClusterRole(ctx, subjects, pkgkey.WriteClusterNamespaceAppsRole, orgNamespace, pkgkey.WriteClusterNamespaceAppsRoleBinding)
+	err = r.ensureRoleBindingToClusterRole(ctx, subjects, pkgkey.WriteClusterNamespaceAppsRole, orgNamespace, pkgkey.OrganizationWriteClusterNamespaceRoleBindingName(organization))
 	if err != nil {
 		return microerror.Mask(err)
 	}
