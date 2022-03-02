@@ -17,6 +17,9 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
+	if !pkgkey.IsOrgNamespace(ns.Name) {
+		return nil
+	}
 
 	roleBindings := []string{
 		pkgkey.FluxCRDRoleBindingName,

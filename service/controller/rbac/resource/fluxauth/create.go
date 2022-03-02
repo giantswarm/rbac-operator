@@ -48,6 +48,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	if !pkgkey.IsOrgNamespace(ns.Name) {
+		return nil
+	}
+
 	// create "automation" ServiceAccount in org namespace
 	{
 		serviceAccount := &corev1.ServiceAccount{
