@@ -68,8 +68,16 @@ func OrganizationReadDefaultCatalogsRoleBindingName(organization string) string 
 	return fmt.Sprintf("default-catalogs-organization-%s-read", organization)
 }
 
+func OrganizationReadClusterNamespaceRoleBindingName(organization string) string {
+	return fmt.Sprintf("cluster-ns-organization-%s-read", organization)
+}
+
 func OrganizationReadReleasesClusterRoleBindingName(organization string) string {
 	return fmt.Sprintf("releases-organization-%s-read", organization)
+}
+
+func OrganizationWriteClusterNamespaceRoleBindingName(organization string) string {
+	return fmt.Sprintf("cluster-ns-organization-%s-write", organization)
 }
 
 func ReadAllCustomerGroupClusterRoleBindingName() string {
