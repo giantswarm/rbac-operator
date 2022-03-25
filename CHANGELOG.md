@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use `k8smetadata` for labels and annotations instead of `apiextensions`.
 - Use `organization-operator` to import `Organization` CRD.
+- Bump `giantswarm/k8sclient` to `v7.0.1`.
+- Bump `giantswarm/operatorkit` to `v7.0.1`.
+- Bump k8s dependencies to `v0.20.15`.
+- Bump `controller-runtime` to `v0.8.3`.
 
 ## [0.23.0] - 2022-03-02
 
