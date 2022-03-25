@@ -115,11 +115,11 @@ workflows:
             tags:
               only: /^v.*/
 
-      # deploy to vmware installations (only tags)
+      # deploy to vsphere installations (only tags)
       - architect/push-to-app-collection:
-          name: push-rbac-operator-to-vmware-app-collection
+          name: push-rbac-operator-to-vsphere-app-collection
           app_name: "rbac-operator"
-          app_collection_repo: "vmware-app-collection"
+          app_collection_repo: "vsphere-app-collection"
           requires:
             - push-rbac-operator-to-control-plane-app-catalog
           filters:
