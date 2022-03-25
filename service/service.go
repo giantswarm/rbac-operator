@@ -6,12 +6,12 @@ import (
 	"context"
 	"sync"
 
-	securityv1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/security/v1alpha1"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8srestconfig"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	orgcrd "github.com/giantswarm/organization-operator/api/v1alpha1"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
 
@@ -92,7 +92,7 @@ func New(config Config) (*Service, error) {
 		c := k8sclient.ClientsConfig{
 			Logger: config.Logger,
 			SchemeBuilder: k8sclient.SchemeBuilder{
-				securityv1alpha1.AddToScheme,
+				orgcrd.AddToScheme,
 			},
 			RestConfig: restConfig,
 		}

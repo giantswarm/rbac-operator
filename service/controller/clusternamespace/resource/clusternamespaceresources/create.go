@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	securityv1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/security/v1alpha1"
 	"github.com/giantswarm/microerror"
+	orgcrd "github.com/giantswarm/organization-operator/api/v1alpha1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -30,7 +30,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	// Fetch the organization
-	organization := securityv1alpha1.Organization{}
+	organization := orgcrd.Organization{}
 	err = r.k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: pkgkey.Organization(&cl)}, &organization)
 	if err != nil {
 		return microerror.Mask(err)
