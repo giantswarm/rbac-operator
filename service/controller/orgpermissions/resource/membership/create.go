@@ -12,6 +12,5 @@ import (
 // The deletion logic remains to help cleaning up
 //
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	// return r.EnsureDeleted(ctx, obj)
-	return nil
+	return r.EnsureDeleted(ctx, obj)
 }
