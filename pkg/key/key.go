@@ -76,6 +76,10 @@ func OrganizationReadReleasesClusterRoleBindingName(organization string) string 
 	return fmt.Sprintf("releases-organization-%s-read", organization)
 }
 
+func OrganizationReadOrganizationClusterRoleBindingName(organization string) string {
+	return fmt.Sprintf("organization-organization-%s-read", organization)
+}
+
 func OrganizationWriteClusterNamespaceRoleBindingName(organization string) string {
 	return fmt.Sprintf("cluster-ns-organization-%s-write", organization)
 }
