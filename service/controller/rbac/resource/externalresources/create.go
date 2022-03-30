@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	k8smetadata "github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -22,8 +23,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	orgNamespace := ns.Name
 
+	_, orgLabelPresent := ns.GetLabels()[k8smetadata.Organization]
+	_, customerLabelPresent := ns.GetLabels()[label.LegacyCustomer]
+	if !orgLabelPresent && !customerLabelPresent {
+		return nil
+	}
+
+	orgNamespace := ns.Name
 	if !pkgkey.IsOrgNamespace(orgNamespace) {
 		return nil
 	}

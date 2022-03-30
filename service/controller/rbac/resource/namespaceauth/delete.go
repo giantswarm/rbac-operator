@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	k8smetadata "github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
+	"github.com/giantswarm/rbac-operator/pkg/label"
 
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/key"
 )
@@ -17,6 +19,12 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	ns, err := key.ToNamespace(obj)
 	if err != nil {
 		return microerror.Mask(err)
+	}
+
+	_, orgLabelPresent := ns.GetLabels()[k8smetadata.Organization]
+	_, customerLabelPresent := ns.GetLabels()[label.LegacyCustomer]
+	if !orgLabelPresent && !customerLabelPresent {
+		return nil
 	}
 
 	clusterRoles := []string{

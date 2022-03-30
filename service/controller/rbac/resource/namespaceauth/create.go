@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/k8smetadata/pkg/label"
+	k8smetadata "github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
+	"github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/key"
 )
@@ -21,6 +22,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	ns, err := key.ToNamespace(obj)
 	if err != nil {
 		return microerror.Mask(err)
+	}
+
+	_, orgLabelPresent := ns.GetLabels()[k8smetadata.Organization]
+	_, customerLabelPresent := ns.GetLabels()[label.LegacyCustomer]
+	if !orgLabelPresent && !customerLabelPresent {
+		return nil
 	}
 
 	// Create ClusterRole allowing 'get' access to Organization CR
@@ -35,7 +42,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			ObjectMeta: metav1.ObjectMeta{
 				Name: orgReadClusterRoleName,
 				Labels: map[string]string{
-					label.ManagedBy: project.Name(),
+					k8smetadata.ManagedBy: project.Name(),
 				},
 			},
 			Rules: []rbacv1.PolicyRule{
@@ -78,7 +85,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			ObjectMeta: metav1.ObjectMeta{
 				Name: roleBindingToCustomerGroupName,
 				Labels: map[string]string{
-					label.ManagedBy: project.Name(),
+					k8smetadata.ManagedBy: project.Name(),
 				},
 			},
 			Subjects: []rbacv1.Subject{
@@ -132,7 +139,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			ObjectMeta: metav1.ObjectMeta{
 				Name: roleBindingToAutomationSAName,
 				Labels: map[string]string{
-					label.ManagedBy: project.Name(),
+					k8smetadata.ManagedBy: project.Name(),
 				},
 			},
 			Subjects: []rbacv1.Subject{
