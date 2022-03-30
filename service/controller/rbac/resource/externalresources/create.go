@@ -37,6 +37,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	// Ensure RoleBinding for default app catalogs access and ClusterRoleBinding for releases access
+	// Ensure RoleBinding for access to the organization CR by name
 	err = r.ensureAll(ctx, orgNamespace, orgRoleBindings)
 	if err != nil {
 		return microerror.Mask(err)
@@ -107,6 +108,7 @@ func (r *Resource) ensureRoleBindingToClusterRole(ctx context.Context, subjects 
 // Ensures that Subjects with any sort of access in the organization namespace also have read access to
 // - releases (non-namespaced)
 // - app catalogs and app catalog entries in the default namespace
+// - organization cr by name
 func (r *Resource) ensureAll(ctx context.Context, orgNamespace string, orgRoleBindings *rbacv1.RoleBindingList) error {
 	var err error
 
@@ -124,6 +126,40 @@ func (r *Resource) ensureAll(ctx context.Context, orgNamespace string, orgRoleBi
 		return microerror.Mask(err)
 	}
 
+	// Ensure ClusterRoleBinding for access to organization cr by name
+	err = r.ensureOrganizationClusterRoleBinding(ctx, subjects, pkgkey.OrganizationName(orgNamespace))
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
+}
+
+func (r *Resource) ensureOrganizationClusterRoleBinding(ctx context.Context, subjects []rbacv1.Subject, organization string) error {
+	var err error
+
+	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ClusterRoleBinding",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: pkgkey.OrganizationReadOrganizationClusterRoleBindingName(organization),
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+		},
+		Subjects: subjects,
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     pkgkey.OrganizationReadClusterRoleName(organization),
+		},
+	}
+
+	if err = r.createOrUpdateClusterRoleBinding(ctx, clusterRoleBinding); err != nil {
+		return microerror.Mask(err)
+	}
 	return nil
 }
 

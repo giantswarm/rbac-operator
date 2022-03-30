@@ -38,6 +38,12 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	// Delete ClusterRoleBinding for access to organization cr by name
+	err = r.deleteClusterRoleBinding(ctx, pkgkey.OrganizationReadOrganizationClusterRoleBindingName(organization))
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	// Delete RoleBinding to read cluster namespaces
 	err = r.deleteRoleBinding(ctx, orgNamespace, pkgkey.OrganizationReadClusterNamespaceRoleBindingName(organization))
 	if err != nil {

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `externalresources` resource that binds `organization-$org-read` role for any subject with org-namespace access.
+- Deprecate `orgpermissions` controller as it is replaced by the above.
+
 ## [0.23.0] - 2022-03-02
 
 ### Added
