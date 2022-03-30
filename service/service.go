@@ -19,7 +19,6 @@ import (
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/collector"
 	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace"
-	"github.com/giantswarm/rbac-operator/service/controller/orgpermissions"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac"
 	"github.com/giantswarm/rbac-operator/service/internal/bootstrap"
 )
@@ -38,7 +37,6 @@ type Service struct {
 	bootOnce                   sync.Once
 	bootstrapRunner            *bootstrap.Bootstrap
 	rbacController             *rbac.RBAC
-	orgPermissionsController   *orgpermissions.OrgPermissions
 	clusterNamespaceController *clusternamespace.ClusterNamespace
 	operatorCollector          *collector.Set
 }
@@ -149,20 +147,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var orgPermissionsController *orgpermissions.OrgPermissions
-	{
-
-		c := orgpermissions.OrgPermissionsConfig{
-			K8sClient: k8sClient,
-			Logger:    config.Logger,
-		}
-
-		orgPermissionsController, err = orgpermissions.NewOrgPermissions(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var operatorCollector *collector.Set
 	{
 		c := collector.SetConfig{
@@ -198,7 +182,6 @@ func New(config Config) (*Service, error) {
 		bootOnce:                   sync.Once{},
 		bootstrapRunner:            bootstrapRunner,
 		rbacController:             rbacController,
-		orgPermissionsController:   orgPermissionsController,
 		clusterNamespaceController: clusterNamespaceController,
 		operatorCollector:          operatorCollector,
 	}
@@ -222,8 +205,6 @@ func (s *Service) Boot(ctx context.Context) {
 		}()
 
 		go s.rbacController.Boot(ctx)
-
-		go s.orgPermissionsController.Boot(ctx)
 
 		go s.clusterNamespaceController.Boot(ctx)
 	})
