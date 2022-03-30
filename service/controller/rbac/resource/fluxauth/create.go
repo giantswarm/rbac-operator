@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"reflect"
 
-	k8smetadata "github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -49,9 +48,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	_, orgLabelPresent := ns.GetLabels()[k8smetadata.Organization]
-	_, customerLabelPresent := ns.GetLabels()[label.LegacyCustomer]
-	if !orgLabelPresent && !customerLabelPresent {
+	if !key.HasOrganizationOrCustomerLabel(ns) {
 		return nil
 	}
 
