@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Use `k8smetadata` for labels and annotations instead of `apiextensions`.
+- Use `organization-operator` to import `Organization` CRD.
+- Bump `giantswarm/k8sclient` to `v7.0.1`.
+- Bump `giantswarm/operatorkit` to `v7.0.1`.
+- Bump k8s dependencies to `v0.20.15`.
+- Bump `controller-runtime` to `v0.8.3`.
+- Selector moved from watcher to individual handlers for rbac controller.
+
 ## [0.24.0] - 2022-03-30
 
 ### Added

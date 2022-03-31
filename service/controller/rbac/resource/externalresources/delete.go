@@ -19,6 +19,11 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
+
+	if !key.HasOrganizationOrCustomerLabel(ns) {
+		return nil
+	}
+
 	orgNamespace := ns.Name
 	organization := pkgkey.OrganizationName(orgNamespace)
 

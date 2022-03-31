@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -13,6 +12,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
+	"github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/key"
 )
@@ -46,6 +46,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	ns, err := key.ToNamespace(obj)
 	if err != nil {
 		return microerror.Mask(err)
+	}
+
+	if !key.HasOrganizationOrCustomerLabel(ns) {
+		return nil
 	}
 
 	if !pkgkey.IsOrgNamespace(ns.Name) {

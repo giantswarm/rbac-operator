@@ -22,8 +22,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	orgNamespace := ns.Name
 
+	if !key.HasOrganizationOrCustomerLabel(ns) {
+		return nil
+	}
+
+	orgNamespace := ns.Name
 	if !pkgkey.IsOrgNamespace(orgNamespace) {
 		return nil
 	}

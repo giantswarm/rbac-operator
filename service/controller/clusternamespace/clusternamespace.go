@@ -1,17 +1,16 @@
 package clusternamespace
 
 import (
-	// If your operator watches a CRD import it here.
-	// "github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
+	"fmt"
 
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller"
-	"github.com/giantswarm/operatorkit/v4/pkg/resource"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
@@ -40,14 +39,15 @@ func NewClusterNamespace(config ClusterNamespaceConfig) (*ClusterNamespace, erro
 
 	var clusterNamespaceController *controller.Controller
 	{
-		selector := newSelector(func(labels labels.Labels) bool {
-			return labels.Has(label.Organization) && labels.Has(label.Cluster)
-		})
+		selector, err := labels.Parse(fmt.Sprintf("%s,%s", label.Organization, label.Cluster))
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 
 		c := controller.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
-			NewRuntimeObjectFunc: func() runtime.Object {
+			NewRuntimeObjectFunc: func() client.Object {
 				return new(corev1.Namespace)
 			},
 			Resources: resources,

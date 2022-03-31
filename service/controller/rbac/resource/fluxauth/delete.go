@@ -17,6 +17,11 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
+
+	if !key.HasOrganizationOrCustomerLabel(ns) {
+		return nil
+	}
+
 	if !pkgkey.IsOrgNamespace(ns.Name) {
 		return nil
 	}
