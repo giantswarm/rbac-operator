@@ -95,5 +95,5 @@ require (
 
 replace (
 	github.com/coreos/etcd => go.etcd.io/etcd/v3 v3.5.1
-	github.com/dgrijalva/jwt-go => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
+	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.1
 )
