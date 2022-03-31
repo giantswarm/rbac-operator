@@ -9,7 +9,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
-
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/key"
 )
 
@@ -17,6 +16,10 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	ns, err := key.ToNamespace(obj)
 	if err != nil {
 		return microerror.Mask(err)
+	}
+
+	if !key.HasOrganizationOrCustomerLabel(ns) {
+		return nil
 	}
 
 	clusterRoles := []string{

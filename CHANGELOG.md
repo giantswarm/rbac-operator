@@ -7,9 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Removd
+### Removed
 
 - Remove `orgpermissions` controller as it is deprecated and all its resources have been cleaned up.
+## [0.25.0] - 2022-03-31
+
+### Changed
+
+- Use `k8smetadata` for labels and annotations instead of `apiextensions`.
+- Use `organization-operator` to import `Organization` CRD.
+- Bump `giantswarm/k8sclient` to `v7.0.1`.
+- Bump `giantswarm/operatorkit` to `v7.0.1`.
+- Bump k8s dependencies to `v0.20.15`.
+- Bump `controller-runtime` to `v0.8.3`.
+- Selector moved from watcher to individual handlers for rbac controller.
 
 ## [0.24.0] - 2022-03-30
 
@@ -296,7 +307,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.24.0...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.25.0...HEAD
+[0.25.0]: https://github.com/giantswarm/rbac-operator/compare/v0.24.0...v0.25.0
 [0.24.0]: https://github.com/giantswarm/rbac-operator/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/giantswarm/rbac-operator/compare/v0.22.1...v0.23.0
 [0.22.1]: https://github.com/giantswarm/rbac-operator/compare/v0.22.0...v0.22.1
