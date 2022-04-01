@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.26.0] - 2022-04-01
+
 ### Removed
 
 - Remove `orgpermissions` controller as it is deprecated and all its resources have been cleaned up.
@@ -307,7 +309,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.25.0...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.26.0...HEAD
+[0.26.0]: https://github.com/giantswarm/rbac-operator/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/giantswarm/rbac-operator/compare/v0.24.0...v0.25.0
 [0.24.0]: https://github.com/giantswarm/rbac-operator/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/giantswarm/rbac-operator/compare/v0.22.1...v0.23.0
