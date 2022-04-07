@@ -1,4 +1,4 @@
-FROM alpine:3.15.4
+FROM quay.io/giantswarm/alpine:3.15.4
 
 RUN apk add --no-cache ca-certificates
 
