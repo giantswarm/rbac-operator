@@ -65,24 +65,54 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 		}
 		// Ensure RoleBinding in cluster namespace
-		err = r.ensureClusterNamespaceNSRoleBinding(ctx, subjects, cl.Name, referencedRole, "Role")
+		err = r.ensureClusterNamespaceNSRoleBinding(ctx, subjects, cl.Name, referencedRole)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 	}
 
-	for _, fluxBinding := range fluxRoleBindings() {
-		var subjects []rbacv1.Subject
-		for _, roleBinding := range orgRoleBindings.Items {
-			if roleBindingMatches(roleBinding, fluxBinding.roleName, fluxBinding.roleBindingName) {
-				subjects = append(subjects, roleBinding.Subjects...)
-			}
+	{
+		fluxReconcilerPair := rolePair{
+			roleBindingName: pkgkey.FluxReconcilerRoleBindingName,
+			roleKind:        "ClusterRole",
+			roleName:        pkgkey.ClusterAdminClusterRoleName,
 		}
 
-		err = r.ensureClusterNamespaceNSRoleBinding(ctx, subjects, cl.Name, fluxBinding, "ClusterRole")
+		err = r.ensureClusterNamespaceFluxRole(ctx, cl.Name, pkgkey.FluxReconcilerServiceAccounts, fluxReconcilerPair)
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		fluxCRDPair := rolePair{
+			roleBindingName: pkgkey.FluxCRDRoleBindingName,
+			roleKind:        "ClusterRole",
+			roleName:        pkgkey.UpstreamFluxCRDClusterRole,
+		}
+
+		err = r.ensureClusterNamespaceFluxRole(ctx, cl.Name, pkgkey.FluxCrdServiceAccounts, fluxCRDPair)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	return nil
+}
+
+func (r *Resource) ensureClusterNamespaceFluxRole(ctx context.Context, clusterNamespace string, serviceAccounts []string, rolesRef rolePair) error {
+	var subjects []rbacv1.Subject
+	for _, sa := range serviceAccounts {
+		subjects = append(subjects,
+			rbacv1.Subject{
+				Kind:      "ServiceAccount",
+				Name:      sa,
+				Namespace: pkgkey.FluxNamespaceName,
+			},
+		)
+	}
+
+	err := r.ensureClusterNamespaceNSRoleBinding(ctx, subjects, clusterNamespace, rolesRef)
+	if err != nil {
+		return microerror.Mask(err)
 	}
 
 	return nil
@@ -113,7 +143,7 @@ func (r *Resource) ensureClusterNamespaceNSRole(ctx context.Context, clusterName
 	return nil
 }
 
-func (r *Resource) ensureClusterNamespaceNSRoleBinding(ctx context.Context, subjects []rbacv1.Subject, clusterNamespace string, referencedRole rolePair, roleType string) error {
+func (r *Resource) ensureClusterNamespaceNSRoleBinding(ctx context.Context, subjects []rbacv1.Subject, clusterNamespace string, referencedRole rolePair) error {
 	var err error
 
 	roleBinding := &rbacv1.RoleBinding{
@@ -131,7 +161,7 @@ func (r *Resource) ensureClusterNamespaceNSRoleBinding(ctx context.Context, subj
 		Subjects: subjects,
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     roleType,
+			Kind:     referencedRole.roleKind,
 			Name:     referencedRole.roleName,
 		},
 	}

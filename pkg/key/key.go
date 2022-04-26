@@ -18,6 +18,7 @@ const (
 	DefaultWriteAllPermissionsName       = "write-all"
 	DefaultNamespaceName                 = "default"
 	FluxCRDRoleBindingName               = "flux-crd-controller"
+	FluxNamespaceName                    = "flux-system"
 	FluxReconcilerRoleBindingName        = "flux-namespace-reconciler"
 	ReadClusterNamespaceAppsRoleBinding  = "read-in-cluster-ns"
 	ReadClusterNamespaceAppsRole         = "read-in-cluster-ns"
@@ -32,6 +33,27 @@ const (
 	WriteNodePoolsPermissionsName        = "write-nodepools"
 	WriteClientCertsPermissionsName      = "write-client-certificates"
 	WriteSilencesPermissionsName         = "write-silences"
+)
+
+var (
+	// upstream Flux ServiceAccounts which need permissions for
+	// "*.toolkit.fluxcd.io" resources in Organization namespace
+	// see: https://github.com/fluxcd/flux2/blob/main/manifests/rbac/controller.yaml
+	FluxCrdServiceAccounts = []string{
+		"helm-controller",
+		"image-automation-controller",
+		"image-reflector-controller",
+		"kustomize-controller",
+		"notification-controller",
+		"source-controller",
+	}
+	// upstream Flux ServiceAccounts which need cluster-admin access to
+	// reconcile resources in Organization namespace
+	// see: https://github.com/fluxcd/flux2/blob/main/manifests/rbac/reconciler.yaml
+	FluxReconcilerServiceAccounts = []string{
+		"helm-controller",
+		"kustomize-controller",
+	}
 )
 
 func DefaultClusterRolesToDisplayInUI() []string {

@@ -8,36 +8,26 @@ import (
 )
 
 type rolePair struct {
-	roleName        string
-	roleBindingName string
 	policyRules     []rbacv1.PolicyRule
+	roleBindingName string
+	roleKind        string
+	roleName        string
 }
 
 // List of roles and roleBinding pairs that should be ensured as well as the granted permissions
 func referencedClusterRoles() []rolePair {
 	return []rolePair{
 		{
-			roleName:        pkgkey.ReadClusterNamespaceAppsRole,
-			roleBindingName: pkgkey.ReadClusterNamespaceAppsRoleBinding,
 			policyRules:     readClusterAppsRules(),
+			roleBindingName: pkgkey.ReadClusterNamespaceAppsRoleBinding,
+			roleKind:        "Role",
+			roleName:        pkgkey.ReadClusterNamespaceAppsRole,
 		},
 		{
-			roleName:        pkgkey.WriteClusterNamespaceAppsRole,
-			roleBindingName: pkgkey.WriteClusterNamespaceAppsRoleBinding,
 			policyRules:     writeClusterAppsRules(),
-		},
-	}
-}
-
-func fluxRoleBindings() []rolePair {
-	return []rolePair{
-		{
-			roleName:        pkgkey.ClusterAdminClusterRoleName,
-			roleBindingName: pkgkey.FluxReconcilerRoleBindingName,
-		},
-		{
-			roleName:        pkgkey.UpstreamFluxCRDClusterRole,
-			roleBindingName: pkgkey.FluxCRDRoleBindingName,
+			roleBindingName: pkgkey.WriteClusterNamespaceAppsRoleBinding,
+			roleKind:        "Role",
+			roleName:        pkgkey.WriteClusterNamespaceAppsRole,
 		},
 	}
 }
