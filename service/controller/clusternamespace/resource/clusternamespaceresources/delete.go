@@ -31,6 +31,17 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 	}
+
+	err = r.deleteRoleBinding(ctx, cl.Name, fluxCRDRolePair.roleBindingName)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = r.deleteRoleBinding(ctx, cl.Name, fluxNSRolePair.roleBindingName)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	return nil
 }
 

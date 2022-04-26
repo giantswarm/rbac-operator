@@ -72,24 +72,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	{
-		fluxReconcilerPair := rolePair{
-			roleBindingName: pkgkey.FluxReconcilerRoleBindingName,
-			roleKind:        "ClusterRole",
-			roleName:        pkgkey.ClusterAdminClusterRoleName,
-		}
-
-		err = r.ensureClusterNamespaceFluxRole(ctx, cl.Name, pkgkey.FluxReconcilerServiceAccounts, fluxReconcilerPair)
+		err = r.ensureClusterNamespaceFluxRole(ctx, cl.Name, pkgkey.FluxReconcilerServiceAccounts, fluxNSRolePair)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		fluxCRDPair := rolePair{
-			roleBindingName: pkgkey.FluxCRDRoleBindingName,
-			roleKind:        "ClusterRole",
-			roleName:        pkgkey.UpstreamFluxCRDClusterRole,
-		}
-
-		err = r.ensureClusterNamespaceFluxRole(ctx, cl.Name, pkgkey.FluxCrdServiceAccounts, fluxCRDPair)
+		err = r.ensureClusterNamespaceFluxRole(ctx, cl.Name, pkgkey.FluxCrdServiceAccounts, fluxCRDRolePair)
 		if err != nil {
 			return microerror.Mask(err)
 		}
