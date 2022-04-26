@@ -28,6 +28,20 @@ func referencedClusterRoles() []rolePair {
 		},
 	}
 }
+
+func fluxRoleBindings() []rolePair {
+	return []rolePair{
+		{
+			roleName:        pkgkey.ClusterAdminClusterRoleName,
+			roleBindingName: pkgkey.FluxReconcilerRoleBindingName,
+		},
+		{
+			roleName:        pkgkey.UpstreamFluxCRDClusterRole,
+			roleBindingName: pkgkey.FluxCRDRoleBindingName,
+		},
+	}
+}
+
 func readClusterAppsRules() []rbacv1.PolicyRule {
 	return getRules(clusterNamespaceResources(), readAccess())
 }

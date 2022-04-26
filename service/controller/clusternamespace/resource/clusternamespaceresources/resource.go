@@ -54,6 +54,13 @@ func roleBindingReferencesClusterRole(roleBinding rbacv1.RoleBinding, roleName s
 	return false
 }
 
+func roleBindingMatches(roleBinding rbacv1.RoleBinding, roleName, roleBindingName string) bool {
+	if roleBinding.ObjectMeta.Name == roleBindingName && roleBinding.RoleRef.Name == roleName && roleBinding.RoleRef.Kind == "ClusterRole" {
+		return true
+	}
+	return false
+}
+
 // RoleBinding needs an update with the list of subjects has changed
 func roleBindingNeedsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.RoleBinding) bool {
 	if len(existingRoleBinding.Subjects) < 1 {

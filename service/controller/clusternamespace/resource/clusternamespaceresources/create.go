@@ -35,6 +35,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
+
 	orgNamespace := organization.Status.Namespace
 	if len(orgNamespace) < 1 {
 		return microerror.Maskf(unknownOrganizationNamespaceError, "Could not find the namespace for organization %s.", pkgkey.Organization(&cl))
@@ -64,7 +65,21 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 		}
 		// Ensure RoleBinding in cluster namespace
-		err = r.ensureClusterNamespaceNSRoleBinding(ctx, subjects, cl.Name, referencedRole)
+		err = r.ensureClusterNamespaceNSRoleBinding(ctx, subjects, cl.Name, referencedRole, "Role")
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	for _, fluxBinding := range fluxRoleBindings() {
+		var subjects []rbacv1.Subject
+		for _, roleBinding := range orgRoleBindings.Items {
+			if roleBindingMatches(roleBinding, fluxBinding.roleName, fluxBinding.roleBindingName) {
+				subjects = append(subjects, roleBinding.Subjects...)
+			}
+		}
+
+		err = r.ensureClusterNamespaceNSRoleBinding(ctx, subjects, cl.Name, fluxBinding, "ClusterRole")
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -98,7 +113,7 @@ func (r *Resource) ensureClusterNamespaceNSRole(ctx context.Context, clusterName
 	return nil
 }
 
-func (r *Resource) ensureClusterNamespaceNSRoleBinding(ctx context.Context, subjects []rbacv1.Subject, clusterNamespace string, referencedRole rolePair) error {
+func (r *Resource) ensureClusterNamespaceNSRoleBinding(ctx context.Context, subjects []rbacv1.Subject, clusterNamespace string, referencedRole rolePair, roleType string) error {
 	var err error
 
 	roleBinding := &rbacv1.RoleBinding{
@@ -116,7 +131,7 @@ func (r *Resource) ensureClusterNamespaceNSRoleBinding(ctx context.Context, subj
 		Subjects: subjects,
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "Role",
+			Kind:     roleType,
 			Name:     referencedRole.roleName,
 		},
 	}
