@@ -135,7 +135,10 @@ func Test_EnsureCreated(t *testing.T) {
 				Logger:    microloggertest.New(),
 			})
 
-			clusterns.EnsureCreated(context.TODO(), tc.namespaces[1])
+			err = clusterns.EnsureCreated(context.TODO(), tc.namespaces[1])
+			if err != nil {
+				t.Fatalf("error == %#v, want nil", err)
+			}
 
 			for _, rb := range tc.expectedRoleBindings {
 				r, err := k8sClientFake.K8sClient().
@@ -153,6 +156,4 @@ func Test_EnsureCreated(t *testing.T) {
 			}
 		})
 	}
-
-	return
 }

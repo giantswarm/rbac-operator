@@ -84,8 +84,14 @@ func Test_EnsureDeleted(t *testing.T) {
 				K8sClient: k8sClientFake,
 				Logger:    microloggertest.New(),
 			})
+			if err != nil {
+				t.Fatalf("error == %#v, want nil", err)
+			}
 
-			clusterns.EnsureDeleted(context.TODO(), tc.namespaces[0])
+			err = clusterns.EnsureDeleted(context.TODO(), tc.namespaces[0])
+			if err != nil {
+				t.Fatalf("error == %#v, want nil", err)
+			}
 
 			rbList, err := k8sClientFake.K8sClient().
 				RbacV1().
@@ -101,6 +107,4 @@ func Test_EnsureDeleted(t *testing.T) {
 			}
 		})
 	}
-
-	return
 }
