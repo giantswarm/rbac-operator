@@ -134,6 +134,9 @@ func Test_EnsureCreated(t *testing.T) {
 				K8sClient: k8sClientFake,
 				Logger:    microloggertest.New(),
 			})
+			if err != nil {
+				t.Fatalf("error == %#v, want nil", err)
+			}
 
 			err = clusterns.EnsureCreated(context.TODO(), tc.namespaces[1])
 			if err != nil {
