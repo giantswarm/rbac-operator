@@ -21,17 +21,19 @@ import (
 
 func Test_EnsureCreated(t *testing.T) {
 	tests := []struct {
-		name                 string
-		namespaces           []*corev1.Namespace
-		organization         *security.Organization
-		roleBindings         []*rbacv1.RoleBinding
-		expectedRoleBindings []*rbacv1.RoleBinding
+		name                    string
+		namespaces              []*corev1.Namespace
+		organization            *security.Organization
+		roleBindings            []*rbacv1.RoleBinding
+		expectedRoleBindings    []*rbacv1.RoleBinding
+		expectedRoleBindingsNum map[string]int
 	}{
 		{
 			name: "flawless",
 			namespaces: []*corev1.Namespace{
 				newOrgNamespace("acme"),
 				newClusterNamespace("abc0", "acme"),
+				newGenericNamespace("giantswarm"),
 			},
 			organization: newOrganization("acme"),
 			roleBindings: []*rbacv1.RoleBinding{
@@ -61,6 +63,28 @@ func Test_EnsureCreated(t *testing.T) {
 					[]rbacv1.Subject{
 						{Kind: "ServiceAccount", Name: "helm-controller", Namespace: "flux-system"},
 						{Kind: "ServiceAccount", Name: "kustomize-controller", Namespace: "flux-system"},
+					},
+				),
+				newRoleBinding(
+					"cluster-ns-organization-acme-write",
+					"org-acme",
+					map[string]string{
+						"kind": "ClusterRole",
+						"name": "write-in-cluster-ns",
+					},
+					[]rbacv1.Subject{
+						{Kind: "Group", Name: "customer:acme:Employees"},
+					},
+				),
+				newRoleBinding(
+					"cluster-ns-organization-acme-read",
+					"org-acme",
+					map[string]string{
+						"kind": "ClusterRole",
+						"name": "read-in-cluster-ns",
+					},
+					[]rbacv1.Subject{
+						{Kind: "Group", Name: "customer:acme:Employees"},
 					},
 				),
 			},
@@ -93,6 +117,33 @@ func Test_EnsureCreated(t *testing.T) {
 						{Kind: "ServiceAccount", Name: "kustomize-controller", Namespace: "flux-system"},
 					},
 				),
+				newRoleBinding(
+					"write-in-cluster-ns",
+					"abc0",
+					map[string]string{
+						"kind": "Role",
+						"name": "write-in-cluster-ns",
+					},
+					[]rbacv1.Subject{
+						{Kind: "Group", Name: "customer:acme:Employees"},
+					},
+				),
+				newRoleBinding(
+					"read-in-cluster-ns",
+					"abc0",
+					map[string]string{
+						"kind": "Role",
+						"name": "read-in-cluster-ns",
+					},
+					[]rbacv1.Subject{
+						{Kind: "Group", Name: "customer:acme:Employees"},
+					},
+				),
+			},
+			expectedRoleBindingsNum: map[string]int{
+				"abc0":       4,
+				"org-acme":   4,
+				"giantswarm": 0,
 			},
 		},
 	}
@@ -155,6 +206,21 @@ func Test_EnsureCreated(t *testing.T) {
 
 				if !reflect.DeepEqual(r, rb) {
 					t.Fatalf("want matching resources \n %s", cmp.Diff(r, rb))
+				}
+			}
+
+			for ns, c := range tc.expectedRoleBindingsNum {
+				r, err := k8sClientFake.K8sClient().
+					RbacV1().
+					RoleBindings(ns).
+					List(context.TODO(), metav1.ListOptions{})
+
+				if err != nil {
+					t.Fatalf("error == %#v, want nil", err)
+				}
+
+				if len(r.Items) != c {
+					t.Fatalf("got %d item(s) in %s namespace, want %d", len(r.Items), ns, c)
 				}
 			}
 		})

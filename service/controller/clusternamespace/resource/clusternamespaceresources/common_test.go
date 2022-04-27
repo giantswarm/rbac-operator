@@ -22,6 +22,14 @@ func newClusterNamespace(name, organization string) *corev1.Namespace {
 	}
 }
 
+func newGenericNamespace(name string) *corev1.Namespace {
+	return &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: name,
+		},
+	}
+}
+
 func newOrganization(name string) *security.Organization {
 	return &security.Organization{
 		ObjectMeta: metav1.ObjectMeta{
