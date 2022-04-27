@@ -56,6 +56,28 @@ func Test_EnsureDeleted(t *testing.T) {
 						{Kind: "ServiceAccount", Name: "kustomize-controller", Namespace: "flux-system"},
 					},
 				),
+				newRoleBinding(
+					"write-in-cluster-ns",
+					"abc0",
+					map[string]string{
+						"kind": "Role",
+						"name": "write-in-cluster-ns",
+					},
+					[]rbacv1.Subject{
+						{Kind: "Group", Name: "customer:acme:Employees"},
+					},
+				),
+				newRoleBinding(
+					"read-in-cluster-ns",
+					"abc0",
+					map[string]string{
+						"kind": "Role",
+						"name": "read-in-cluster-ns",
+					},
+					[]rbacv1.Subject{
+						{Kind: "Group", Name: "customer:acme:Employees"},
+					},
+				),
 			},
 		},
 	}
