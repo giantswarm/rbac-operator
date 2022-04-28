@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+
+- Create `flux-crd-controller` and `flux-namespace-reconciler` RoleBindings in cluster namespace.
+
 ### Changed
 
 - Update CI (architext-orb)
@@ -41,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Prevent rbac-controller `fluxauth` and `externalresources` resources from reconciling cluster namespaces
 - Dynamically bind `read-in-cluster-ns` clusterRole if `read-all` clusterRole is bound in an org-namespace
-- Dynamically bind `write-in-cluster-ns` clusterRole if `cluster-admin` clusterRole is bound in an org-namespace 
+- Dynamically bind `write-in-cluster-ns` clusterRole if `cluster-admin` clusterRole is bound in an org-namespace
 
 
 ### Changed

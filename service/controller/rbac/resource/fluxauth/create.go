@@ -17,29 +17,6 @@ import (
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/key"
 )
 
-const fluxNamespace = "flux-system"
-
-var (
-	// upstream Flux ServiceAccounts which need permissions for
-	// "*.toolkit.fluxcd.io" resources in Organization namespace
-	// see: https://github.com/fluxcd/flux2/blob/main/manifests/rbac/controller.yaml
-	crdServiceAccounts = []string{
-		"helm-controller",
-		"image-automation-controller",
-		"image-reflector-controller",
-		"kustomize-controller",
-		"notification-controller",
-		"source-controller",
-	}
-	// upstream Flux ServiceAccounts which need cluster-admin access to
-	// reconcile resources in Organization namespace
-	// see: https://github.com/fluxcd/flux2/blob/main/manifests/rbac/reconciler.yaml
-	reconcilerServiceAccounts = []string{
-		"helm-controller",
-		"kustomize-controller",
-	}
-)
-
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	var err error
 
@@ -147,12 +124,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		},
 	}
 
-	for _, serviceAccount := range crdServiceAccounts {
+	for _, serviceAccount := range pkgkey.FluxCrdServiceAccounts {
 		roleBinding.Subjects = append(roleBinding.Subjects,
 			rbacv1.Subject{
 				Kind:      "ServiceAccount",
 				Name:      serviceAccount,
-				Namespace: fluxNamespace,
+				Namespace: pkgkey.FluxNamespaceName,
 			},
 		)
 	}
@@ -183,12 +160,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		},
 	}
 
-	for _, serviceAccount := range reconcilerServiceAccounts {
+	for _, serviceAccount := range pkgkey.FluxReconcilerServiceAccounts {
 		roleBinding.Subjects = append(roleBinding.Subjects,
 			rbacv1.Subject{
 				Kind:      "ServiceAccount",
 				Name:      serviceAccount,
-				Namespace: fluxNamespace,
+				Namespace: pkgkey.FluxNamespaceName,
 			},
 		)
 	}

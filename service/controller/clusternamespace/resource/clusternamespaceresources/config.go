@@ -8,26 +8,43 @@ import (
 )
 
 type rolePair struct {
-	roleName        string
-	roleBindingName string
 	policyRules     []rbacv1.PolicyRule
+	roleBindingName string
+	roleKind        string
+	roleName        string
 }
+
+var (
+	fluxCRDRolePair = rolePair{
+		roleBindingName: pkgkey.FluxCRDRoleBindingName,
+		roleKind:        "ClusterRole",
+		roleName:        pkgkey.UpstreamFluxCRDClusterRole,
+	}
+	fluxNSRolePair = rolePair{
+		roleBindingName: pkgkey.FluxReconcilerRoleBindingName,
+		roleKind:        "ClusterRole",
+		roleName:        pkgkey.ClusterAdminClusterRoleName,
+	}
+)
 
 // List of roles and roleBinding pairs that should be ensured as well as the granted permissions
 func referencedClusterRoles() []rolePair {
 	return []rolePair{
 		{
-			roleName:        pkgkey.ReadClusterNamespaceAppsRole,
-			roleBindingName: pkgkey.ReadClusterNamespaceAppsRoleBinding,
 			policyRules:     readClusterAppsRules(),
+			roleBindingName: pkgkey.ReadClusterNamespaceAppsRoleBinding,
+			roleKind:        "Role",
+			roleName:        pkgkey.ReadClusterNamespaceAppsRole,
 		},
 		{
-			roleName:        pkgkey.WriteClusterNamespaceAppsRole,
-			roleBindingName: pkgkey.WriteClusterNamespaceAppsRoleBinding,
 			policyRules:     writeClusterAppsRules(),
+			roleBindingName: pkgkey.WriteClusterNamespaceAppsRoleBinding,
+			roleKind:        "Role",
+			roleName:        pkgkey.WriteClusterNamespaceAppsRole,
 		},
 	}
 }
+
 func readClusterAppsRules() []rbacv1.PolicyRule {
 	return getRules(clusterNamespaceResources(), readAccess())
 }
