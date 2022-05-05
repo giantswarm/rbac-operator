@@ -12,12 +12,3 @@ var invalidConfigError = &microerror.Error{
 func IsInvalidConfig(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
 }
-
-var unknownOrganizationNamespaceError = &microerror.Error{
-	Kind: "unknownOrganizationNamespaceError",
-}
-
-// IsUnknownOrganizationNamespace asserts unknownOrganizationNamespaceError.
-func IsUnknownOrganizationNamespace(err error) bool {
-	return microerror.Cause(err) == unknownOrganizationNamespaceError
-}
