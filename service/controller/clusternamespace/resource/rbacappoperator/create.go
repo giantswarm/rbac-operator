@@ -92,6 +92,16 @@ func (r *Resource) CreateClusterRoleAndBinding(ctx context.Context, cl corev1.Na
 				Resources: []string{"appcatalogentries"},
 				Verbs:     []string{"*"},
 			},
+			{
+				APIGroups: []string{""},
+				Resources: []string{"configmaps"},
+				Verbs:     []string{"list"},
+			},
+			{
+				APIGroups: []string{"application.giantswarm.io"},
+				Resources: []string{"secrets"},
+				Verbs:     []string{"list"},
+			},
 		},
 	}
 
