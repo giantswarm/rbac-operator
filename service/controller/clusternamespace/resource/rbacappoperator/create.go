@@ -98,7 +98,7 @@ func (r *Resource) CreateClusterRoleAndBinding(ctx context.Context, cl corev1.Na
 				Verbs:     []string{"list"},
 			},
 			{
-				APIGroups: []string{"application.giantswarm.io"},
+				APIGroups: []string{""},
 				Resources: []string{"secrets"},
 				Verbs:     []string{"list"},
 			},
@@ -189,7 +189,7 @@ func (r *Resource) CreateCatalogReaderRoleAndBinding(ctx context.Context, cl cor
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
-			Namespace: cl.Name,
+			Namespace: "giantswarm",
 		},
 		Subjects: []rbacv1.Subject{
 			{
@@ -206,7 +206,7 @@ func (r *Resource) CreateCatalogReaderRoleAndBinding(ctx context.Context, cl cor
 	}
 
 	// TODO clusternamespaceresources already has logic to create / update / delete roles and cluster roles better
-	_, err = r.k8sClient.K8sClient().RbacV1().RoleBindings(cl.Name).Create(ctx, catalogReaderRoleBinding, metav1.CreateOptions{})
+	_, err = r.k8sClient.K8sClient().RbacV1().RoleBindings("giantswarm").Create(ctx, catalogReaderRoleBinding, metav1.CreateOptions{})
 	if apierrors.IsAlreadyExists(err) {
 		// do nothing
 	} else if err != nil {
