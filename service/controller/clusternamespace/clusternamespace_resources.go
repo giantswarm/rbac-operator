@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/operatorkit/v7/pkg/resource"
 	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/retryresource"
+	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace/resource/rbacappoperator"
 
 	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace/resource/clusternamespaceresources"
 	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace/resource/rbaccleaner"
@@ -46,9 +47,23 @@ func newClusterNamespaceResources(config clusterNamespaceResourcesConfig) ([]res
 		}
 	}
 
+	var rbacAppOperatorResource resource.Interface
+	{
+		c := rbacappoperator.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+
+		rbacAppOperatorResource, err = rbacappoperator.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []resource.Interface{
 		clusterNamespaceResourcesResource,
 		rbacCleanerResource,
+		rbacAppOperatorResource,
 	}
 
 	{
