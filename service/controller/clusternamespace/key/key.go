@@ -1,6 +1,8 @@
 package key
 
 import (
+	"fmt"
+
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -18,4 +20,8 @@ func ToNamespace(v interface{}) (corev1.Namespace, error) {
 	c := p.DeepCopy()
 
 	return *c, nil
+}
+
+func ClusterRoleNameFromNamespace(ns corev1.Namespace) string {
+	return fmt.Sprintf("app-operator-%s", ns.Name)
 }
