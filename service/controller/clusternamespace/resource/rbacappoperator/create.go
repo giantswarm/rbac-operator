@@ -3,7 +3,9 @@ package rbacappoperator
 import (
 	"context"
 	"fmt"
+
 	"github.com/giantswarm/microerror"
+
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/key"
 )
 
