@@ -95,12 +95,12 @@ func (r *Resource) CreateClusterRoleAndBinding(ctx context.Context, cl corev1.Na
 			{
 				APIGroups: []string{""},
 				Resources: []string{"configmaps"},
-				Verbs:     []string{"list"},
+				Verbs:     []string{"list", "watch"},
 			},
 			{
 				APIGroups: []string{""},
 				Resources: []string{"secrets"},
-				Verbs:     []string{"list"},
+				Verbs:     []string{"list", "watch"},
 			},
 		},
 	}
@@ -166,7 +166,7 @@ func (r *Resource) CreateCatalogReaderRoleAndBinding(ctx context.Context, cl cor
 			{
 				APIGroups: []string{""},
 				Resources: []string{"configmaps"},
-				Verbs:     []string{"get"},
+				Verbs:     []string{"get", "patch"},
 			},
 		},
 	}
@@ -230,6 +230,11 @@ func (r *Resource) CreateOwnNamespaceRoleAndBinding(ctx context.Context, cl core
 			Namespace: cl.Name,
 		},
 		Rules: []rbacv1.PolicyRule{
+			{
+				APIGroups: []string{""},
+				Resources: []string{"namespaces"},
+				Verbs:     []string{"get"},
+			},
 			{
 				APIGroups: []string{""},
 				Resources: []string{"configmaps"},
