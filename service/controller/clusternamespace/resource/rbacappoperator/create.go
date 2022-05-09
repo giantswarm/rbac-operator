@@ -100,7 +100,8 @@ func (r *Resource) CreateClusterRoleAndBinding(ctx context.Context, cl corev1.Na
 			{
 				APIGroups: []string{""},
 				Resources: []string{"secrets"},
-				Verbs:     []string{"list", "watch"},
+				//Verbs:     []string{"list", "watch"},
+				Verbs: []string{"watch"},
 			},
 		},
 	}
