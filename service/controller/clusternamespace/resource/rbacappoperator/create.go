@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/rbac-operator/pkg/rbac"
+
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/rbac-operator/pkg/label"
@@ -100,17 +101,12 @@ func (r *Resource) CreateClusterRoleAndBinding(ctx context.Context, cl corev1.Na
 			{
 				APIGroups: []string{""},
 				Resources: []string{"secrets"},
-				//Verbs:     []string{"list", "watch"},
-				Verbs: []string{"watch"},
+				Verbs:     []string{"watch"},
 			},
 		},
 	}
 
-	// TODO clusternamespaceresources already has logic to create / update / delete roles and cluster roles better
-	_, err := r.k8sClient.K8sClient().RbacV1().ClusterRoles().Create(ctx, clusterRole, metav1.CreateOptions{})
-	if apierrors.IsAlreadyExists(err) {
-		// do nothing
-	} else if err != nil {
+	if err := rbac.CreateOrUpdateClusterRole(r, ctx, clusterRole); err != nil {
 		return microerror.Mask(err)
 	}
 
@@ -139,11 +135,7 @@ func (r *Resource) CreateClusterRoleAndBinding(ctx context.Context, cl corev1.Na
 		},
 	}
 
-	// TODO clusternamespaceresources already has logic to create / update / delete roles and cluster roles better
-	_, err = r.k8sClient.K8sClient().RbacV1().ClusterRoleBindings().Create(ctx, clusterRoleBinding, metav1.CreateOptions{})
-	if apierrors.IsAlreadyExists(err) {
-		// do nothing
-	} else if err != nil {
+	if err := rbac.CreateOrUpdateClusterRoleBinding(r, ctx, clusterRoleBinding); err != nil {
 		return microerror.Mask(err)
 	}
 
@@ -172,11 +164,7 @@ func (r *Resource) CreateCatalogReaderRoleAndBinding(ctx context.Context, cl cor
 		},
 	}
 
-	// TODO clusternamespaceresources already has logic to create / update / delete roles and cluster roles better
-	_, err := r.k8sClient.K8sClient().RbacV1().Roles("giantswarm").Create(ctx, catalogReaderRole, metav1.CreateOptions{})
-	if apierrors.IsAlreadyExists(err) {
-		// do nothing
-	} else if err != nil {
+	if err := rbac.CreateOrUpdateRole(r, ctx, "giantswarm", catalogReaderRole); err != nil {
 		return microerror.Mask(err)
 	}
 
@@ -206,11 +194,7 @@ func (r *Resource) CreateCatalogReaderRoleAndBinding(ctx context.Context, cl cor
 		},
 	}
 
-	// TODO clusternamespaceresources already has logic to create / update / delete roles and cluster roles better
-	_, err = r.k8sClient.K8sClient().RbacV1().RoleBindings("giantswarm").Create(ctx, catalogReaderRoleBinding, metav1.CreateOptions{})
-	if apierrors.IsAlreadyExists(err) {
-		// do nothing
-	} else if err != nil {
+	if err := rbac.CreateOrUpdateRoleBinding(r, ctx, "giantswarm", catalogReaderRoleBinding); err != nil {
 		return microerror.Mask(err)
 	}
 
@@ -249,11 +233,7 @@ func (r *Resource) CreateOwnNamespaceRoleAndBinding(ctx context.Context, cl core
 		},
 	}
 
-	// TODO clusternamespaceresources already has logic to create / update / delete roles and cluster roles better
-	_, err := r.k8sClient.K8sClient().RbacV1().Roles(cl.Name).Create(ctx, ownNamespaceRole, metav1.CreateOptions{})
-	if apierrors.IsAlreadyExists(err) {
-		// do nothing
-	} else if err != nil {
+	if err := rbac.CreateOrUpdateRole(r, ctx, cl.Name, ownNamespaceRole); err != nil {
 		return microerror.Mask(err)
 	}
 
@@ -283,11 +263,7 @@ func (r *Resource) CreateOwnNamespaceRoleAndBinding(ctx context.Context, cl core
 		},
 	}
 
-	// TODO clusternamespaceresources already has logic to create / update / delete roles and cluster roles better
-	_, err = r.k8sClient.K8sClient().RbacV1().RoleBindings(cl.Name).Create(ctx, ownNamespaceRoleBinding, metav1.CreateOptions{})
-	if apierrors.IsAlreadyExists(err) {
-		// do nothing
-	} else if err != nil {
+	if err := rbac.CreateOrUpdateRoleBinding(r, ctx, cl.Name, ownNamespaceRoleBinding); err != nil {
 		return microerror.Mask(err)
 	}
 

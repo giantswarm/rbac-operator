@@ -10,9 +10,9 @@ import (
 	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace/key"
 )
 
-// Ensures that ClusterRoleBinding and ClusterRole deployed by legacy
-// app-operators to Cluster namespaces are *deleted*. We will be using another
-// ClusterRole and RoleBinding created by another resource.
+// EnsureCreated Ensures that ClusterRoleBinding and ClusterRole deployed by legacy
+// app-operators to Cluster namespaces are *deleted* when a cluster namespace is created.
+// We will be using other roles and cluster roles created by another resource.
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	var err error
 
