@@ -3,6 +3,7 @@ package rbac
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/giantswarm/microerror"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -12,8 +13,21 @@ import (
 	"github.com/giantswarm/rbac-operator/pkg/base"
 )
 
+// ClusterRoleBindingNeedsUpdate ClusterRoleBinding needs an update with the list of subjects has changed
+func ClusterRoleBindingNeedsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.ClusterRoleBinding) bool {
+	if len(existingRoleBinding.Subjects) < 1 {
+		return true
+	}
+
+	if !reflect.DeepEqual(desiredRoleBinding.Subjects, existingRoleBinding.Subjects) {
+		return true
+	}
+
+	return false
+}
+
 func CreateOrUpdateClusterRoleBinding(c base.K8sClientWithLogging, ctx context.Context, clusterRoleBinding *rbacv1.ClusterRoleBinding) error {
-	_, err := c.K8sClient().RbacV1().ClusterRoleBindings().Get(ctx, clusterRoleBinding.Name, metav1.GetOptions{})
+	existingClusterRoleBinding, err := c.K8sClient().RbacV1().ClusterRoleBindings().Get(ctx, clusterRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		c.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q", clusterRoleBinding.Name))
 
@@ -28,7 +42,7 @@ func CreateOrUpdateClusterRoleBinding(c base.K8sClientWithLogging, ctx context.C
 
 	} else if err != nil {
 		return microerror.Mask(err)
-	} else {
+	} else if ClusterRoleBindingNeedsUpdate(clusterRoleBinding, existingClusterRoleBinding) {
 		c.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrolebinding %#q", clusterRoleBinding.Name))
 
 		_, err := c.K8sClient().RbacV1().ClusterRoleBindings().Update(ctx, clusterRoleBinding, metav1.UpdateOptions{})

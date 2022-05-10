@@ -335,34 +335,7 @@ func (b *Bootstrap) createWriteAllRoleBindingToCustomerGroup(ctx context.Context
 		},
 	}
 
-	ns := key.DefaultNamespaceName
-	_, err := b.k8sClient.RbacV1().RoleBindings(ns).Get(ctx, writeAllRoleBinding.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating rolebinding %#q in namespace %s", writeAllRoleBinding.Name, ns))
-
-		_, err := b.k8sClient.RbacV1().RoleBindings(ns).Create(ctx, writeAllRoleBinding, metav1.CreateOptions{})
-		if apierrors.IsAlreadyExists(err) {
-			// do nothing
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been created", writeAllRoleBinding.Name, ns))
-
-	} else if err != nil {
-		return microerror.Mask(err)
-	} else {
-		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating rolebinding %#q in namespace %s", writeAllRoleBinding.Name, ns))
-
-		_, err := b.k8sClient.RbacV1().RoleBindings(ns).Update(ctx, writeAllRoleBinding, metav1.UpdateOptions{})
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been updated", writeAllRoleBinding.Name, ns))
-	}
-
-	return nil
+	return rbac.CreateOrUpdateRoleBinding(b, ctx, key.DefaultNamespaceName, writeAllRoleBinding)
 }
 
 // Ensures a RoleBinding 'write-all-customer-sa' between
