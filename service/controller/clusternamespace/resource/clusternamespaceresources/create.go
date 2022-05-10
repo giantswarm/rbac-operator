@@ -2,14 +2,14 @@ package clusternamespaceresources
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/microerror"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
 	rbacv1 "k8s.io/api/rbac/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/giantswarm/rbac-operator/pkg/rbac"
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/pkg/label"
@@ -124,7 +124,7 @@ func (r *Resource) ensureClusterNamespaceNSRole(ctx context.Context, clusterName
 		Rules: rules,
 	}
 
-	if err = r.createOrUpdateRole(ctx, clusterNamespace, role); err != nil {
+	if err = rbac.CreateOrUpdateRole(r, ctx, clusterNamespace, role); err != nil {
 		return microerror.Mask(err)
 	}
 
@@ -154,66 +154,8 @@ func (r *Resource) ensureClusterNamespaceNSRoleBinding(ctx context.Context, subj
 		},
 	}
 
-	if err = r.createOrUpdateRoleBinding(ctx, clusterNamespace, roleBinding); err != nil {
+	if err = rbac.CreateOrUpdateRoleBinding(r, ctx, clusterNamespace, roleBinding); err != nil {
 		return microerror.Mask(err)
-	}
-
-	return nil
-}
-
-func (r *Resource) createOrUpdateRole(ctx context.Context, namespace string, role *rbacv1.Role) error {
-	existingRole, err := r.k8sClient.K8sClient().RbacV1().Roles(namespace).Get(ctx, role.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Creating Role %#q in namespace %s.", role.Name, namespace))
-
-		_, err := r.k8sClient.K8sClient().RbacV1().Roles(namespace).Create(ctx, role, metav1.CreateOptions{})
-		if apierrors.IsAlreadyExists(err) {
-			// do nothing
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Role %#q in namespace %s has been created.", role.Name, namespace))
-
-	} else if err != nil {
-		return microerror.Mask(err)
-	} else if roleNeedsUpdate(role, existingRole) {
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Updating Role %#q in namespace %s.", role.Name, namespace))
-		_, err := r.k8sClient.K8sClient().RbacV1().Roles(namespace).Update(ctx, role, metav1.UpdateOptions{})
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Role %#q in namespace %s has been updated.", role.Name, namespace))
-
-	}
-
-	return nil
-}
-
-func (r *Resource) createOrUpdateRoleBinding(ctx context.Context, namespace string, roleBinding *rbacv1.RoleBinding) error {
-	existingRoleBinding, err := r.k8sClient.K8sClient().RbacV1().RoleBindings(namespace).Get(ctx, roleBinding.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Creating RoleBinding %#q in namespce %s.", roleBinding.Name, namespace))
-
-		_, err := r.k8sClient.K8sClient().RbacV1().RoleBindings(namespace).Create(ctx, roleBinding, metav1.CreateOptions{})
-		if apierrors.IsAlreadyExists(err) {
-			// do nothing
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("RoleBinding %#q in namespace %s has been created.", roleBinding.Name, namespace))
-
-	} else if err != nil {
-		return microerror.Mask(err)
-	} else if roleBindingNeedsUpdate(roleBinding, existingRoleBinding) {
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Updating RoleBinding %#q in namespace %s.", roleBinding.Name, namespace))
-		_, err := r.k8sClient.K8sClient().RbacV1().RoleBindings(namespace).Update(ctx, roleBinding, metav1.UpdateOptions{})
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("RoleBinding %#q in namespace %s has been updated.", roleBinding.Name, namespace))
-
 	}
 
 	return nil

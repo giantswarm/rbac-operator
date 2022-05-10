@@ -4,8 +4,6 @@
 package clusternamespaceresources
 
 import (
-	"reflect"
-
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
@@ -61,32 +59,6 @@ func roleBindingReferencesClusterRole(roleBinding rbacv1.RoleBinding, roleName s
 	if roleBinding.RoleRef.Name == roleName && roleBinding.RoleRef.Kind == "ClusterRole" {
 		return true
 	}
-	return false
-}
-
-// RoleBinding needs an update with the list of subjects has changed
-func roleBindingNeedsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.RoleBinding) bool {
-	if len(existingRoleBinding.Subjects) < 1 {
-		return true
-	}
-
-	if !reflect.DeepEqual(desiredRoleBinding.Subjects, existingRoleBinding.Subjects) {
-		return true
-	}
-
-	return false
-}
-
-// Role needs an update if the rules have changed
-func roleNeedsUpdate(desiredRole, existingRole *rbacv1.Role) bool {
-	if len(existingRole.Rules) < 1 {
-		return true
-	}
-
-	if !reflect.DeepEqual(desiredRole.Rules, existingRole.Rules) {
-		return true
-	}
-
 	return false
 }
 
