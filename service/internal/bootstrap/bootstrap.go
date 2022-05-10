@@ -27,6 +27,14 @@ type Bootstrap struct {
 	gsAdminGroup       string
 }
 
+func (b Bootstrap) K8sClient() kubernetes.Interface {
+	return b.k8sClient
+}
+
+func (b Bootstrap) Logger() micrologger.Logger {
+	return b.logger
+}
+
 func New(config Config) (*Bootstrap, error) {
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)

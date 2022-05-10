@@ -6,6 +6,8 @@ package bootstrap
 import (
 	"context"
 
+	"github.com/giantswarm/rbac-operator/pkg/rbac"
+
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
@@ -36,7 +38,7 @@ func (b *Bootstrap) createReadClusterNamespaceAppsRole(ctx context.Context) erro
 		},
 	}
 
-	if err = b.createOrUpdateClusterRole(ctx, role); err != nil {
+	if err = rbac.CreateOrUpdateClusterRole(b, ctx, role); err != nil {
 		return microerror.Mask(err)
 	}
 
@@ -63,7 +65,7 @@ func (b *Bootstrap) createWriteClusterNamespaceAppsRole(ctx context.Context) err
 		},
 	}
 
-	if err = b.createOrUpdateClusterRole(ctx, role); err != nil {
+	if err = rbac.CreateOrUpdateClusterRole(b, ctx, role); err != nil {
 		return microerror.Mask(err)
 	}
 
