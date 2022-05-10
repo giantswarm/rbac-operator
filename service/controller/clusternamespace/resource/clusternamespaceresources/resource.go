@@ -6,6 +6,8 @@ package clusternamespaceresources
 import (
 	"reflect"
 
+	"k8s.io/client-go/kubernetes"
+
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -25,6 +27,14 @@ type Config struct {
 type Resource struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
+}
+
+func (r Resource) K8sClient() kubernetes.Interface {
+	return r.k8sClient.K8sClient()
+}
+
+func (r Resource) Logger() micrologger.Logger {
+	return r.logger
 }
 
 func New(config Config) (*Resource, error) {
