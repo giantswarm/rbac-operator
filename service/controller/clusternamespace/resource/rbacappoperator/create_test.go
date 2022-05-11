@@ -20,7 +20,7 @@ import (
 )
 
 func Test_EnsureCreated(t *testing.T) {
-	t.Run("Ensure rbac-operator managed app-operator resources", func(t *testing.T) {
+	t.Run("Ensure rbac-operator managed app-operator resources are created", func(t *testing.T) {
 		var err error
 
 		// Existing resources

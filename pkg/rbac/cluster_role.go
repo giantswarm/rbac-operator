@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pingcap/errors"
+	"k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/giantswarm/microerror"
 	rbacv1 "k8s.io/api/rbac/v1"
