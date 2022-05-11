@@ -21,8 +21,11 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		"message", fmt.Sprintf("Cleaning up app-operator resources for cluster namespace: %s.", ns.Name),
 	)
 
-	//var clusterRole = getAppOperatorClusterRole(ns)
-	//var clusterRoleBinding = getAppOperatorCLusterRoleBinding(ns, clusterRole)
+	var clusterRole = getAppOperatorClusterRole(ns)
+	_ = rbac.DeleteClusterRole(r, ctx, clusterRole.Name)
+
+	var clusterRoleBinding = getAppOperatorCLusterRoleBinding(ns, clusterRole)
+	_ = rbac.DeleteClusterRoleBinding(r, ctx, clusterRoleBinding.Name)
 
 	var catalogReaderRole = getAppOperatorCatalogReaderRole(ns)
 	_ = rbac.DeleteRole(r, ctx, catalogReaderRole.Namespace, catalogReaderRole.Name)

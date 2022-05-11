@@ -4,10 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pingcap/errors"
+
 	"github.com/giantswarm/microerror"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/rbac-operator/pkg/base"
 )
@@ -35,6 +38,29 @@ func CreateOrUpdateClusterRole(c base.K8sClientWithLogging, ctx context.Context,
 			return microerror.Mask(err)
 		}
 		c.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrole %#q has been updated", clusterRole.Name))
+	}
+
+	return nil
+}
+
+func DeleteClusterRole(c base.K8sClientWithLogging, ctx context.Context, clusterRole string) error {
+	var err error
+
+	_, err = c.K8sClient().RbacV1().ClusterRoles().Get(ctx, clusterRole, v1.GetOptions{})
+	if errors.IsNotFound(err) {
+		// nothing to be done
+	} else if err != nil {
+		return microerror.Mask(err)
+	} else {
+		c.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Deleting ClusterRole %s", clusterRole))
+
+		err = c.K8sClient().RbacV1().ClusterRoles().Delete(ctx, clusterRole, v1.DeleteOptions{})
+		if errors.IsNotFound(err) {
+			// nothing to be done
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+		c.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("ClusterRole %s has been deleted.", clusterRole))
 	}
 
 	return nil

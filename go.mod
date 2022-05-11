@@ -13,6 +13,7 @@ require (
 	github.com/giantswarm/operatorkit/v7 v7.0.1
 	github.com/giantswarm/organization-operator v1.0.0
 	github.com/google/go-cmp v0.5.6
+	github.com/pingcap/errors v0.11.4
 	github.com/prometheus/client_golang v1.12.1
 	github.com/spf13/viper v1.10.1
 	k8s.io/api v0.20.15
