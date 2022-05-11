@@ -22,22 +22,40 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	)
 
 	var clusterRole = getAppOperatorClusterRole(ns)
-	_ = rbac.DeleteClusterRole(r, ctx, clusterRole.Name)
+	err = rbac.DeleteClusterRole(r, ctx, clusterRole.Name)
+	if err != nil {
+		r.logger.Errorf(ctx, err, "Failed to delete app-operator cluster role: %s", clusterRole.Name)
+	}
 
 	var clusterRoleBinding = getAppOperatorCLusterRoleBinding(ns, clusterRole)
-	_ = rbac.DeleteClusterRoleBinding(r, ctx, clusterRoleBinding.Name)
+	err = rbac.DeleteClusterRoleBinding(r, ctx, clusterRoleBinding.Name)
+	if err != nil {
+		r.logger.Errorf(ctx, err, "Failed to delete app-operator cluster role binding: %s", clusterRoleBinding.Name)
+	}
 
 	var catalogReaderRole = getAppOperatorCatalogReaderRole(ns)
-	_ = rbac.DeleteRole(r, ctx, catalogReaderRole.Namespace, catalogReaderRole.Name)
+	err = rbac.DeleteRole(r, ctx, catalogReaderRole.Namespace, catalogReaderRole.Name)
+	if err != nil {
+		r.logger.Errorf(ctx, err, "Failed to delete app-operator catalog reader role: %s", catalogReaderRole.Name)
+	}
 
 	var catalogReaderRoleBinding = getAppOperatorCatalogReaderRoleBinding(ns, catalogReaderRole)
-	_ = rbac.DeleteRoleBinding(r, ctx, catalogReaderRoleBinding.Namespace, catalogReaderRoleBinding.Name)
+	err = rbac.DeleteRoleBinding(r, ctx, catalogReaderRoleBinding.Namespace, catalogReaderRoleBinding.Name)
+	if err != nil {
+		r.logger.Errorf(ctx, err, "Failed to delete app-operator catalog reader role binding: %s", catalogReaderRoleBinding.Name)
+	}
 
 	var ownNamespaceRole = getAppOperatorOwnNamespaceRole(ns)
-	_ = rbac.DeleteRole(r, ctx, ownNamespaceRole.Namespace, ownNamespaceRole.Name)
+	err = rbac.DeleteRole(r, ctx, ownNamespaceRole.Namespace, ownNamespaceRole.Name)
+	if err != nil {
+		r.logger.Errorf(ctx, err, "Failed to delete app-operator own namespace role: %s", ownNamespaceRole.Name)
+	}
 
 	var ownNamespaceRoleBinding = getAppOperatorOwnNamespaceRoleBinding(ns, ownNamespaceRole)
-	_ = rbac.DeleteRoleBinding(r, ctx, ownNamespaceRoleBinding.Namespace, ownNamespaceRoleBinding.Name)
-
+	err = rbac.DeleteRoleBinding(r, ctx, ownNamespaceRoleBinding.Namespace, ownNamespaceRoleBinding.Name)
+	if err != nil {
+		r.logger.Errorf(ctx, err, "Failed to delete app-operator own namespace role biding: %s", ownNamespaceRoleBinding.Name)
+	}
+	git
 	return nil
 }
