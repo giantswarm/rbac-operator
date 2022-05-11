@@ -22,6 +22,14 @@ func ToNamespace(v interface{}) (corev1.Namespace, error) {
 	return *c, nil
 }
 
-func ClusterRoleNameFromNamespace(ns corev1.Namespace) string {
+func AppOperatorClusterRoleNameFromNamespace(ns corev1.Namespace) string {
 	return fmt.Sprintf("app-operator-%s", ns.Name)
+}
+
+func AppOperatorServiceAccountNameFromNamespace(ns corev1.Namespace) string {
+	return fmt.Sprintf("app-operator-%s", ns.Name)
+}
+
+func AppOperatorRbacOperatorManagedResourceName(ns corev1.Namespace) string {
+	return fmt.Sprintf("app-operator-%s-by-rbac-operator", ns.Name)
 }

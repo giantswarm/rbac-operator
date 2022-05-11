@@ -44,14 +44,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) CreateClusterRoleAndBinding(ctx context.Context, cl corev1.Namespace) error {
-	var clusterRole = getAppOperatorClusterRole(cl.Name)
+func (r *Resource) CreateClusterRoleAndBinding(ctx context.Context, ns corev1.Namespace) error {
+	var clusterRole = getAppOperatorClusterRole(ns)
 
 	if err := rbac.CreateOrUpdateClusterRole(r, ctx, clusterRole); err != nil {
 		return microerror.Mask(err)
 	}
 
-	clusterRoleBinding := getAppOperatorCLusterRoleBinding(cl.Name, clusterRole.Name)
+	clusterRoleBinding := getAppOperatorCLusterRoleBinding(ns, clusterRole.Name)
 
 	if err := rbac.CreateOrUpdateClusterRoleBinding(r, ctx, clusterRoleBinding); err != nil {
 		return microerror.Mask(err)
@@ -60,33 +60,33 @@ func (r *Resource) CreateClusterRoleAndBinding(ctx context.Context, cl corev1.Na
 	return nil
 }
 
-func (r *Resource) CreateCatalogReaderRoleAndBinding(ctx context.Context, cl corev1.Namespace) error {
-	var catalogReaderRole = getAppOperatorCatalogReaderRole(cl.Name)
+func (r *Resource) CreateCatalogReaderRoleAndBinding(ctx context.Context, ns corev1.Namespace) error {
+	var catalogReaderRole = getAppOperatorCatalogReaderRole(ns)
 
 	// TODO Move namespace to keys
-	if err := rbac.CreateOrUpdateRole(r, ctx, "giantswarm", catalogReaderRole); err != nil {
+	if err := rbac.CreateOrUpdateRole(r, ctx, catalogReaderRole.Namespace, catalogReaderRole); err != nil {
 		return microerror.Mask(err)
 	}
 
-	catalogReaderRoleBinding := getAppOperatorCatalogReaderRoleBinding(cl.Name, fmt.Sprintf("app-operator-%s", cl.Name), catalogReaderRole)
+	catalogReaderRoleBinding := getAppOperatorCatalogReaderRoleBinding(ns, catalogReaderRole)
 
-	if err := rbac.CreateOrUpdateRoleBinding(r, ctx, "giantswarm", catalogReaderRoleBinding); err != nil {
+	if err := rbac.CreateOrUpdateRoleBinding(r, ctx, catalogReaderRoleBinding.Namespace, catalogReaderRoleBinding); err != nil {
 		return microerror.Mask(err)
 	}
 
 	return nil
 }
 
-func (r *Resource) CreateOwnNamespaceRoleAndBinding(ctx context.Context, cl corev1.Namespace) error {
-	var ownNamespaceRole = getAppOperatorOwnNamespaceRole(cl.Name)
+func (r *Resource) CreateOwnNamespaceRoleAndBinding(ctx context.Context, ns corev1.Namespace) error {
+	var ownNamespaceRole = getAppOperatorOwnNamespaceRole(ns)
 
-	if err := rbac.CreateOrUpdateRole(r, ctx, cl.Name, ownNamespaceRole); err != nil {
+	if err := rbac.CreateOrUpdateRole(r, ctx, ownNamespaceRole.Namespace, ownNamespaceRole); err != nil {
 		return microerror.Mask(err)
 	}
 
-	ownNamespaceRoleBinding := getAppOperatorOwnNamespaceRoleBinding(cl.Name, ownNamespaceRole)
+	ownNamespaceRoleBinding := getAppOperatorOwnNamespaceRoleBinding(ns, ownNamespaceRole)
 
-	if err := rbac.CreateOrUpdateRoleBinding(r, ctx, cl.Name, ownNamespaceRoleBinding); err != nil {
+	if err := rbac.CreateOrUpdateRoleBinding(r, ctx, ownNamespaceRoleBinding.Namespace, ownNamespaceRoleBinding); err != nil {
 		return microerror.Mask(err)
 	}
 

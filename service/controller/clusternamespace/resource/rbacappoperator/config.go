@@ -1,24 +1,24 @@
 package rbacappoperator
 
 import (
-	"fmt"
+	corev1 "k8s.io/api/core/v1"
 
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
+	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace/key"
 )
 
-func getAppOperatorClusterRole(clusterName string) *rbacv1.ClusterRole {
+func getAppOperatorClusterRole(ns corev1.Namespace) *rbacv1.ClusterRole {
 	return &rbacv1.ClusterRole{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "ClusterRole",
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			// TODO Naming
-			Name: fmt.Sprintf("app-operator-%s", clusterName),
+			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
@@ -68,14 +68,14 @@ func getAppOperatorClusterRole(clusterName string) *rbacv1.ClusterRole {
 	}
 }
 
-func getAppOperatorCLusterRoleBinding(clusterName string, clusterRoleName string) *rbacv1.ClusterRoleBinding {
+func getAppOperatorCLusterRoleBinding(ns corev1.Namespace, clusterRoleName string) *rbacv1.ClusterRoleBinding {
 	return &rbacv1.ClusterRoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "ClusterRole",
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: fmt.Sprintf("app-operator-%s", clusterName),
+			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
@@ -83,8 +83,8 @@ func getAppOperatorCLusterRoleBinding(clusterName string, clusterRoleName string
 		Subjects: []rbacv1.Subject{
 			{
 				Kind:      "ServiceAccount",
-				Name:      fmt.Sprintf("app-operator-%s", clusterName),
-				Namespace: clusterName,
+				Name:      key.AppOperatorServiceAccountNameFromNamespace(ns),
+				Namespace: ns.Name,
 			},
 		},
 		RoleRef: rbacv1.RoleRef{
@@ -95,14 +95,14 @@ func getAppOperatorCLusterRoleBinding(clusterName string, clusterRoleName string
 	}
 }
 
-func getAppOperatorCatalogReaderRole(clusterName string) *rbacv1.Role {
+func getAppOperatorCatalogReaderRole(ns corev1.Namespace) *rbacv1.Role {
 	return &rbacv1.Role{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Role",
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: fmt.Sprintf("app-operator-%s", clusterName),
+			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
@@ -118,14 +118,14 @@ func getAppOperatorCatalogReaderRole(clusterName string) *rbacv1.Role {
 	}
 }
 
-func getAppOperatorCatalogReaderRoleBinding(clusterName string, serviceAccountName string, roleRef *rbacv1.Role) *rbacv1.RoleBinding {
+func getAppOperatorCatalogReaderRoleBinding(ns corev1.Namespace, roleRef *rbacv1.Role) *rbacv1.RoleBinding {
 	return &rbacv1.RoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "RoleBinding",
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: fmt.Sprintf("app-operator-%s", clusterName),
+			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
@@ -134,8 +134,8 @@ func getAppOperatorCatalogReaderRoleBinding(clusterName string, serviceAccountNa
 		Subjects: []rbacv1.Subject{
 			{
 				Kind:      "ServiceAccount",
-				Name:      serviceAccountName,
-				Namespace: clusterName,
+				Name:      key.AppOperatorServiceAccountNameFromNamespace(ns),
+				Namespace: ns.Name,
 			},
 		},
 		RoleRef: rbacv1.RoleRef{
@@ -146,18 +146,18 @@ func getAppOperatorCatalogReaderRoleBinding(clusterName string, serviceAccountNa
 	}
 }
 
-func getAppOperatorOwnNamespaceRole(clusterName string) *rbacv1.Role {
+func getAppOperatorOwnNamespaceRole(ns corev1.Namespace) *rbacv1.Role {
 	return &rbacv1.Role{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Role",
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: fmt.Sprintf("app-operator-%s", clusterName),
+			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
-			Namespace: clusterName,
+			Namespace: ns.Name,
 		},
 		Rules: []rbacv1.PolicyRule{
 			{
@@ -179,24 +179,24 @@ func getAppOperatorOwnNamespaceRole(clusterName string) *rbacv1.Role {
 	}
 }
 
-func getAppOperatorOwnNamespaceRoleBinding(clusterName string, roleRef *rbacv1.Role) *rbacv1.RoleBinding {
+func getAppOperatorOwnNamespaceRoleBinding(ns corev1.Namespace, roleRef *rbacv1.Role) *rbacv1.RoleBinding {
 	return &rbacv1.RoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "RoleBinding",
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: fmt.Sprintf("app-operator-%s", clusterName),
+			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
-			Namespace: clusterName,
+			Namespace: ns.Name,
 		},
 		Subjects: []rbacv1.Subject{
 			{
 				Kind:      "ServiceAccount",
-				Name:      fmt.Sprintf("app-operator-%s", clusterName),
-				Namespace: clusterName,
+				Name:      key.AppOperatorServiceAccountNameFromNamespace(ns),
+				Namespace: ns.Name,
 			},
 		},
 		RoleRef: rbacv1.RoleRef{

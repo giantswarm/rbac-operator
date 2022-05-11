@@ -21,7 +21,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	nameToDelete := key.ClusterRoleNameFromNamespace(cl)
+	nameToDelete := key.AppOperatorClusterRoleNameFromNamespace(cl)
 
 	err = r.k8sClient.K8sClient().RbacV1().ClusterRoleBindings().Delete(ctx, nameToDelete, metav1.DeleteOptions{})
 	if errors.IsNotFound(err) {
