@@ -56,6 +56,6 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	if err != nil {
 		r.logger.Errorf(ctx, err, "Failed to delete app-operator own namespace role biding: %s", ownNamespaceRoleBinding.Name)
 	}
-	git
+
 	return nil
 }

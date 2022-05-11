@@ -59,11 +59,6 @@ func getAppOperatorClusterRole(ns corev1.Namespace) *rbacv1.ClusterRole {
 				Resources: []string{"configmaps"},
 				Verbs:     []string{"list", "watch"},
 			},
-			{
-				APIGroups: []string{""},
-				Resources: []string{"secrets"},
-				Verbs:     []string{"watch"},
-			},
 		},
 	}
 }
