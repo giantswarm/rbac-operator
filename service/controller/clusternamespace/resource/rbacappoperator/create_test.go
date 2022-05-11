@@ -2,7 +2,6 @@ package rbacappoperator
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -34,7 +33,7 @@ func Test_EnsureCreated(t *testing.T) {
 
 		wcServiceAccount := &corev1.ServiceAccount{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      fmt.Sprintf("app-operator-%s", wcNamespace.Name),
+				Name:      key.AppOperatorServiceAccountNameFromNamespace(*wcNamespace),
 				Namespace: wcNamespace.Name,
 			},
 		}
@@ -99,8 +98,43 @@ func Test_EnsureCreated(t *testing.T) {
 
 			expectedClusterRole := getAppOperatorClusterRole(*wcNamespace)
 			if !reflect.DeepEqual(actualClusterRole, expectedClusterRole) {
-				t.Fatalf("want matching resources \n %s", cmp.Diff(actualClusterRole, expectedClusterRole))
+				t.Fatalf("Want matching resources \n %s", cmp.Diff(actualClusterRole, expectedClusterRole))
+			}
+
+			for _, policyRule := range actualClusterRole.Rules {
+				if contains(policyRule.Resources, "secrets") {
+					t.Fatalf("Do not set cluster wide access to secrets")
+				}
+			}
+
+			actualClusterRoleBinding, err := k8sClientFake.K8sClient().
+				RbacV1().
+				ClusterRoleBindings().
+				Get(context.TODO(), expectedName, metav1.GetOptions{})
+
+			if err != nil {
+				t.Fatalf("error == %#v, want nil", err)
+			}
+
+			if actualClusterRoleBinding.RoleRef.Name != expectedClusterRole.Name {
+				t.Fatalf("Wrong cluster role bound to app-operator")
+			}
+
+			if len(actualClusterRoleBinding.Subjects) != 1 &&
+				actualClusterRoleBinding.Subjects[0].Kind != "ServiceAccount" &&
+				actualClusterRoleBinding.Subjects[0].Name != wcServiceAccount.Name {
+				t.Fatalf("Wrong subject for cluster role bind of app-operator")
 			}
 		}
 	})
+}
+
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
 }
