@@ -68,7 +68,7 @@ func getAppOperatorClusterRole(ns corev1.Namespace) *rbacv1.ClusterRole {
 	}
 }
 
-func getAppOperatorCLusterRoleBinding(ns corev1.Namespace, clusterRoleName string) *rbacv1.ClusterRoleBinding {
+func getAppOperatorCLusterRoleBinding(ns corev1.Namespace, clusterRoleRef *rbacv1.ClusterRole) *rbacv1.ClusterRoleBinding {
 	return &rbacv1.ClusterRoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "ClusterRole",
@@ -89,8 +89,8 @@ func getAppOperatorCLusterRoleBinding(ns corev1.Namespace, clusterRoleName strin
 		},
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     clusterRoleName,
+			Kind:     clusterRoleRef.Kind,
+			Name:     clusterRoleRef.Name,
 		},
 	}
 }

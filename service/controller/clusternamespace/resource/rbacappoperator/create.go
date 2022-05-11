@@ -51,7 +51,7 @@ func (r *Resource) CreateClusterRoleAndBinding(ctx context.Context, ns corev1.Na
 		return microerror.Mask(err)
 	}
 
-	clusterRoleBinding := getAppOperatorCLusterRoleBinding(ns, clusterRole.Name)
+	clusterRoleBinding := getAppOperatorCLusterRoleBinding(ns, clusterRole)
 
 	if err := rbac.CreateOrUpdateClusterRoleBinding(r, ctx, clusterRoleBinding); err != nil {
 		return microerror.Mask(err)
