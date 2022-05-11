@@ -21,40 +21,52 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		"message", fmt.Sprintf("Cleaning up app-operator resources for cluster namespace: %s.", ns.Name),
 	)
 
+	errorOccured := false
+
 	var clusterRole = getAppOperatorClusterRole(ns)
 	err = rbac.DeleteClusterRole(r, ctx, clusterRole.Name)
 	if err != nil {
 		r.logger.Errorf(ctx, err, "Failed to delete app-operator cluster role: %s", clusterRole.Name)
+		errorOccured = true
 	}
 
 	var clusterRoleBinding = getAppOperatorCLusterRoleBinding(ns, clusterRole)
 	err = rbac.DeleteClusterRoleBinding(r, ctx, clusterRoleBinding.Name)
 	if err != nil {
 		r.logger.Errorf(ctx, err, "Failed to delete app-operator cluster role binding: %s", clusterRoleBinding.Name)
+		errorOccured = true
 	}
 
 	var catalogReaderRole = getAppOperatorCatalogReaderRole(ns)
 	err = rbac.DeleteRole(r, ctx, catalogReaderRole.Namespace, catalogReaderRole.Name)
 	if err != nil {
 		r.logger.Errorf(ctx, err, "Failed to delete app-operator catalog reader role: %s", catalogReaderRole.Name)
+		errorOccured = true
 	}
 
 	var catalogReaderRoleBinding = getAppOperatorCatalogReaderRoleBinding(ns, catalogReaderRole)
 	err = rbac.DeleteRoleBinding(r, ctx, catalogReaderRoleBinding.Namespace, catalogReaderRoleBinding.Name)
 	if err != nil {
 		r.logger.Errorf(ctx, err, "Failed to delete app-operator catalog reader role binding: %s", catalogReaderRoleBinding.Name)
+		errorOccured = true
 	}
 
 	var ownNamespaceRole = getAppOperatorOwnNamespaceRole(ns)
 	err = rbac.DeleteRole(r, ctx, ownNamespaceRole.Namespace, ownNamespaceRole.Name)
 	if err != nil {
 		r.logger.Errorf(ctx, err, "Failed to delete app-operator own namespace role: %s", ownNamespaceRole.Name)
+		errorOccured = true
 	}
 
 	var ownNamespaceRoleBinding = getAppOperatorOwnNamespaceRoleBinding(ns, ownNamespaceRole)
 	err = rbac.DeleteRoleBinding(r, ctx, ownNamespaceRoleBinding.Namespace, ownNamespaceRoleBinding.Name)
 	if err != nil {
 		r.logger.Errorf(ctx, err, "Failed to delete app-operator own namespace role biding: %s", ownNamespaceRoleBinding.Name)
+		errorOccured = true
+	}
+
+	if errorOccured {
+		return microerror.Maskf(executionFailedError, "Failed to clean up one or more app-operator rbac resources for: %s", ns.Name)
 	}
 
 	return nil
