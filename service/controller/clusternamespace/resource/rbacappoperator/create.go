@@ -26,7 +26,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// Allow working with some generic resources across namespaces
 	err = r.CreateClusterRoleAndBinding(ctx, cl)
 	if err != nil {
-		return err
+		return microerror.Mask(err)
 	}
 
 	// Allow getting catalog configmaps in giantswarm namespace
