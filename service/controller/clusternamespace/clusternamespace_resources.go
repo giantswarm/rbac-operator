@@ -63,8 +63,8 @@ func newClusterNamespaceResources(config clusterNamespaceResourcesConfig) ([]res
 
 	resources := []resource.Interface{
 		clusterNamespaceResourcesResource,
-		rbacCleanerResource,
 		rbacAppOperatorResource,
+		rbacCleanerResource,
 	}
 
 	{

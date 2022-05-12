@@ -3,8 +3,6 @@ package externalresources
 import (
 	"context"
 
-	"github.com/giantswarm/rbac-operator/pkg/rbac"
-
 	"github.com/giantswarm/microerror"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -12,6 +10,7 @@ import (
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
+	"github.com/giantswarm/rbac-operator/pkg/rbac"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/key"
 )
 

@@ -9,15 +9,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/giantswarm/rbac-operator/pkg/rbac"
-
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
+	"github.com/giantswarm/rbac-operator/pkg/rbac"
 	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace/key"
 )
 
-// Ensures that
+// EnsureCreated Ensures that
 // - Roles for read/write access to org cluster resources are ensured in each cluster namespace
 // - For each RoleBinding in an org-namespace that references the read/write org cluster resource clusterRole,
 //   RoleBindings are created in the organizations cluster namespaces which reference above Role
