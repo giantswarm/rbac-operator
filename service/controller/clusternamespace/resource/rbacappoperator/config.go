@@ -175,6 +175,11 @@ func getAppOperatorOwnNamespaceRole(ns corev1.Namespace) *rbacv1.Role {
 				Resources: []string{"secrets"},
 				Verbs:     []string{"*"},
 			},
+			{
+				APIGroups: []string{""},
+				Resources: []string{"events"},
+				Verbs:     []string{"create", "patch", "update"},
+			},
 		},
 	}
 }
