@@ -23,14 +23,22 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	nameToDelete := key.AppOperatorClusterRoleNameFromNamespace(cl)
 
-	err = rbac.DeleteClusterRole(r, ctx, nameToDelete)
-	if err != nil {
-		r.logger.Errorf(ctx, err, "Failed to delete app-operator managed cluster role: %s", nameToDelete)
-	}
+	errorOccurred := false
 
 	err = rbac.DeleteClusterRoleBinding(r, ctx, nameToDelete)
 	if err != nil {
 		r.logger.Errorf(ctx, err, "Failed to delete app-operator managed cluster role binding: %s", nameToDelete)
+		errorOccurred = true
+	}
+
+	err = rbac.DeleteClusterRole(r, ctx, nameToDelete)
+	if err != nil {
+		r.logger.Errorf(ctx, err, "Failed to delete app-operator managed cluster role: %s", nameToDelete)
+		errorOccurred = true
+	}
+
+	if errorOccurred {
+		return microerror.Maskf(executionFailedError, "Failed to clean up one or more original app-operator rbac resources for: %s", cl.Name)
 	}
 
 	return nil
