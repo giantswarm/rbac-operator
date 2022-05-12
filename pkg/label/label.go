@@ -7,8 +7,10 @@ const (
 
 	ManagedBy = "giantswarm.io/managed-by"
 
-	// Labels, used in legacy cluster namespaces
+	// LegacyCustomer Labels, used in legacy cluster namespaces
 	LegacyCustomer = "customer"
+
+	NOTES = "giantswarm.io/notes"
 )
 
 type LabelsGetter interface {
