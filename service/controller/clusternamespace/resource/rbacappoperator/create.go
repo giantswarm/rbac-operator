@@ -32,7 +32,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// Allow getting catalog configmaps in giantswarm namespace
 	err = r.CreateCatalogReaderRoleAndBinding(ctx, cl)
 	if err != nil {
-		return err
+		return microerror.Mask(err)
 	}
 
 	// Allow working with stuff in its own namespace
