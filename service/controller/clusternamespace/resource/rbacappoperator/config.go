@@ -21,7 +21,7 @@ func getAppOperatorClusterRole(ns corev1.Namespace) *rbacv1.ClusterRole {
 			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
-				label.NOTES:     "Reduced cluster roles for app-operator to manage Giant Swarm resources and config maps",
+				label.NOTES:     "reduced-cluster-roles-for-app-operator",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{
@@ -74,7 +74,7 @@ func getAppOperatorCLusterRoleBinding(ns corev1.Namespace, clusterRoleRef *rbacv
 			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
-				label.NOTES:     "Binding for the reduced app-operator cluster role to the app-operator service-account",
+				label.NOTES:     "binding-of-reduced-cluster-roles-for-app-operator",
 			},
 		},
 		Subjects: []rbacv1.Subject{
@@ -102,7 +102,7 @@ func getAppOperatorCatalogReaderRole(ns corev1.Namespace) *rbacv1.Role {
 			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
-				label.NOTES:     "Role to allow app-operator to access config maps in the giantswarm namespace for reading catalogs",
+				label.NOTES:     "role-for-app-operator-to-read-catalogs-in-giantswarm-ns",
 			},
 			Namespace: "giantswarm",
 		},
@@ -126,7 +126,7 @@ func getAppOperatorCatalogReaderRoleBinding(ns corev1.Namespace, roleRef *rbacv1
 			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
-				label.NOTES:     "Binding the giant swarm catalog reader role to the app-operator service account",
+				label.NOTES:     "binding-of-app-operator-giantswarm-catalog-reader-role",
 			},
 			Namespace: "giantswarm",
 		},
@@ -155,7 +155,7 @@ func getAppOperatorOwnNamespaceRole(ns corev1.Namespace) *rbacv1.Role {
 			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
-				label.NOTES:     "Role to allow app-operator full access to some resources in the cluster namespace",
+				label.NOTES:     "role-for-app-operator-to-handle-resources-in-its-namespace",
 			},
 			Namespace: ns.Name,
 		},
@@ -194,7 +194,7 @@ func getAppOperatorOwnNamespaceRoleBinding(ns corev1.Namespace, roleRef *rbacv1.
 			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
-				label.NOTES:     "Binding the cluster namespace bound role to the app-operator service account",
+				label.NOTES:     "binding-of-app-operator-role-to-handle-its-namespace",
 			},
 			Namespace: ns.Name,
 		},
