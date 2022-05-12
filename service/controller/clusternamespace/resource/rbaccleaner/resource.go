@@ -1,3 +1,8 @@
+// rbaccleaner exists to clean up ClusterRoleBindings and ClusterRoles deployed
+// by legacy app-operators to cluster namespaces. Those RBAC resources gave
+// excessive permissions to app-operator ServiceAccount in cluster namespace.
+// rbaccleaner can be removed once all active releases use app-operator
+// versions >5.9.0.
 package rbaccleaner
 
 import (
