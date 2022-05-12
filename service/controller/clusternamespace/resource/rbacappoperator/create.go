@@ -38,7 +38,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// Allow working with stuff in its own namespace
 	err = r.CreateOwnNamespaceRoleAndBinding(ctx, cl)
 	if err != nil {
-		return err
+		return microerror.Mask(err)
 	}
 
 	return nil
