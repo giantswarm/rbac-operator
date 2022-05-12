@@ -127,12 +127,12 @@ func Test_EnsureCreated(t *testing.T) {
 			// Checks
 			_, err = k8sClientFake.K8sClient().RbacV1().ClusterRoles().Get(context.TODO(), clusterRole.Name, metav1.GetOptions{})
 			if !errors.IsNotFound(err) {
-				t.Fatalf("The app-operator managed cluster role should be deleted")
+				t.Fatalf("The app-operator managed cluster role should be deleted, but error is: %#v", err)
 			}
 
 			_, err = k8sClientFake.K8sClient().RbacV1().ClusterRoleBindings().Get(context.TODO(), clusterRoleBinding.Name, metav1.GetOptions{})
 			if !errors.IsNotFound(err) {
-				t.Fatalf("The app-operator managed cluster role binding should be deleted")
+				t.Fatalf("The app-operator managed cluster role binding should be deleted, but error is: %#v", err)
 			}
 		}
 	})

@@ -97,32 +97,32 @@ func Test_EnsureDeleted(t *testing.T) {
 			// Checks
 			_, err = k8sClientFake.K8sClient().RbacV1().ClusterRoles().Get(context.TODO(), clusterRole.Name, metav1.GetOptions{})
 			if !errors.IsNotFound(err) {
-				t.Fatalf("The self managed app-operator cluster role should be deleted")
+				t.Fatalf("The self managed app-operator cluster role should be deleted, but error is: %#v", err)
 			}
 
 			_, err = k8sClientFake.K8sClient().RbacV1().ClusterRoleBindings().Get(context.TODO(), clusterRoleBinding.Name, metav1.GetOptions{})
 			if !errors.IsNotFound(err) {
-				t.Fatalf("The self managed app-operator cluster role binding should be deleted")
+				t.Fatalf("The self managed app-operator cluster role binding should be deleted, but error is: %#v", err)
 			}
 
 			_, err = k8sClientFake.K8sClient().RbacV1().Roles(ownNamespaceRole.Namespace).Get(context.TODO(), ownNamespaceRole.Name, metav1.GetOptions{})
 			if !errors.IsNotFound(err) {
-				t.Fatalf("The self managed app-operator role for own namespace should be deleted")
+				t.Fatalf("The self managed app-operator role for own namespace should be deleted, but error is: %#v", err)
 			}
 
 			_, err = k8sClientFake.K8sClient().RbacV1().RoleBindings(ownNamespaceRoleBinding.Namespace).Get(context.TODO(), ownNamespaceRoleBinding.Name, metav1.GetOptions{})
 			if !errors.IsNotFound(err) {
-				t.Fatalf("The self managed app-operator role binding for own namespace should be deleted")
+				t.Fatalf("The self managed app-operator role binding for own namespace should be deleted, but error is: %#v", err)
 			}
 
 			_, err = k8sClientFake.K8sClient().RbacV1().Roles(catalogReaderRole.Namespace).Get(context.TODO(), catalogReaderRole.Name, metav1.GetOptions{})
 			if !errors.IsNotFound(err) {
-				t.Fatalf("The self managed app-operator role for catalog reading should be deleted")
+				t.Fatalf("The self managed app-operator role for catalog reading should be deleted, but error is: %#v", err)
 			}
 
 			_, err = k8sClientFake.K8sClient().RbacV1().RoleBindings(catalogReaderRoleBinding.Namespace).Get(context.TODO(), catalogReaderRoleBinding.Name, metav1.GetOptions{})
 			if !errors.IsNotFound(err) {
-				t.Fatalf("The self managed app-operator role binding for catalog reading should be deleted")
+				t.Fatalf("The self managed app-operator role binding for catalog reading should be deleted, but error is: %#v", err)
 			}
 		}
 	})
