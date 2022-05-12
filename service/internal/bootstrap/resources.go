@@ -7,8 +7,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/rbac-operator/pkg/rbac"
-
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
@@ -20,6 +18,7 @@ import (
 
 	"github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/pkg/project"
+	"github.com/giantswarm/rbac-operator/pkg/rbac"
 )
 
 // Ensures the 'automation' service account in the default namespace.
