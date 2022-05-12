@@ -1,4 +1,3 @@
-// TODO rbacappoperator
 package rbacappoperator
 
 import (

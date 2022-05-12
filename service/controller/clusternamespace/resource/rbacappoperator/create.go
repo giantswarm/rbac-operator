@@ -63,7 +63,6 @@ func (r *Resource) CreateClusterRoleAndBinding(ctx context.Context, ns corev1.Na
 func (r *Resource) CreateCatalogReaderRoleAndBinding(ctx context.Context, ns corev1.Namespace) error {
 	var catalogReaderRole = getAppOperatorCatalogReaderRole(ns)
 
-	// TODO Move namespace to keys
 	if err := rbac.CreateOrUpdateRole(r, ctx, catalogReaderRole.Namespace, catalogReaderRole); err != nil {
 		return microerror.Mask(err)
 	}

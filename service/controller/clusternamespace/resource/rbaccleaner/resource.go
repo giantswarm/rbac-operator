@@ -1,4 +1,3 @@
-// TODO: rbaccleaner
 package rbaccleaner
 
 import (
