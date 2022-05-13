@@ -6,6 +6,8 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/k8smetadata/pkg/annotation"
+
 	"github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace/key"
@@ -21,7 +23,9 @@ func getAppOperatorClusterRole(ns corev1.Namespace) *rbacv1.ClusterRole {
 			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
-				label.NOTES:     "reduced-cluster-roles-for-app-operator",
+			},
+			Annotations: map[string]string{
+				annotation.Notes: "reduced-cluster-roles-for-app-operator",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{
@@ -74,7 +78,9 @@ func getAppOperatorCLusterRoleBinding(ns corev1.Namespace, clusterRoleRef *rbacv
 			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
-				label.NOTES:     "binding-of-reduced-cluster-roles-for-app-operator",
+			},
+			Annotations: map[string]string{
+				annotation.Notes: "binding-of-reduced-cluster-roles-for-app-operator",
 			},
 		},
 		Subjects: []rbacv1.Subject{
@@ -102,7 +108,9 @@ func getAppOperatorCatalogReaderRole(ns corev1.Namespace) *rbacv1.Role {
 			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
-				label.NOTES:     "role-for-app-operator-to-read-catalogs-in-giantswarm-ns",
+			},
+			Annotations: map[string]string{
+				annotation.Notes: "role-for-app-operator-to-read-catalogs-in-giantswarm-ns",
 			},
 			Namespace: "giantswarm",
 		},
@@ -126,7 +134,9 @@ func getAppOperatorCatalogReaderRoleBinding(ns corev1.Namespace, roleRef *rbacv1
 			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
-				label.NOTES:     "binding-of-app-operator-giantswarm-catalog-reader-role",
+			},
+			Annotations: map[string]string{
+				annotation.Notes: "binding-of-app-operator-giantswarm-catalog-reader-role",
 			},
 			Namespace: "giantswarm",
 		},
@@ -155,7 +165,9 @@ func getAppOperatorOwnNamespaceRole(ns corev1.Namespace) *rbacv1.Role {
 			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
-				label.NOTES:     "role-for-app-operator-to-handle-resources-in-its-namespace",
+			},
+			Annotations: map[string]string{
+				annotation.Notes: "role-for-app-operator-to-handle-resources-in-its-namespace",
 			},
 			Namespace: ns.Name,
 		},
@@ -194,7 +206,9 @@ func getAppOperatorOwnNamespaceRoleBinding(ns corev1.Namespace, roleRef *rbacv1.
 			Name: key.AppOperatorRbacOperatorManagedResourceName(ns),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
-				label.NOTES:     "binding-of-app-operator-role-to-handle-its-namespace",
+			},
+			Annotations: map[string]string{
+				annotation.Notes: "binding-of-app-operator-role-to-handle-its-namespace",
 			},
 			Namespace: ns.Name,
 		},
