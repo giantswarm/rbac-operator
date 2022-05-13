@@ -790,7 +790,7 @@ func (b *Bootstrap) createWriteSilencesClusterRoleBindingToAutomationSA(ctx cont
 func (b *Bootstrap) labelDefaultClusterRoles(ctx context.Context) error {
 	labelsToSet := map[string]string{
 		label.DisplayInUserInterface: "true",
-		key.LabelManagedBy:           "Kubernetes",
+		label.ManagedBy:              "Kubernetes",
 	}
 
 	clusterRoles := key.DefaultClusterRolesToDisplayInUI()

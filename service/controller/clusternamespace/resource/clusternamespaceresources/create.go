@@ -3,6 +3,7 @@ package clusternamespaceresources
 import (
 	"context"
 
+	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -10,7 +11,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
-	"github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/pkg/rbac"
 	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace/key"

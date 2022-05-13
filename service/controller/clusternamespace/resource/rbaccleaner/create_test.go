@@ -6,8 +6,7 @@ import (
 
 	rbacv1 "k8s.io/api/rbac/v1"
 
-	"github.com/giantswarm/rbac-operator/pkg/label"
-	"github.com/giantswarm/rbac-operator/pkg/project"
+	"github.com/giantswarm/k8smetadata/pkg/label"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 
@@ -21,6 +20,7 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
+	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace/key"
 )
 
