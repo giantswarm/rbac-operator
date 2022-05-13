@@ -7,7 +7,7 @@ const (
 
 	ManagedBy = "giantswarm.io/managed-by"
 
-	// LegacyCustomer Labels, used in legacy cluster namespaces
+	// LegacyCustomer labels, used in legacy cluster namespaces
 	LegacyCustomer = "customer"
 
 	NOTES = "giantswarm.io/notes"
