@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add new roles and cluster roles to app-operators when a cluster namespace is created and clean them up when the cluster namespace is destroyed
 
-## Removed
+### Removed
 
 - Remove `app-operator-*` ClusterRole and ClusterRoleBinding for old app-operator versions.
 
