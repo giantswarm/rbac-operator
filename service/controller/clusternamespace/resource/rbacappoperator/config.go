@@ -25,7 +25,7 @@ func getAppOperatorClusterRole(ns corev1.Namespace) *rbacv1.ClusterRole {
 				label.ManagedBy: project.Name(),
 			},
 			Annotations: map[string]string{
-				annotation.Notes: "reduced-cluster-roles-for-app-operator",
+				annotation.Notes: "Reduced cluster roles for app-operator",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{
@@ -80,7 +80,7 @@ func getAppOperatorCLusterRoleBinding(ns corev1.Namespace, clusterRoleRef *rbacv
 				label.ManagedBy: project.Name(),
 			},
 			Annotations: map[string]string{
-				annotation.Notes: "binding-of-reduced-cluster-roles-for-app-operator",
+				annotation.Notes: "Binding of reduced cluster roles for app-operator",
 			},
 		},
 		Subjects: []rbacv1.Subject{
@@ -110,7 +110,7 @@ func getAppOperatorCatalogReaderRole(ns corev1.Namespace) *rbacv1.Role {
 				label.ManagedBy: project.Name(),
 			},
 			Annotations: map[string]string{
-				annotation.Notes: "role-for-app-operator-to-read-catalogs-in-giantswarm-ns",
+				annotation.Notes: "Role for app-operator to read catalogs in giantswarm namespace",
 			},
 			Namespace: "giantswarm",
 		},
@@ -136,7 +136,7 @@ func getAppOperatorCatalogReaderRoleBinding(ns corev1.Namespace, roleRef *rbacv1
 				label.ManagedBy: project.Name(),
 			},
 			Annotations: map[string]string{
-				annotation.Notes: "binding-of-app-operator-giantswarm-catalog-reader-role",
+				annotation.Notes: "Binding of app-operator giantswarm catalog reader role",
 			},
 			Namespace: "giantswarm",
 		},
@@ -167,7 +167,7 @@ func getAppOperatorOwnNamespaceRole(ns corev1.Namespace) *rbacv1.Role {
 				label.ManagedBy: project.Name(),
 			},
 			Annotations: map[string]string{
-				annotation.Notes: "role-for-app-operator-to-handle-resources-in-its-namespace",
+				annotation.Notes: "Role for app-operator to handle resources in its own namespace",
 			},
 			Namespace: ns.Name,
 		},
@@ -208,7 +208,7 @@ func getAppOperatorOwnNamespaceRoleBinding(ns corev1.Namespace, roleRef *rbacv1.
 				label.ManagedBy: project.Name(),
 			},
 			Annotations: map[string]string{
-				annotation.Notes: "binding-of-app-operator-role-to-handle-its-namespace",
+				annotation.Notes: "Binding of app-operator role to handle its own namespace",
 			},
 			Namespace: ns.Name,
 		},
