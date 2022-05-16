@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/giantswarm/rbac-operator/pkg/label"
-)
+	"github.com/giantswarm/k8smetadata/pkg/label"
 
-const (
-	LabelManagedBy = "giantswarm.io/managed-by"
+	rbacLabel "github.com/giantswarm/rbac-operator/pkg/label"
 )
 
 const (
@@ -36,7 +34,7 @@ const (
 )
 
 var (
-	// upstream Flux ServiceAccounts which need permissions for
+	// FluxCrdServiceAccounts Upstream Flux ServiceAccounts which need permissions for
 	// "*.toolkit.fluxcd.io" resources in Organization namespace
 	// see: https://github.com/fluxcd/flux2/blob/main/manifests/rbac/controller.yaml
 	FluxCrdServiceAccounts = []string{
@@ -47,7 +45,7 @@ var (
 		"notification-controller",
 		"source-controller",
 	}
-	// upstream Flux ServiceAccounts which need cluster-admin access to
+	// FluxReconcilerServiceAccounts Upstream Flux ServiceAccounts which need cluster-admin access to
 	// reconcile resources in Organization namespace
 	// see: https://github.com/fluxcd/flux2/blob/main/manifests/rbac/reconciler.yaml
 	FluxReconcilerServiceAccounts = []string{
@@ -66,11 +64,11 @@ func IsOrgNamespace(ns string) bool {
 	return strings.HasPrefix(ns, "org-")
 }
 
-func Cluster(getter label.LabelsGetter) string {
+func Cluster(getter rbacLabel.LabelsGetter) string {
 	return getter.GetLabels()[label.Cluster]
 }
 
-func Organization(getter label.LabelsGetter) string {
+func Organization(getter rbacLabel.LabelsGetter) string {
 	return getter.GetLabels()[label.Organization]
 }
 

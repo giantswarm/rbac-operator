@@ -1,4 +1,4 @@
 *.swp
 TODO
-/rbac-operator
+/rbac-operator*
 !vendor/**

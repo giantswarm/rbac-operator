@@ -2,16 +2,16 @@ package externalresources
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/giantswarm/microerror"
 	rbacv1 "k8s.io/api/rbac/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/k8smetadata/pkg/label"
+	"github.com/giantswarm/microerror"
+
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
-	"github.com/giantswarm/rbac-operator/pkg/label"
 	"github.com/giantswarm/rbac-operator/pkg/project"
+	"github.com/giantswarm/rbac-operator/pkg/rbac"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/key"
 )
 
@@ -102,7 +102,7 @@ func (r *Resource) ensureRoleBindingToClusterRole(ctx context.Context, subjects 
 		},
 	}
 
-	if err = r.createOrUpdateRoleBinding(ctx, roleBinding.Namespace, roleBinding); err != nil {
+	if err = rbac.CreateOrUpdateRoleBinding(r, ctx, roleBinding.Namespace, roleBinding); err != nil {
 		return microerror.Mask(err)
 	}
 
@@ -161,7 +161,7 @@ func (r *Resource) ensureOrganizationClusterRoleBinding(ctx context.Context, sub
 		},
 	}
 
-	if err = r.createOrUpdateClusterRoleBinding(ctx, clusterRoleBinding); err != nil {
+	if err = rbac.CreateOrUpdateClusterRoleBinding(r, ctx, clusterRoleBinding); err != nil {
 		return microerror.Mask(err)
 	}
 	return nil
@@ -189,7 +189,7 @@ func (r *Resource) ensureReleasesClusterRoleBinding(ctx context.Context, subject
 		},
 	}
 
-	if err = r.createOrUpdateClusterRoleBinding(ctx, clusterRoleBinding); err != nil {
+	if err = rbac.CreateOrUpdateClusterRoleBinding(r, ctx, clusterRoleBinding); err != nil {
 		return microerror.Mask(err)
 	}
 	return nil
@@ -218,64 +218,8 @@ func (r *Resource) ensureDefaultCatalogsRoleBinding(ctx context.Context, subject
 		},
 	}
 
-	if err = r.createOrUpdateRoleBinding(ctx, roleBinding.Namespace, roleBinding); err != nil {
+	if err = rbac.CreateOrUpdateRoleBinding(r, ctx, roleBinding.Namespace, roleBinding); err != nil {
 		return microerror.Mask(err)
-	}
-
-	return nil
-}
-
-func (r *Resource) createOrUpdateClusterRoleBinding(ctx context.Context, clusterrolebinding *rbacv1.ClusterRoleBinding) error {
-	existingClusterRoleBinding, err := r.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, clusterrolebinding.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q", clusterrolebinding.Name))
-
-		_, err := r.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, clusterrolebinding, metav1.CreateOptions{})
-		if apierrors.IsAlreadyExists(err) {
-			// do nothing
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been created", clusterrolebinding.Name))
-
-	} else if err != nil {
-		return microerror.Mask(err)
-	} else if clusterRoleBindingNeedsUpdate(clusterrolebinding, existingClusterRoleBinding) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating clusterrolebinding %#q", clusterrolebinding.Name))
-		_, err := r.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, clusterrolebinding, metav1.UpdateOptions{})
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", clusterrolebinding.Name))
-	}
-	return nil
-}
-
-func (r *Resource) createOrUpdateRoleBinding(ctx context.Context, namespace string, roleBinding *rbacv1.RoleBinding) error {
-	existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(namespace).Get(ctx, roleBinding.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating rolebinding %#q in namespace %s", roleBinding.Name, namespace))
-
-		_, err := r.k8sClient.RbacV1().RoleBindings(namespace).Create(ctx, roleBinding, metav1.CreateOptions{})
-		if apierrors.IsAlreadyExists(err) {
-			// do nothing
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been created.", roleBinding.Name, namespace))
-
-	} else if err != nil {
-		return microerror.Mask(err)
-	} else if roleBindingNeedsUpdate(roleBinding, existingRoleBinding) {
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating rolebinding %#q in namespace %s", roleBinding.Name, namespace))
-		_, err := r.k8sClient.RbacV1().RoleBindings(namespace).Update(ctx, roleBinding, metav1.UpdateOptions{})
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been updated.", roleBinding.Name, namespace))
-
 	}
 
 	return nil
