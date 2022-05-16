@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Deleted
+
+- Delete `write-flux-resources-customer-sa` ClusterRoleBinding.
+
 ## [0.27.0] - 2022-04-28
 
 ## Added
