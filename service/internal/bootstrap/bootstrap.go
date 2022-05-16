@@ -112,11 +112,6 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 		return microerror.Mask(err)
 	}
 
-	err = b.createWriteFluxResourcesClusterRoleBindingToAutomationSA(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	err = b.createWriteClustersClusterRole(ctx)
 	if err != nil {
 		return microerror.Mask(err)

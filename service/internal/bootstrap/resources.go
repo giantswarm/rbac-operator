@@ -668,65 +668,6 @@ func (b *Bootstrap) createWriteFluxResourcesClusterRole(ctx context.Context) err
 	return nil
 }
 
-// Ensures the ClusterRoleBinding 'write-flux-resources-customer-sa' between
-// ClusterRole 'write-flux-resources' and ServiceAccount 'automation'.
-func (b *Bootstrap) createWriteFluxResourcesClusterRoleBindingToAutomationSA(ctx context.Context) error {
-	clusterRoleBindingName := key.WriteFluxResourcesAutomationSARoleBindingName()
-
-	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "ClusterRoleBinding",
-			APIVersion: "rbac.authorization.k8s.io/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: clusterRoleBindingName,
-			Labels: map[string]string{
-				label.ManagedBy: project.Name(),
-			},
-		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind:      "ServiceAccount",
-				Name:      key.AutomationServiceAccountName,
-				Namespace: key.DefaultNamespaceName,
-			},
-		},
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     key.WriteFluxResourcesPermissionsName,
-		},
-	}
-
-	_, err := b.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, clusterRoleBinding.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q", clusterRoleBinding.Name))
-
-		_, err = b.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, clusterRoleBinding, metav1.CreateOptions{})
-		if apierrors.IsAlreadyExists(err) {
-			// Do nothing.
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been created", clusterRoleBinding.Name))
-
-		return nil
-	} else if err != nil {
-		return microerror.Mask(err)
-	}
-
-	b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrolebinding %#q", clusterRoleBinding.Name))
-
-	_, err = b.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, clusterRoleBinding, metav1.UpdateOptions{})
-	if err != nil {
-		return microerror.Mask(err)
-	}
-	b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q has been updated", clusterRoleBinding.Name))
-
-	return nil
-}
-
 // Ensures the ClusterRole 'write-clusters'.
 //
 // Purpose of this role is to grant all permissions needed for
