@@ -7,13 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Deleted
+### Added
 
-- Delete `write-flux-resources-customer-sa` ClusterRoleBinding.
+- Add new roles and cluster roles to app-operators when a cluster namespace is created and clean them up when the cluster namespace is destroyed
+
+### Removed
+
+- Remove `app-operator-*` ClusterRole and ClusterRoleBinding for old app-operator versions.
+- Remove `write-flux-resources-customer-sa` ClusterRoleBinding.
 
 ## [0.27.0] - 2022-04-28
 
-## Added
+### Added
 
 - Create `flux-crd-controller` and `flux-namespace-reconciler` RoleBindings in cluster namespace.
 

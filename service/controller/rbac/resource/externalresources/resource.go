@@ -4,8 +4,6 @@
 package externalresources
 
 import (
-	"reflect"
-
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -25,6 +23,14 @@ type Config struct {
 type Resource struct {
 	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
+}
+
+func (r Resource) K8sClient() kubernetes.Interface {
+	return r.k8sClient
+}
+
+func (r Resource) Logger() micrologger.Logger {
+	return r.logger
 }
 
 func New(config Config) (*Resource, error) {
@@ -92,32 +98,6 @@ func roleBindingHasSubject(roleBinding rbacv1.RoleBinding) bool {
 			return true
 		}
 	}
-	return false
-}
-
-// ClusterRoleBinding needs an update with the list of subjects has changed
-func clusterRoleBindingNeedsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.ClusterRoleBinding) bool {
-	if len(existingRoleBinding.Subjects) < 1 {
-		return true
-	}
-
-	if !reflect.DeepEqual(desiredRoleBinding.Subjects, existingRoleBinding.Subjects) {
-		return true
-	}
-
-	return false
-}
-
-// RoleBinding needs an update with the list of subjects has changed
-func roleBindingNeedsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.RoleBinding) bool {
-	if len(existingRoleBinding.Subjects) < 1 {
-		return true
-	}
-
-	if !reflect.DeepEqual(desiredRoleBinding.Subjects, existingRoleBinding.Subjects) {
-		return true
-	}
-
 	return false
 }
 
