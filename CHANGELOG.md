@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Remove `app-operator-*` ClusterRole and ClusterRoleBinding for old app-operator versions.
+- Remove `write-flux-resources-customer-sa` ClusterRoleBinding.
 
 ## [0.27.0] - 2022-04-28
 

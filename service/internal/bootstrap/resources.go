@@ -469,39 +469,6 @@ func (b *Bootstrap) createWriteFluxResourcesClusterRole(ctx context.Context) err
 	return rbac.CreateOrUpdateClusterRole(b, ctx, clusterRole)
 }
 
-// Ensures the ClusterRoleBinding 'write-flux-resources-customer-sa' between
-// ClusterRole 'write-flux-resources' and ServiceAccount 'automation'.
-func (b *Bootstrap) createWriteFluxResourcesClusterRoleBindingToAutomationSA(ctx context.Context) error {
-	clusterRoleBindingName := key.WriteFluxResourcesAutomationSARoleBindingName()
-
-	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "ClusterRoleBinding",
-			APIVersion: "rbac.authorization.k8s.io/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: clusterRoleBindingName,
-			Labels: map[string]string{
-				label.ManagedBy: project.Name(),
-			},
-		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind:      "ServiceAccount",
-				Name:      key.AutomationServiceAccountName,
-				Namespace: key.DefaultNamespaceName,
-			},
-		},
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     key.WriteFluxResourcesPermissionsName,
-		},
-	}
-
-	return rbac.CreateOrUpdateClusterRoleBinding(b, ctx, clusterRoleBinding)
-}
-
 // Ensures the ClusterRole 'write-clusters'.
 //
 // Purpose of this role is to grant all permissions needed for
