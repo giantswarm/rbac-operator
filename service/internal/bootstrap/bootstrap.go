@@ -160,12 +160,22 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 		return microerror.Mask(err)
 	}
 
-    err = b.createWritePodSecurityPoliciesClusterRole(ctx)
+	err = b.createWritePodSecurityPoliciesClusterRole(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
 	err = b.createWritePodSecurityPoliciesClusterRoleBindingToAutomationSA(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = b.createWriteClusterRoleBindingClusterRole(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = b.createWriteClusterRoleBindingClusterRoleBindingToAutomationSA(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -176,16 +186,6 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 	}
 
 	err = b.createWriteClusterRoleClusterRoleBindingToAutomationSA(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-    err = b.createWriteClusterRoleBindingClusterRole(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = b.createWriteClusterRoleBindingClusterRoleBindingToAutomationSA(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
