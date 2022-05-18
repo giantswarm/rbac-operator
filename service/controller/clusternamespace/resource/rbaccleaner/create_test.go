@@ -2,6 +2,7 @@ package rbaccleaner
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -84,6 +85,45 @@ func Test_EnsureCreated(t *testing.T) {
 			},
 		}
 
+		clusterRoleChart := &rbacv1.ClusterRole{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "ClusterRole",
+				APIVersion: "rbac.authorization.k8s.io/v1",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name: fmt.Sprintf("%s-chart", appOperatorManagedName),
+				Labels: map[string]string{
+					label.ManagedBy: project.Name(),
+				},
+			},
+			Rules: []rbacv1.PolicyRule{},
+		}
+
+		clusterRoleBindingChart := &rbacv1.ClusterRoleBinding{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "ClusterRole",
+				APIVersion: "rbac.authorization.k8s.io/v1",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name: fmt.Sprintf("%s-chart", appOperatorManagedName),
+				Labels: map[string]string{
+					label.ManagedBy: project.Name(),
+				},
+			},
+			Subjects: []rbacv1.Subject{
+				{
+					Kind:      "ServiceAccount",
+					Name:      wcServiceAccount.Name,
+					Namespace: wcServiceAccount.Namespace,
+				},
+			},
+			RoleRef: rbacv1.RoleRef{
+				APIGroup: "rbac.authorization.k8s.io",
+				Kind:     clusterRoleChart.Kind,
+				Name:     fmt.Sprintf("%s-chart", appOperatorManagedName),
+			},
+		}
+
 		// Setup
 
 		var k8sClientFake *k8sclienttest.Clients
@@ -105,6 +145,7 @@ func Test_EnsureCreated(t *testing.T) {
 					wcNamespace,
 					wcServiceAccount,
 					clusterRole, clusterRoleBinding,
+					clusterRoleChart, clusterRoleBindingChart,
 				}...),
 			})
 
@@ -130,7 +171,17 @@ func Test_EnsureCreated(t *testing.T) {
 				t.Fatalf("The app-operator managed cluster role should be deleted, but error is: %#v", err)
 			}
 
+			_, err = k8sClientFake.K8sClient().RbacV1().ClusterRoles().Get(context.TODO(), clusterRoleChart.Name, metav1.GetOptions{})
+			if !errors.IsNotFound(err) {
+				t.Fatalf("The app-operator managed cluster role should be deleted, but error is: %#v", err)
+			}
+
 			_, err = k8sClientFake.K8sClient().RbacV1().ClusterRoleBindings().Get(context.TODO(), clusterRoleBinding.Name, metav1.GetOptions{})
+			if !errors.IsNotFound(err) {
+				t.Fatalf("The app-operator managed cluster role binding should be deleted, but error is: %#v", err)
+			}
+
+			_, err = k8sClientFake.K8sClient().RbacV1().ClusterRoleBindings().Get(context.TODO(), clusterRoleBindingChart.Name, metav1.GetOptions{})
 			if !errors.IsNotFound(err) {
 				t.Fatalf("The app-operator managed cluster role binding should be deleted, but error is: %#v", err)
 			}
