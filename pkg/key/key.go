@@ -10,27 +10,30 @@ import (
 )
 
 const (
-	AutomationServiceAccountName         = "automation"
-	ClusterAdminClusterRoleName          = "cluster-admin"
-	DefaultReadAllPermissionsName        = "read-all"
-	DefaultWriteAllPermissionsName       = "write-all"
-	DefaultNamespaceName                 = "default"
-	FluxCRDRoleBindingName               = "flux-crd-controller"
-	FluxNamespaceName                    = "flux-system"
-	FluxReconcilerRoleBindingName        = "flux-namespace-reconciler"
-	ReadClusterNamespaceAppsRoleBinding  = "read-in-cluster-ns"
-	ReadClusterNamespaceAppsRole         = "read-in-cluster-ns"
-	ReadDefaultCatalogsRole              = "read-default-catalogs"
-	ReadReleasesRole                     = "read-releases"
-	UpstreamFluxCRDClusterRole           = "crd-controller"
-	WriteClusterNamespaceAppsRoleBinding = "write-in-cluster-ns"
-	WriteClusterNamespaceAppsRole        = "write-in-cluster-ns"
-	WriteOrganizationsPermissionsName    = "write-organizations"
-	WriteFluxResourcesPermissionsName    = "write-flux-resources"
-	WriteClustersPermissionsName         = "write-clusters"
-	WriteNodePoolsPermissionsName        = "write-nodepools"
-	WriteClientCertsPermissionsName      = "write-client-certificates"
-	WriteSilencesPermissionsName         = "write-silences"
+	AutomationServiceAccountName            = "automation"
+	ClusterAdminClusterRoleName             = "cluster-admin"
+	DefaultReadAllPermissionsName           = "read-all"
+	DefaultWriteAllPermissionsName          = "write-all"
+	DefaultNamespaceName                    = "default"
+	FluxCRDRoleBindingName                  = "flux-crd-controller"
+	FluxNamespaceName                       = "flux-system"
+	FluxReconcilerRoleBindingName           = "flux-namespace-reconciler"
+	ReadClusterNamespaceAppsRoleBinding     = "read-in-cluster-ns"
+	ReadClusterNamespaceAppsRole            = "read-in-cluster-ns"
+	ReadDefaultCatalogsRole                 = "read-default-catalogs"
+	ReadReleasesRole                        = "read-releases"
+	UpstreamFluxCRDClusterRole              = "crd-controller"
+	WriteClusterNamespaceAppsRoleBinding    = "write-in-cluster-ns"
+	WriteClusterNamespaceAppsRole           = "write-in-cluster-ns"
+	WriteOrganizationsPermissionsName       = "write-organizations"
+	WriteFluxResourcesPermissionsName       = "write-flux-resources"
+	WriteClustersPermissionsName            = "write-clusters"
+	WriteNodePoolsPermissionsName           = "write-nodepools"
+	WriteClientCertsPermissionsName         = "write-client-certificates"
+	WriteSilencesPermissionsName            = "write-silences"
+	WritePodSecurityPoliciesPermissionsName = "write-podsecuritypolicies"
+	WriteClusterRolePermissionsName         = "write-cluster-role"
+	WriteClusterRoleBindingPermissionsName  = "write-cluster-role-binding"
 )
 
 var (
@@ -150,4 +153,16 @@ func WriteClientCertsAutomationSARoleBindingName() string {
 
 func WriteSilencesAutomationSARoleBindingName() string {
 	return fmt.Sprintf("%s-customer-sa", WriteSilencesPermissionsName)
+}
+
+func WritePodSecurityPoliciesSARoleBindingName() string {
+	return fmt.Sprintf("%s-customer-sa", WritePodSecurityPoliciesPermissionsName)
+}
+
+func WriteClusterRoleSARoleBindingName() string {
+	return fmt.Sprintf("%s-customer-sa", WriteClusterRolePermissionsName)
+}
+
+func WriteClusterRoleBindingSARoleBindingNames() string {
+	return fmt.Sprintf("%s-customer-sa", WriteClusterRoleBindingPermissionsName)
 }

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added permissions for automation account to handle PSPs, ClusterRoles and ClusterRoleBindings for creating silences
+
 ### Fixed
 
 - Remove `app-operator-*-chart` ClusterRole and ClusterRoleBinding for old app-operator versions.

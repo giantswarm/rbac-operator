@@ -749,6 +749,201 @@ func (b *Bootstrap) createWriteSilencesClusterRoleBindingToAutomationSA(ctx cont
 	return rbac.CreateOrUpdateClusterRoleBinding(b, ctx, clusterRoleBinding)
 }
 
+// Ensures the ClusterRole 'write-podsecuritypolicies'.
+//
+// Purpose of this role is to grant all permissions needed for
+// handling podsecuritypolicies resources.
+func (b *Bootstrap) createWritePodSecurityPoliciesClusterRole(ctx context.Context) error {
+	policyRule := rbacv1.PolicyRule{
+		APIGroups: []string{
+			"policy",
+		},
+		Resources: []string{
+			"podsecuritypolicies",
+		},
+		Verbs: []string{"*"},
+	}
+
+	clusterRole := &rbacv1.ClusterRole{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: key.WritePodSecurityPoliciesPermissionsName,
+			Labels: map[string]string{
+				label.ManagedBy:              project.Name(),
+				label.DisplayInUserInterface: "true",
+			},
+			Annotations: map[string]string{
+				annotation.Notes: "Grants full permissions for podsecuritypolicies resources.",
+			},
+		},
+		Rules: []rbacv1.PolicyRule{policyRule},
+	}
+
+	return rbac.CreateOrUpdateClusterRole(b, ctx, clusterRole)
+}
+
+// Ensures the ClusterRoleBinding 'write-podsecuritypolicies-customer-sa' between
+// ClusterRole 'write-podsecuritypolicies' and ServiceAccount 'automation'.
+func (b *Bootstrap) createWritePodSecurityPoliciesClusterRoleBindingToAutomationSA(ctx context.Context) error {
+	clusterRoleBindingName := key.WriteSilencesAutomationSARoleBindingName()
+
+	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ClusterRoleBinding",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: clusterRoleBindingName,
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+		},
+		Subjects: []rbacv1.Subject{
+			{
+				Kind:      "ServiceAccount",
+				Name:      key.AutomationServiceAccountName,
+				Namespace: key.DefaultNamespaceName,
+			},
+		},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     key.WritePodSecurityPoliciesPermissionsName,
+		},
+	}
+
+	return rbac.CreateOrUpdateClusterRoleBinding(b, ctx, clusterRoleBinding)
+}
+
+// Ensures the ClusterRole 'write-cluster-role'.
+//
+// Purpose of this role is to grant all permissions needed for
+// handling clusterroles resources.
+func (b *Bootstrap) createWriteClusterRoleClusterRole(ctx context.Context) error {
+	policyRule := rbacv1.PolicyRule{
+		APIGroups: []string{
+			"rbac.authorization.k8s.io",
+		},
+		Resources: []string{
+			"clusterroles",
+		},
+		Verbs: []string{"*"},
+	}
+
+	clusterRole := &rbacv1.ClusterRole{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: key.WriteClusterRolePermissionsName,
+			Labels: map[string]string{
+				label.ManagedBy:              project.Name(),
+				label.DisplayInUserInterface: "true",
+			},
+			Annotations: map[string]string{
+				annotation.Notes: "Grants full permissions for clusterroles resources.",
+			},
+		},
+		Rules: []rbacv1.PolicyRule{policyRule},
+	}
+
+	return rbac.CreateOrUpdateClusterRole(b, ctx, clusterRole)
+}
+
+// Ensures the ClusterRoleBinding 'write-cluster-role-customer-sa' between
+// ClusterRole 'write-cluster-role' and ServiceAccount 'automation'.
+func (b *Bootstrap) createWriteClusterRoleClusterRoleBindingToAutomationSA(ctx context.Context) error {
+	clusterRoleBindingName := key.WriteClusterRoleSARoleBindingName()
+
+	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ClusterRoleBinding",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: clusterRoleBindingName,
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+		},
+		Subjects: []rbacv1.Subject{
+			{
+				Kind:      "ServiceAccount",
+				Name:      key.AutomationServiceAccountName,
+				Namespace: key.DefaultNamespaceName,
+			},
+		},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     key.WriteClusterRolePermissionsName,
+		},
+	}
+
+	return rbac.CreateOrUpdateClusterRoleBinding(b, ctx, clusterRoleBinding)
+}
+
+// Ensures the ClusterRole 'write-cluster-role-binding'.
+//
+// Purpose of this role is to grant all permissions needed for
+// handling clusterrolebindings resources.
+func (b *Bootstrap) createWriteClusterRoleBindingClusterRole(ctx context.Context) error {
+	policyRule := rbacv1.PolicyRule{
+		APIGroups: []string{
+			"rbac.authorization.k8s.io",
+		},
+		Resources: []string{
+			"clusterrolebindings",
+		},
+		Verbs: []string{"*"},
+	}
+
+	clusterRole := &rbacv1.ClusterRole{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: key.WriteClusterRoleBindingPermissionsName,
+			Labels: map[string]string{
+				label.ManagedBy:              project.Name(),
+				label.DisplayInUserInterface: "true",
+			},
+			Annotations: map[string]string{
+				annotation.Notes: "Grants full permissions for clusterrolebindings resources.",
+			},
+		},
+		Rules: []rbacv1.PolicyRule{policyRule},
+	}
+
+	return rbac.CreateOrUpdateClusterRole(b, ctx, clusterRole)
+}
+
+// Ensures the ClusterRoleBinding 'write-cluster-role-binding-customer-sa' between
+// ClusterRole 'write-cluster-role' and ServiceAccount 'automation'.
+func (b *Bootstrap) createWriteClusterRoleBindingClusterRoleBindingToAutomationSA(ctx context.Context) error {
+	clusterRoleBindingName := key.WriteClusterRoleSARoleBindingName()
+
+	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ClusterRoleBinding",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: clusterRoleBindingName,
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+		},
+		Subjects: []rbacv1.Subject{
+			{
+				Kind:      "ServiceAccount",
+				Name:      key.AutomationServiceAccountName,
+				Namespace: key.DefaultNamespaceName,
+			},
+		},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     key.WriteClusterRoleBindingPermissionsName,
+		},
+	}
+
+	return rbac.CreateOrUpdateClusterRoleBinding(b, ctx, clusterRoleBinding)
+}
+
 // Ensure labels on the ClusterRole 'cluster-admin':
 //
 // - 'ui.giantswarm.io/display=true'
