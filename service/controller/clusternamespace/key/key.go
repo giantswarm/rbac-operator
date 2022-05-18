@@ -26,6 +26,10 @@ func AppOperatorClusterRoleNameFromNamespace(ns corev1.Namespace) string {
 	return fmt.Sprintf("app-operator-%s", ns.Name)
 }
 
+func AppOperatorChartClusterRoleNameFromNamespace(ns corev1.Namespace) string {
+	return fmt.Sprintf("app-operator-%s-chart", ns.Name)
+}
+
 func AppOperatorServiceAccountNameFromNamespace(ns corev1.Namespace) string {
 	return fmt.Sprintf("app-operator-%s", ns.Name)
 }
