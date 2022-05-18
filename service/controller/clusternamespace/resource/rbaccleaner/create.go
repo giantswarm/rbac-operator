@@ -21,20 +21,24 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	nameToDelete := key.AppOperatorClusterRoleNameFromNamespace(cl)
-
-	errorOccurred := false
-
-	err = rbac.DeleteClusterRoleBinding(r, ctx, nameToDelete)
-	if err != nil {
-		r.logger.Errorf(ctx, err, "Failed to delete app-operator managed cluster role binding: %s", nameToDelete)
-		errorOccurred = true
+	namesToDelete := []string{
+		key.AppOperatorClusterRoleNameFromNamespace(cl),
+		key.AppOperatorChartClusterRoleNameFromNamespace(cl),
 	}
 
-	err = rbac.DeleteClusterRole(r, ctx, nameToDelete)
-	if err != nil {
-		r.logger.Errorf(ctx, err, "Failed to delete app-operator managed cluster role: %s", nameToDelete)
-		errorOccurred = true
+	errorOccurred := false
+	for _, name := range namesToDelete {
+		err = rbac.DeleteClusterRoleBinding(r, ctx, name)
+		if err != nil {
+			r.logger.Errorf(ctx, err, "Failed to delete app-operator managed cluster role binding: %s", name)
+			errorOccurred = true
+		}
+
+		err = rbac.DeleteClusterRole(r, ctx, name)
+		if err != nil {
+			r.logger.Errorf(ctx, err, "Failed to delete app-operator managed cluster role: %s", name)
+			errorOccurred = true
+		}
 	}
 
 	if errorOccurred {
