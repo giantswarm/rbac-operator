@@ -160,7 +160,7 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 		return microerror.Mask(err)
 	}
 
-	err = b.createWriteSilencesClusterRoleBindingToAutomationSA(ctx)
+	err = b.createWriteSilencesClusterRoleBindingToSilencesAutomationSA(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -170,17 +170,7 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 		return microerror.Mask(err)
 	}
 
-	err = b.createWritePodSecurityPoliciesClusterRoleBindingToAutomationSA(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = b.createWriteClusterRoleBindingClusterRole(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = b.createWriteClusterRoleBindingClusterRoleBindingToAutomationSA(ctx)
+	err = b.createWritePodSecurityPoliciesClusterRoleBindingToSilencesAutomationSA(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}

@@ -78,7 +78,7 @@ func (b *Bootstrap) createSilencesAutomationServiceAccount(ctx context.Context) 
 	if apierrors.IsNotFound(err) {
 		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating serviceaccount %#q in namespace %s", silencesAutomationSA.Name, key.DefaultNamespaceName))
 
-		_, err := b.k8sClient.CoreV1().ServiceAccounts(key.DefaultNamespaceName).Create(ctx, automationSA, metav1.CreateOptions{})
+		_, err := b.k8sClient.CoreV1().ServiceAccounts(key.DefaultNamespaceName).Create(ctx, silencesAutomationSA, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
 			// do nothing
 		} else if err != nil {
@@ -92,7 +92,7 @@ func (b *Bootstrap) createSilencesAutomationServiceAccount(ctx context.Context) 
 	} else {
 		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating serviceaccount %#q in namespace %s", silencesAutomationSA.Name, key.DefaultNamespaceName))
 
-		_, err := b.k8sClient.CoreV1().ServiceAccounts(key.DefaultNamespaceName).Update(ctx, automationSA, metav1.UpdateOptions{})
+		_, err := b.k8sClient.CoreV1().ServiceAccounts(key.DefaultNamespaceName).Update(ctx, silencesAutomationSA, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -823,7 +823,7 @@ func (b *Bootstrap) createWritePodSecurityPoliciesClusterRole(ctx context.Contex
 }
 
 // Ensures the ClusterRoleBinding 'write-podsecuritypolicies-customer-sa' between
-// ClusterRole 'write-podsecuritypolicies' and ServiceAccount 'automation'.
+// ClusterRole 'write-podsecuritypolicies' and ServiceAccount 'silences-automation'.
 func (b *Bootstrap) createWritePodSecurityPoliciesClusterRoleBindingToSilencesAutomationSA(ctx context.Context) error {
 	clusterRoleBindingName := key.WriteSilencesAutomationSARoleBindingName()
 
