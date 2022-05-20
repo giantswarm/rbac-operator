@@ -157,4 +157,3 @@ func WriteSilencesAutomationSARoleBindingName() string {
 func WritePodSecurityPoliciesSARoleBindingName() string {
 	return fmt.Sprintf("%s-customer-sa", WritePodSecurityPoliciesPermissionsName)
 }
-
