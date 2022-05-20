@@ -825,7 +825,7 @@ func (b *Bootstrap) createWritePodSecurityPoliciesClusterRole(ctx context.Contex
 // Ensures the ClusterRoleBinding 'write-podsecuritypolicies-customer-sa' between
 // ClusterRole 'write-podsecuritypolicies' and ServiceAccount 'silences-automation'.
 func (b *Bootstrap) createWritePodSecurityPoliciesClusterRoleBindingToSilencesAutomationSA(ctx context.Context) error {
-	clusterRoleBindingName := key.WriteSilencesAutomationSARoleBindingName()
+	clusterRoleBindingName := key.WritePodSecurityPoliciesSARoleBindingName()
 
 	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
 		TypeMeta: metav1.TypeMeta{
