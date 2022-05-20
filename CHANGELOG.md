@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added permissions for automation account to handle PSPs and Silences
 
+## [0.28.1] - 2022-05-18
+
 ### Fixed
 
 - Remove `app-operator-*-chart` ClusterRole and ClusterRoleBinding for old app-operator versions.
@@ -338,7 +340,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.28.0...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.28.1...HEAD
+[0.28.1]: https://github.com/giantswarm/rbac-operator/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/giantswarm/rbac-operator/compare/v0.27.0...v0.28.0
 [0.27.0]: https://github.com/giantswarm/rbac-operator/compare/v0.26.0...v0.27.0
 [0.26.0]: https://github.com/giantswarm/rbac-operator/compare/v0.25.0...v0.26.0
