@@ -30,10 +30,9 @@ const (
 	WriteClustersPermissionsName            = "write-clusters"
 	WriteNodePoolsPermissionsName           = "write-nodepools"
 	WriteClientCertsPermissionsName         = "write-client-certificates"
+	SilencesAutomationServiceAccountName    = "silences-automation"
 	WriteSilencesPermissionsName            = "write-silences"
 	WritePodSecurityPoliciesPermissionsName = "write-podsecuritypolicies"
-	WriteClusterRolePermissionsName         = "write-cluster-role"
-	WriteClusterRoleBindingPermissionsName  = "write-cluster-role-binding"
 )
 
 var (
@@ -159,10 +158,3 @@ func WritePodSecurityPoliciesSARoleBindingName() string {
 	return fmt.Sprintf("%s-customer-sa", WritePodSecurityPoliciesPermissionsName)
 }
 
-func WriteClusterRoleSARoleBindingName() string {
-	return fmt.Sprintf("%s-customer-sa", WriteClusterRolePermissionsName)
-}
-
-func WriteClusterRoleBindingSARoleBindingNames() string {
-	return fmt.Sprintf("%s-customer-sa", WriteClusterRoleBindingPermissionsName)
-}

@@ -62,6 +62,47 @@ func (b *Bootstrap) createAutomationServiceAccount(ctx context.Context) error {
 	return nil
 }
 
+// Ensures the 'silences-automation' service account in the default namespace.
+func (b *Bootstrap) createSilencesAutomationServiceAccount(ctx context.Context) error {
+
+	silencesAutomationSA := &corev1.ServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: key.SilencesAutomationServiceAccountName,
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+		},
+	}
+
+	_, err := b.k8sClient.CoreV1().ServiceAccounts(key.DefaultNamespaceName).Get(ctx, silencesAutomationSA.Name, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating serviceaccount %#q in namespace %s", silencesAutomationSA.Name, key.DefaultNamespaceName))
+
+		_, err := b.k8sClient.CoreV1().ServiceAccounts(key.DefaultNamespaceName).Create(ctx, automationSA, metav1.CreateOptions{})
+		if apierrors.IsAlreadyExists(err) {
+			// do nothing
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("serviceaccount %#q in namespace %s has been created", silencesAutomationSA.Name, key.DefaultNamespaceName))
+
+	} else if err != nil {
+		return microerror.Mask(err)
+	} else {
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating serviceaccount %#q in namespace %s", silencesAutomationSA.Name, key.DefaultNamespaceName))
+
+		_, err := b.k8sClient.CoreV1().ServiceAccounts(key.DefaultNamespaceName).Update(ctx, automationSA, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("serviceaccount %#q in namespace %s has been updated", silencesAutomationSA.Name, key.DefaultNamespaceName))
+	}
+
+	return nil
+}
+
 // Ensures the ClusterRole 'read-all'.
 //
 // Purpose if this role is to enable read permissions (get, list, watch)
@@ -717,8 +758,8 @@ func (b *Bootstrap) createWriteSilencesClusterRole(ctx context.Context) error {
 }
 
 // Ensures the ClusterRoleBinding 'write-silences-customer-sa' between
-// ClusterRole 'write-silences' and ServiceAccount 'automation'.
-func (b *Bootstrap) createWriteSilencesClusterRoleBindingToAutomationSA(ctx context.Context) error {
+// ClusterRole 'write-silences' and ServiceAccount 'silences-automation'.
+func (b *Bootstrap) createWriteSilencesClusterRoleBindingToSilencesAutomationSA(ctx context.Context) error {
 	clusterRoleBindingName := key.WriteSilencesAutomationSARoleBindingName()
 
 	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
@@ -735,7 +776,7 @@ func (b *Bootstrap) createWriteSilencesClusterRoleBindingToAutomationSA(ctx cont
 		Subjects: []rbacv1.Subject{
 			{
 				Kind:      "ServiceAccount",
-				Name:      key.AutomationServiceAccountName,
+				Name:      key.SilencesAutomationServiceAccountName,
 				Namespace: key.DefaultNamespaceName,
 			},
 		},
@@ -783,7 +824,7 @@ func (b *Bootstrap) createWritePodSecurityPoliciesClusterRole(ctx context.Contex
 
 // Ensures the ClusterRoleBinding 'write-podsecuritypolicies-customer-sa' between
 // ClusterRole 'write-podsecuritypolicies' and ServiceAccount 'automation'.
-func (b *Bootstrap) createWritePodSecurityPoliciesClusterRoleBindingToAutomationSA(ctx context.Context) error {
+func (b *Bootstrap) createWritePodSecurityPoliciesClusterRoleBindingToSilencesAutomationSA(ctx context.Context) error {
 	clusterRoleBindingName := key.WriteSilencesAutomationSARoleBindingName()
 
 	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
@@ -800,7 +841,7 @@ func (b *Bootstrap) createWritePodSecurityPoliciesClusterRoleBindingToAutomation
 		Subjects: []rbacv1.Subject{
 			{
 				Kind:      "ServiceAccount",
-				Name:      key.AutomationServiceAccountName,
+				Name:      key.SilencesAutomationServiceAccountName,
 				Namespace: key.DefaultNamespaceName,
 			},
 		},
@@ -808,136 +849,6 @@ func (b *Bootstrap) createWritePodSecurityPoliciesClusterRoleBindingToAutomation
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
 			Name:     key.WritePodSecurityPoliciesPermissionsName,
-		},
-	}
-
-	return rbac.CreateOrUpdateClusterRoleBinding(b, ctx, clusterRoleBinding)
-}
-
-// Ensures the ClusterRole 'write-cluster-role'.
-//
-// Purpose of this role is to grant all permissions needed for
-// handling clusterroles resources.
-func (b *Bootstrap) createWriteClusterRoleClusterRole(ctx context.Context) error {
-	policyRule := rbacv1.PolicyRule{
-		APIGroups: []string{
-			"rbac.authorization.k8s.io",
-		},
-		Resources: []string{
-			"clusterroles",
-		},
-		Verbs: []string{"*"},
-	}
-
-	clusterRole := &rbacv1.ClusterRole{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: key.WriteClusterRolePermissionsName,
-			Labels: map[string]string{
-				label.ManagedBy:              project.Name(),
-				label.DisplayInUserInterface: "true",
-			},
-			Annotations: map[string]string{
-				annotation.Notes: "Grants full permissions for clusterroles resources.",
-			},
-		},
-		Rules: []rbacv1.PolicyRule{policyRule},
-	}
-
-	return rbac.CreateOrUpdateClusterRole(b, ctx, clusterRole)
-}
-
-// Ensures the ClusterRoleBinding 'write-cluster-role-customer-sa' between
-// ClusterRole 'write-cluster-role' and ServiceAccount 'automation'.
-func (b *Bootstrap) createWriteClusterRoleClusterRoleBindingToAutomationSA(ctx context.Context) error {
-	clusterRoleBindingName := key.WriteClusterRoleSARoleBindingName()
-
-	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "ClusterRoleBinding",
-			APIVersion: "rbac.authorization.k8s.io/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: clusterRoleBindingName,
-			Labels: map[string]string{
-				label.ManagedBy: project.Name(),
-			},
-		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind:      "ServiceAccount",
-				Name:      key.AutomationServiceAccountName,
-				Namespace: key.DefaultNamespaceName,
-			},
-		},
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     key.WriteClusterRolePermissionsName,
-		},
-	}
-
-	return rbac.CreateOrUpdateClusterRoleBinding(b, ctx, clusterRoleBinding)
-}
-
-// Ensures the ClusterRole 'write-cluster-role-binding'.
-//
-// Purpose of this role is to grant all permissions needed for
-// handling clusterrolebindings resources.
-func (b *Bootstrap) createWriteClusterRoleBindingClusterRole(ctx context.Context) error {
-	policyRule := rbacv1.PolicyRule{
-		APIGroups: []string{
-			"rbac.authorization.k8s.io",
-		},
-		Resources: []string{
-			"clusterrolebindings",
-		},
-		Verbs: []string{"*"},
-	}
-
-	clusterRole := &rbacv1.ClusterRole{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: key.WriteClusterRoleBindingPermissionsName,
-			Labels: map[string]string{
-				label.ManagedBy:              project.Name(),
-				label.DisplayInUserInterface: "true",
-			},
-			Annotations: map[string]string{
-				annotation.Notes: "Grants full permissions for clusterrolebindings resources.",
-			},
-		},
-		Rules: []rbacv1.PolicyRule{policyRule},
-	}
-
-	return rbac.CreateOrUpdateClusterRole(b, ctx, clusterRole)
-}
-
-// Ensures the ClusterRoleBinding 'write-cluster-role-binding-customer-sa' between
-// ClusterRole 'write-cluster-role' and ServiceAccount 'automation'.
-func (b *Bootstrap) createWriteClusterRoleBindingClusterRoleBindingToAutomationSA(ctx context.Context) error {
-	clusterRoleBindingName := key.WriteClusterRoleSARoleBindingName()
-
-	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "ClusterRoleBinding",
-			APIVersion: "rbac.authorization.k8s.io/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: clusterRoleBindingName,
-			Labels: map[string]string{
-				label.ManagedBy: project.Name(),
-			},
-		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind:      "ServiceAccount",
-				Name:      key.AutomationServiceAccountName,
-				Namespace: key.DefaultNamespaceName,
-			},
-		},
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     key.WriteClusterRoleBindingPermissionsName,
 		},
 	}
 

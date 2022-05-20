@@ -65,6 +65,11 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 		return microerror.Mask(err)
 	}
 
+	err = b.createSilencesAutomationServiceAccount(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	err = b.createReadAllClusterRole(ctx)
 	if err != nil {
 		return microerror.Mask(err)
@@ -176,16 +181,6 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 	}
 
 	err = b.createWriteClusterRoleBindingClusterRoleBindingToAutomationSA(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = b.createWriteClusterRoleClusterRole(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = b.createWriteClusterRoleClusterRoleBindingToAutomationSA(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
