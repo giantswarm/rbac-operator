@@ -105,7 +105,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
     // create a RoleBinding granting :
 	// - write-silences access for "automation" ServiceAccount *in this org namespace*
 	// - write-silences access for "automation" ServiceAccount *in default namespace*
-	// cluster-admin permissions are limited in scope to org namespace
 	roleBinding := &rbacv1.RoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "RoleBinding",
