@@ -105,7 +105,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// create a RoleBinding granting :
 	// - write-silences access for "automation" ServiceAccount *in this org namespace*
 	// - write-silences access for "automation" ServiceAccount *in default namespace*
-	roleBinding := &rbacv1.RoleBinding{
+	roleBinding = &rbacv1.RoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "RoleBinding",
 			APIVersion: "rbac.authorization.k8s.io/v1",
