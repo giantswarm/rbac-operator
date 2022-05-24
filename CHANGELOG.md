@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add write-silences for flux automation account in every org-namespace 
+
 ### Fixed
 
 - Remove `app-operator-*-chart` ClusterRole and ClusterRoleBinding for old app-operator versions.

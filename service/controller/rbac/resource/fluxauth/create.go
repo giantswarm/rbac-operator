@@ -102,6 +102,45 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+    // create a RoleBinding granting :
+	// - write-silences access for "automation" ServiceAccount *in this org namespace*
+	// - write-silences access for "automation" ServiceAccount *in default namespace*
+	// cluster-admin permissions are limited in scope to org namespace
+	roleBinding := &rbacv1.RoleBinding{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "RoleBinding",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: pkgkey.WriteSilencesAutomationSARoleBindingName(),
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+			Namespace: ns.Name,
+		},
+		Subjects: []rbacv1.Subject{
+			{
+				Kind:      "ServiceAccount",
+				Name:      pkgkey.AutomationServiceAccountName,
+				Namespace: ns.Name,
+			},
+			{
+				Kind:      "ServiceAccount",
+				Name:      pkgkey.AutomationServiceAccountName,
+				Namespace: pkgkey.DefaultNamespaceName,
+			},
+		},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     pkgkey.WriteSilencesPermissionsName,
+		},
+	}
+
+	if err := r.createOrUpdateRoleBinding(ctx, ns, roleBinding); err != nil {
+		return microerror.Mask(err)
+	}
+
 	// create a RoleBinding allowing ServiceAccounts in flux-system to access
 	// Flux CRs in org namespace
 	roleBinding = &rbacv1.RoleBinding{
