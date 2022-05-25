@@ -30,6 +30,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		pkgkey.FluxCRDRoleBindingName,
 		pkgkey.FluxReconcilerRoleBindingName,
 		pkgkey.WriteAllAutomationSARoleBindingName(),
+        pkgkey.WriteSilencesAutomationSARoleBindingName(),
 	}
 
 	for _, roleBinding := range roleBindings {
