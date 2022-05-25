@@ -104,4 +104,5 @@ require (
 replace (
 	github.com/coreos/etcd => go.etcd.io/etcd/v3 v3.5.1
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.1
+    github.com/gin-gonic/gin v1.4.0 ==> github.com/gin-gonic/gin v1.7.7
 )
