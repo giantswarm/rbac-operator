@@ -238,11 +238,11 @@ func (r *Resource) createOrUpdateRoleBinding(ctx context.Context, ns corev1.Name
 }
 
 func (r *Resource) createOrUpdateClusterRoleBinding(ctx context.Context, ns corev1.Namespace, clusterRoleBinding *rbacv1.ClusterRoleBinding) error {
-	existingClusterRoleBinding, err := r.k8sClient.RbacV1().ClusterRoleBindings(ns.Name).Get(ctx, clusterRoleBinding.Name, metav1.GetOptions{})
+	existingClusterRoleBinding, err := r.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, clusterRoleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q in namespace %s", clusterRoleBinding.Name, ns.Name))
 
-		_, err := r.k8sClient.RbacV1().ClusterRoleBindings(ns.Name).Create(ctx, clusterRoleBinding, metav1.CreateOptions{})
+		_, err := r.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, clusterRoleBinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
 			// do nothing
 		} else if err != nil {
@@ -253,9 +253,9 @@ func (r *Resource) createOrUpdateClusterRoleBinding(ctx context.Context, ns core
 
 	} else if err != nil {
 		return microerror.Mask(err)
-	} else if needsUpdate(clusterRoleBinding, existingClusterRoleBinding) {
+	} else if needsUpdateClusterRoleBinding(clusterRoleBinding, existingClusterRoleBinding) {
 		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating cluster role binding %#q in namespace %s", clusterRoleBinding.Name, ns.Name))
-		_, err := r.k8sClient.RbacV1().ClusterRoleBindings(ns.Name).Update(ctx, clusterRoleBinding, metav1.UpdateOptions{})
+		_, err := r.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, clusterRoleBinding, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -272,6 +272,18 @@ func needsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.RoleBinding) bo
 	}
 
 	if !reflect.DeepEqual(desiredRoleBinding.Subjects, existingRoleBinding.Subjects) {
+		return true
+	}
+
+	return false
+}
+
+func needsUpdateClusterRoleBinding(desiredClusterRoleBinding, existingClusterRoleBinding *rbacv1.ClusterRoleBinding) bool {
+	if len(existingClusterRoleBinding.Subjects) < 1 {
+		return true
+	}
+
+	if !reflect.DeepEqual(desiredClusterRoleBinding.Subjects, existingClusterRoleBinding.Subjects) {
 		return true
 	}
 
