@@ -249,7 +249,7 @@ func (r *Resource) createOrUpdateClusterRoleBinding(ctx context.Context, ns core
 		return microerror.Mask(err)
 	} else if needsUpdateClusterRoleBinding(clusterRoleBinding, existingClusterRoleBinding) {
 		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating cluster role binding %#q in namespace %s", clusterRoleBinding.Name, ns.Name))
-		clusterRoleBinding.Subjects = append(existingClusterRolebinding.Subjects,
+		clusterRoleBinding.Subjects = append(existingClusterRoleBinding.Subjects,
 			rbacv1.Subject{
 				Kind:      "ServiceAccount",
 				Name:      pkgkey.AutomationServiceAccountName,
