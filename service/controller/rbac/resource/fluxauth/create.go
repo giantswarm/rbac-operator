@@ -116,8 +116,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			},
 			Namespace: ns.Name,
 		},
-		Subjects: []rbacv1.Subject{
-		},
+		Subjects: []rbacv1.Subject{},
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
