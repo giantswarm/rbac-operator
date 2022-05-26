@@ -30,7 +30,6 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		pkgkey.FluxCRDRoleBindingName,
 		pkgkey.FluxReconcilerRoleBindingName,
 		pkgkey.WriteAllAutomationSARoleBindingName(),
-		pkgkey.WriteSilencesAutomationSARoleBindingName(),
 	}
 
 	for _, roleBinding := range roleBindings {
@@ -50,6 +49,31 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			} else {
 				r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q has been deleted from namespace %s", roleBinding, ns.Name))
+			}
+		}
+	}
+
+	clusterRoleBindings := []string{
+		pkgkey.WriteSilencesAutomationSARoleBindingName(),
+	}
+
+	for _, roleBinding := range roleBindings {
+		_, err = r.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, clusterRoleBinding, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			continue
+		} else if err != nil {
+			return microerror.Mask(err)
+		} else {
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("deleting %#q clusterrolebinding", clusterRoleBinding))
+
+			err = r.k8sClient.RbacV1().ClusterRoleBindings().Delete(ctx, clusterRoleBinding, metav1.DeleteOptions{})
+			if apierrors.IsNotFound(err) {
+				continue
+			}
+			if err != nil {
+				return microerror.Mask(err)
+			} else {
+				r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q has been deleted ", clusterRoleBinding))
 			}
 		}
 	}
