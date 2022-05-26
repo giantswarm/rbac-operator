@@ -117,11 +117,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			Namespace: ns.Name,
 		},
 		Subjects: []rbacv1.Subject{
-			{
-				Kind:      "ServiceAccount",
-				Name:      pkgkey.AutomationServiceAccountName,
-				Namespace: ns.Name,
-			},
 		},
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
@@ -255,6 +250,13 @@ func (r *Resource) createOrUpdateClusterRoleBinding(ctx context.Context, ns core
 		return microerror.Mask(err)
 	} else if needsUpdateClusterRoleBinding(clusterRoleBinding, existingClusterRoleBinding) {
 		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating cluster role binding %#q in namespace %s", clusterRoleBinding.Name, ns.Name))
+		clusterRoleBinding.Subjects = append(existingClusterRolebinding.Subjects,
+			rbacv1.Subject{
+				Kind:      "ServiceAccount",
+				Name:      pkgkey.AutomationServiceAccountName,
+				Namespace: ns.Name,
+			},
+		)
 		_, err := r.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, clusterRoleBinding, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
