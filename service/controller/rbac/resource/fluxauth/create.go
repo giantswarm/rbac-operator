@@ -16,7 +16,6 @@ import (
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/pkg/rbac"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/key"
-	"github.com/giantswarm/rbac-operator/pkg/rbac"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
