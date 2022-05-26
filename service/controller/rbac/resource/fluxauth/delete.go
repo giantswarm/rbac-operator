@@ -57,7 +57,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		pkgkey.WriteSilencesAutomationSARoleBindingName(),
 	}
 
-	for _, clusterRoleBinding := range clusterRolesBindings {
+	for _, clusterRoleBinding := range clusterRoleBindings {
 		_, err = r.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, clusterRoleBinding, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			continue
