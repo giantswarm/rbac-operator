@@ -14,7 +14,6 @@ import (
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/pkg/project"
-	"github.com/giantswarm/rbac-operator/pkg/rbac"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/key"
 )
 
@@ -131,7 +130,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		},
 	}
 
-	if err := rbac.CreateOrUpdateClusterRoleBinding(ns, ctx, clusterRoleBinding); err != nil {
+	if err := r.createOrUpdateClusterRoleBinding(ctx, ns, clusterRoleBinding); err != nil {
 		return microerror.Mask(err)
 	}
 
@@ -232,6 +231,35 @@ func (r *Resource) createOrUpdateRoleBinding(ctx context.Context, ns corev1.Name
 			return microerror.Mask(err)
 		}
 		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("role binding %#q in namespace %s has been updated", roleBinding.Name, ns.Name))
+
+	}
+
+	return nil
+}
+
+func (r *Resource) createOrUpdateClusterRoleBinding(ctx context.Context, ns corev1.Namespace, clusterRoleBinding *rbacv1.ClusterRoleBinding) error {
+	existingClusterRoleBinding, err := r.k8sClient.RbacV1().ClusterRoleBindings(ns.Name).Get(ctx, clusterRoleBinding.Name, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q in namespace %s", clusterRoleBinding.Name, ns.Name))
+
+		_, err := r.k8sClient.RbacV1().ClusterRoleBindings(ns.Name).Create(ctx, clusterRoleBinding, metav1.CreateOptions{})
+		if apierrors.IsAlreadyExists(err) {
+			// do nothing
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q in namespace %s has been created", clusterRoleBinding.Name, ns.Name))
+
+	} else if err != nil {
+		return microerror.Mask(err)
+	} else if needsUpdate(clusterRoleBinding, existingClusterRoleBinding) {
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating cluster role binding %#q in namespace %s", clusterRoleBinding.Name, ns.Name))
+		_, err := r.k8sClient.RbacV1().ClusterRoleBindings(ns.Name).Update(ctx, clusterRoleBinding, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("cluster role binding %#q in namespace %s has been updated", clusterRoleBinding.Name, ns.Name))
 
 	}
 
