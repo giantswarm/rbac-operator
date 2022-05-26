@@ -104,10 +104,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	// create a RoleBinding granting :
 	// - write-silences access for "automation" ServiceAccount *in this org namespace*
-	// - write-silences access for "automation" ServiceAccount *in default namespace*
-	roleBinding = &rbacv1.RoleBinding{
+	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
 		TypeMeta: metav1.TypeMeta{
-			Kind:       "RoleBinding",
+			Kind:       "ClusterRoleBinding",
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
@@ -123,11 +122,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				Name:      pkgkey.AutomationServiceAccountName,
 				Namespace: ns.Name,
 			},
-			{
-				Kind:      "ServiceAccount",
-				Name:      pkgkey.AutomationServiceAccountName,
-				Namespace: pkgkey.DefaultNamespaceName,
-			},
 		},
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
@@ -136,7 +130,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		},
 	}
 
-	if err := r.createOrUpdateRoleBinding(ctx, ns, roleBinding); err != nil {
+	if err := r.createOrUpdateRoleBinding(ctx, ns, clusterRoleBinding); err != nil {
 		return microerror.Mask(err)
 	}
 
