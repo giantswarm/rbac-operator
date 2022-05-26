@@ -131,7 +131,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		},
 	}
 
-	if err := rbac.CreateOrUpdateClusterRoleBinding(ctx, ns, clusterRoleBinding); err != nil {
+	if err := rbac.CreateOrUpdateClusterRoleBinding(ns, ctx, clusterRoleBinding); err != nil {
 		return microerror.Mask(err)
 	}
 
