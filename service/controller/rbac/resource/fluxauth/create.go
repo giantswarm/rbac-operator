@@ -102,6 +102,27 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	// create a RoleBinding granting :
+	// - write-silences access for "automation" ServiceAccount *in this org namespace*
+	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: pkgkey.WriteSilencesAutomationSARoleBindingName(),
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+		},
+		Subjects: []rbacv1.Subject{},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     pkgkey.WriteSilencesPermissionsName,
+		},
+	}
+
+	if err := r.createOrUpdateClusterRoleBinding(ctx, ns, clusterRoleBinding); err != nil {
+		return microerror.Mask(err)
+	}
+
 	// create a RoleBinding allowing ServiceAccounts in flux-system to access
 	// Flux CRs in org namespace
 	roleBinding = &rbacv1.RoleBinding{
@@ -205,12 +226,60 @@ func (r *Resource) createOrUpdateRoleBinding(ctx context.Context, ns corev1.Name
 	return nil
 }
 
+func (r *Resource) createOrUpdateClusterRoleBinding(ctx context.Context, ns corev1.Namespace, clusterRoleBinding *rbacv1.ClusterRoleBinding) error {
+	existingClusterRoleBinding, err := r.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, clusterRoleBinding.Name, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrolebinding %#q for Automation SA in namespace %s", clusterRoleBinding.Name, ns.Name))
+
+		_, err := r.k8sClient.RbacV1().ClusterRoleBindings().Create(ctx, clusterRoleBinding, metav1.CreateOptions{})
+		if apierrors.IsAlreadyExists(err) {
+			// do nothing
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("clusterrolebinding %#q for Automation SA in namespace %s has been created", clusterRoleBinding.Name, ns.Name))
+
+	} else if err != nil {
+		return microerror.Mask(err)
+	} else if needsUpdateClusterRoleBinding(clusterRoleBinding, existingClusterRoleBinding) {
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating cluster role binding %#q for Automation SA in namespace %s", clusterRoleBinding.Name, ns.Name))
+		clusterRoleBinding.Subjects = append(existingClusterRoleBinding.Subjects,
+			rbacv1.Subject{
+				Kind:      "ServiceAccount",
+				Name:      pkgkey.AutomationServiceAccountName,
+				Namespace: ns.Name,
+			},
+		)
+		_, err := r.k8sClient.RbacV1().ClusterRoleBindings().Update(ctx, clusterRoleBinding, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("cluster role binding %#q for Automation SA in namespace %s has been updated", clusterRoleBinding.Name, ns.Name))
+
+	}
+
+	return nil
+}
+
 func needsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.RoleBinding) bool {
 	if len(existingRoleBinding.Subjects) < 1 {
 		return true
 	}
 
 	if !reflect.DeepEqual(desiredRoleBinding.Subjects, existingRoleBinding.Subjects) {
+		return true
+	}
+
+	return false
+}
+
+func needsUpdateClusterRoleBinding(desiredClusterRoleBinding, existingClusterRoleBinding *rbacv1.ClusterRoleBinding) bool {
+	if len(existingClusterRoleBinding.Subjects) < 1 {
+		return true
+	}
+
+	if !reflect.DeepEqual(desiredClusterRoleBinding.Subjects, existingClusterRoleBinding.Subjects) {
 		return true
 	}
 

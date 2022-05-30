@@ -53,6 +53,31 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		}
 	}
 
+	clusterRoleBindings := []string{
+		pkgkey.WriteSilencesAutomationSARoleBindingName(),
+	}
+
+	for _, clusterRoleBinding := range clusterRoleBindings {
+		_, err = r.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, clusterRoleBinding, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			continue
+		} else if err != nil {
+			return microerror.Mask(err)
+		} else {
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("deleting %#q clusterrolebinding", clusterRoleBinding))
+
+			err = r.k8sClient.RbacV1().ClusterRoleBindings().Delete(ctx, clusterRoleBinding, metav1.DeleteOptions{})
+			if apierrors.IsNotFound(err) {
+				continue
+			}
+			if err != nil {
+				return microerror.Mask(err)
+			} else {
+				r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q has been deleted ", clusterRoleBinding))
+			}
+		}
+	}
+
 	serviceAccountName := pkgkey.AutomationServiceAccountName
 	_, err = r.k8sClient.CoreV1().ServiceAccounts(ns.Name).Get(ctx, serviceAccountName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
