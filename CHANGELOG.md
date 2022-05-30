@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.29.0] - 2022-05-30
+
 ### Added
 
 - Add write-silences for flux automation account in every org-namespace 
@@ -340,7 +342,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.28.1...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.29.0...HEAD
+[0.29.0]: https://github.com/giantswarm/rbac-operator/compare/v0.28.1...v0.29.0
 [0.28.1]: https://github.com/giantswarm/rbac-operator/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/giantswarm/rbac-operator/compare/v0.27.0...v0.28.0
 [0.27.0]: https://github.com/giantswarm/rbac-operator/compare/v0.26.0...v0.27.0
