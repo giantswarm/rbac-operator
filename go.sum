@@ -311,8 +311,8 @@ github.com/giantswarm/k8sclient/v6 v6.1.0/go.mod h1:mF0FgQHqCrAhk5EGiyN7RfgMMsz7
 github.com/giantswarm/k8sclient/v7 v7.0.1 h1:UmRwgsw5Uda27tpIblPo7nWjp/nq5qwqxEPHWcvzsHk=
 github.com/giantswarm/k8sclient/v7 v7.0.1/go.mod h1:zJTXammjLHSiukMIO4+a6eUDgzj/lJxEXFZ22mC0WXc=
 github.com/giantswarm/k8smetadata v0.10.1/go.mod h1:k3DYCMdspxhk7efLkQdX1b8UZ71ijOCG3ZoIU8+5xgw=
-github.com/giantswarm/k8smetadata v0.11.0 h1:XWcN0b6yBm2eH2Ael5SFFR87iRIigI+SRIfuiQBsxZ4=
-github.com/giantswarm/k8smetadata v0.11.0/go.mod h1:k3DYCMdspxhk7efLkQdX1b8UZ71ijOCG3ZoIU8+5xgw=
+github.com/giantswarm/k8smetadata v0.11.1 h1:GYdhg76Slhmm4QvjEn3/iJK9osvLHBZsIkGavDR3Ltg=
+github.com/giantswarm/k8smetadata v0.11.1/go.mod h1:k3DYCMdspxhk7efLkQdX1b8UZ71ijOCG3ZoIU8+5xgw=
 github.com/giantswarm/microclient v0.2.0/go.mod h1:2p+ygmU8v7MpkTCNatiGhjOmHOOqC9fdJ0rlXI4Ulfc=
 github.com/giantswarm/microendpoint v0.2.0/go.mod h1:SSkSp4Q4iSW7vwkil+/E3IXy9Q8To8vXmT5VCg24RDg=
 github.com/giantswarm/microendpoint v1.0.0 h1:vW6VXPaWXBPZc9Q99FgPcjYprAKLItufKFcydBH47Xc=
