@@ -1,6 +1,6 @@
 module github.com/giantswarm/rbac-operator
 
-go 1.18
+go 1.17
 
 require (
 	github.com/giantswarm/exporterkit v1.0.0
