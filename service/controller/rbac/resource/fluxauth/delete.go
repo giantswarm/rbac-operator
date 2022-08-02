@@ -54,7 +54,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	}
 
 	clusterRoleBindings := []string{
-		pkgkey.WriteSilencesAutomationSARoleBindingName(),
+		pkgkey.WriteSilencesAutomationSAinNSRoleBindingName(ns.Name),
 	}
 
 	for _, clusterRoleBinding := range clusterRoleBindings {
