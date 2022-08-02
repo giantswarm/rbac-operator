@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Reconcile individual clusterRoleBinding for each org namespace to grant and revoke automation access to silences.
+
 ## [0.29.0] - 2022-05-30
 
 ### Added

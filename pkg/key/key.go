@@ -151,3 +151,7 @@ func WriteClientCertsAutomationSARoleBindingName() string {
 func WriteSilencesAutomationSARoleBindingName() string {
 	return fmt.Sprintf("%s-customer-sa", WriteSilencesPermissionsName)
 }
+
+func WriteSilencesAutomationSAinNSRoleBindingName(namespace string) string {
+	return fmt.Sprintf("%s-customer-sa-ns-%s", WriteSilencesPermissionsName, namespace)
+}
