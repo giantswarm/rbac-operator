@@ -42,8 +42,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 		var orgs []security.Organization
-		for _, org := range list.Items {
-			if pkgkey.GetLegacyOrganization(&org) == orgname {
+		for i, org := range list.Items {
+			if pkgkey.GetLegacyOrganization(&list.Items[i]) == orgname {
 				orgs = append(orgs, org)
 			}
 		}
