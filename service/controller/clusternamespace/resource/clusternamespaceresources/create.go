@@ -48,7 +48,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 		}
 		if len(orgs) != 1 {
-			return microerror.Maskf(unknownOrganizationError, "Expected to find 1 organization %s, got %v.", orgname, len(list.Items))
+			return microerror.Maskf(unknownOrganizationError, "Expected to find 1 organization %s, got %v.", orgname, len(orgs))
 		}
 		organization = orgs[0]
 	} else if err != nil {
