@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.1] - 2022-08-03
+
+### Changed
+
+- In case an organization can not be fetched, try fetching it via the annotation `ui.giantswarm.io/original-organization-name`.
+
 ## [0.30.0] - 2022-08-02
 
 ### Added
@@ -348,7 +354,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.30.0...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.30.1...HEAD
+[0.30.1]: https://github.com/giantswarm/rbac-operator/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/giantswarm/rbac-operator/compare/v0.29.0...v0.30.0
 [0.29.0]: https://github.com/giantswarm/rbac-operator/compare/v0.28.1...v0.29.0
 [0.28.1]: https://github.com/giantswarm/rbac-operator/compare/v0.28.0...v0.28.1
