@@ -6,6 +6,7 @@ import (
 
 	"github.com/giantswarm/k8smetadata/pkg/label"
 
+	"github.com/giantswarm/rbac-operator/pkg/annotation"
 	rbacLabel "github.com/giantswarm/rbac-operator/pkg/label"
 )
 
@@ -70,6 +71,15 @@ func Cluster(getter rbacLabel.LabelsGetter) string {
 
 func Organization(getter rbacLabel.LabelsGetter) string {
 	return getter.GetLabels()[label.Organization]
+}
+
+func GetLegacyOrganization(getter annotation.AnnotationsGetter) string {
+	annotations := getter.GetAnnotations()
+	if annotations == nil {
+		return ""
+	}
+
+	return annotations[annotation.LegacyOrganization]
 }
 
 func OrganizationName(ns string) string {

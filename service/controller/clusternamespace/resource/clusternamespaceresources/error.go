@@ -21,3 +21,12 @@ var unknownOrganizationNamespaceError = &microerror.Error{
 func IsUnknownOrganizationNamespace(err error) bool {
 	return microerror.Cause(err) == unknownOrganizationNamespaceError
 }
+
+// IsUnknownOrganization asserts unknownOrganizationError.
+func IsUnknownOrganization(err error) bool {
+	return microerror.Cause(err) == unknownOrganizationError
+}
+
+var unknownOrganizationError = &microerror.Error{
+	Kind: "unknownOrganizationError",
+}
