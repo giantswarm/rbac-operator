@@ -7,8 +7,10 @@ import (
 	"github.com/giantswarm/microerror"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
 	rbacv1 "k8s.io/api/rbac/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/pkg/project"
@@ -29,15 +31,33 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	// Fetch the organization
+	orgname := pkgkey.Organization(&cl)
 	organization := security.Organization{}
-	err = r.k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: pkgkey.Organization(&cl)}, &organization)
-	if err != nil {
+	err = r.k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: orgname}, &organization)
+	// If the org can not be found by name, we try finding it by the legacy organization annotation
+	if apierrors.IsNotFound(err) {
+		list := security.OrganizationList{}
+		err = r.k8sClient.CtrlClient().List(ctx, &list, &client.ListOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		var orgs []security.Organization
+		for _, org := range list.Items {
+			if pkgkey.GetLegacyOrganization(&org) == orgname {
+				orgs = append(orgs, org)
+			}
+		}
+		if len(orgs) != 1 {
+			return microerror.Maskf(unknownOrganizationError, "Expected to find 1 organization %s, got %v.", orgname, len(list.Items))
+		}
+		organization = orgs[0]
+	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
 	orgNamespace := organization.Status.Namespace
 	if len(orgNamespace) < 1 {
-		return microerror.Maskf(unknownOrganizationNamespaceError, "Could not find the namespace for organization %s.", pkgkey.Organization(&cl))
+		return microerror.Maskf(unknownOrganizationNamespaceError, "Could not find the namespace for organization %s.", orgname)
 	}
 
 	// List roleBindings in org-namespace
