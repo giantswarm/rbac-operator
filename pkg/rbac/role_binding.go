@@ -17,7 +17,7 @@ import (
 
 // RoleBindingNeedsUpdate RoleBinding needs an update with the list of subjects has changed
 func RoleBindingNeedsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.RoleBinding) bool {
-	if len(existingRoleBinding.Subjects) < 1 {
+	if len(existingRoleBinding.Subjects) != len(desiredRoleBinding.Subjects) {
 		return true
 	}
 
