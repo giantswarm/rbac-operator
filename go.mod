@@ -5,13 +5,13 @@ go 1.17
 require (
 	github.com/giantswarm/exporterkit v1.0.0
 	github.com/giantswarm/k8sclient/v7 v7.0.1
-	github.com/giantswarm/k8smetadata v0.11.1
+	github.com/giantswarm/k8smetadata v0.12.0
 	github.com/giantswarm/microendpoint v1.0.0
 	github.com/giantswarm/microerror v0.4.0
 	github.com/giantswarm/microkit v1.0.0
 	github.com/giantswarm/micrologger v1.0.0
 	github.com/giantswarm/operatorkit/v7 v7.1.0
-	github.com/giantswarm/organization-operator v1.0.2
+	github.com/giantswarm/organization-operator v1.0.3
 	github.com/google/go-cmp v0.5.8
 	github.com/prometheus/client_golang v1.12.2
 	github.com/spf13/viper v1.12.0
