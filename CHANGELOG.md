@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.2] - 2022-08-11
+
 ### Changed
 
 - Adjusted detection of changes in roles and role bindings to prevent unnecessary updates during reconciliation
@@ -358,7 +360,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.30.1...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.30.2...HEAD
+[0.30.2]: https://github.com/giantswarm/rbac-operator/compare/v0.30.1...v0.30.2
 [0.30.1]: https://github.com/giantswarm/rbac-operator/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/giantswarm/rbac-operator/compare/v0.29.0...v0.30.0
 [0.29.0]: https://github.com/giantswarm/rbac-operator/compare/v0.28.1...v0.29.0
