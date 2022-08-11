@@ -3,6 +3,7 @@ package rbac
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 
@@ -15,8 +16,20 @@ import (
 	"github.com/giantswarm/rbac-operator/pkg/base"
 )
 
+func ClusterRoleNeedsUpdate(desiredClusterRole, existingClusterRole *rbacv1.ClusterRole) bool {
+	if len(existingClusterRole.Rules) != len(desiredClusterRole.Rules) {
+		return true
+	}
+
+	if !reflect.DeepEqual(existingClusterRole, desiredClusterRole) {
+		return true
+	}
+
+	return false
+}
+
 func CreateOrUpdateClusterRole(c base.K8sClientWithLogging, ctx context.Context, clusterRole *rbacv1.ClusterRole) error {
-	_, err := c.K8sClient().RbacV1().ClusterRoles().Get(ctx, clusterRole.Name, metav1.GetOptions{})
+	existingClusterRole, err := c.K8sClient().RbacV1().ClusterRoles().Get(ctx, clusterRole.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		c.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating clusterrole %#q", clusterRole.Name))
 
@@ -31,7 +44,7 @@ func CreateOrUpdateClusterRole(c base.K8sClientWithLogging, ctx context.Context,
 
 	} else if err != nil {
 		return microerror.Mask(err)
-	} else {
+	} else if ClusterRoleNeedsUpdate(clusterRole, existingClusterRole) {
 		c.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating clusterrole %#q", clusterRole.Name))
 		_, err := c.K8sClient().RbacV1().ClusterRoles().Update(ctx, clusterRole, metav1.UpdateOptions{})
 		if err != nil {

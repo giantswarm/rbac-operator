@@ -18,7 +18,7 @@ import (
 
 // RoleNeedsUpdate Role needs an update if the rules have changed
 func RoleNeedsUpdate(desiredRole, existingRole *rbacv1.Role) bool {
-	if len(existingRole.Rules) < 1 {
+	if len(existingRole.Rules) != len(desiredRole.Rules) {
 		return true
 	}
 

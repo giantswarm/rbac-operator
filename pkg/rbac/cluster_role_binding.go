@@ -18,7 +18,7 @@ import (
 
 // ClusterRoleBindingNeedsUpdate ClusterRoleBinding needs an update with the list of subjects has changed
 func ClusterRoleBindingNeedsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.ClusterRoleBinding) bool {
-	if len(existingRoleBinding.Subjects) < 1 {
+	if len(existingRoleBinding.Subjects) != len(desiredRoleBinding.Subjects) {
 		return true
 	}
 
