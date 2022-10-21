@@ -10,6 +10,7 @@ CVE-2022-21221 until=2022-11-30
 CVE-2021-42576 until=2022-11-30
 # nats server
 CVE-2022-42708 until=2022-11-30
+CVE-2022-42709 until=2022-11-30
 # x/text
 CVE-2022-32149 until=2022-11-30
 # github.com/urfave/negroni
