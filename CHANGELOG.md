@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Extend readonly ClusterRole to include pods/log so customers can debug failures on the management clusters.
+
 ## [0.30.2] - 2022-08-11
 
 ### Changed
@@ -29,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add write-silences for flux automation account in every org-namespace 
+- Add write-silences for flux automation account in every org-namespace
 
 ## [0.28.1] - 2022-05-18
 
