@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.3] - 2022-10-26
+
 - Extend readonly ClusterRole to include pods/log so customers can debug failures on the management clusters.
 
 ## [0.30.2] - 2022-08-11
@@ -362,7 +364,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.30.2...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.30.3...HEAD
+[0.30.3]: https://github.com/giantswarm/rbac-operator/compare/v0.30.2...v0.30.3
 [0.30.2]: https://github.com/giantswarm/rbac-operator/compare/v0.30.1...v0.30.2
 [0.30.1]: https://github.com/giantswarm/rbac-operator/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/giantswarm/rbac-operator/compare/v0.29.0...v0.30.0
