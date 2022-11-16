@@ -5,13 +5,13 @@ go 1.17
 require (
 	github.com/giantswarm/exporterkit v1.0.0
 	github.com/giantswarm/k8sclient/v7 v7.0.1
-	github.com/giantswarm/k8smetadata v0.12.0
+	github.com/giantswarm/k8smetadata v0.15.0
 	github.com/giantswarm/microendpoint v1.0.0
 	github.com/giantswarm/microerror v0.4.0
 	github.com/giantswarm/microkit v1.0.0
 	github.com/giantswarm/micrologger v1.0.0
 	github.com/giantswarm/operatorkit/v7 v7.1.0
-	github.com/giantswarm/organization-operator v1.0.3
+	github.com/giantswarm/organization-operator v1.0.4
 	github.com/google/go-cmp v0.5.8
 	github.com/prometheus/client_golang v1.12.2
 	github.com/spf13/viper v1.12.0
@@ -78,10 +78,10 @@ require (
 	golang.org/x/net v0.0.0-20220728211354-c7608f3a8462 // indirect
 	golang.org/x/oauth2 v0.0.0-20220722155238-128564f6959c // indirect
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
-	golang.org/x/sys v0.0.0-20220731174439-a90be440212d // indirect
+	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec // indirect
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
+	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
