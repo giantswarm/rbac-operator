@@ -2,3 +2,4 @@
 TODO
 /rbac-operator*
 !vendor/**
+.idea

@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -159,7 +160,8 @@ func (b *Bootstrap) createWriteOrganizationsClusterRole(ctx context.Context) err
 // Ensures the ClusterRoleBinding 'write-organizations-customer-group' between
 // ClusterRole 'write-organizations' and the customer admin group.
 func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToCustomerGroup(ctx context.Context) error {
-	if b.customerAdminGroup == "" {
+	subjects := subjectsFromAccessGroups(b.customerAdminGroups)
+	if len(subjects) == 0 {
 		return microerror.Maskf(invalidConfigError, "empty customer admin group name given")
 	}
 
@@ -176,12 +178,7 @@ func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToCustomerGroup(ct
 				label.ManagedBy: project.Name(),
 			},
 		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind: "Group",
-				Name: b.customerAdminGroup,
-			},
-		},
+		Subjects: subjects,
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
@@ -195,7 +192,8 @@ func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToCustomerGroup(ct
 // Ensures the ClusterRoleBinding 'read-all-customer-group' between
 // ClusterRole 'read-all' and the customer admin group.
 func (b *Bootstrap) createReadAllClusterRoleBindingToCustomerGroup(ctx context.Context) error {
-	if b.customerAdminGroup == "" {
+	subjects := subjectsFromAccessGroups(b.customerAdminGroups)
+	if len(subjects) == 0 {
 		return microerror.Maskf(invalidConfigError, "empty customer admin group name given")
 	}
 
@@ -212,12 +210,7 @@ func (b *Bootstrap) createReadAllClusterRoleBindingToCustomerGroup(ctx context.C
 				label.ManagedBy: project.Name(),
 			},
 		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind: "Group",
-				Name: b.customerAdminGroup,
-			},
-		},
+		Subjects: subjects,
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
@@ -294,12 +287,7 @@ func (b *Bootstrap) createWriteAllClusterRoleBindingToGSGroup(ctx context.Contex
 				label.ManagedBy: project.Name(),
 			},
 		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind: "Group",
-				Name: b.gsAdminGroup,
-			},
-		},
+		Subjects: subjectsFromAccessGroups(b.gsAdminGroups),
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
@@ -313,7 +301,8 @@ func (b *Bootstrap) createWriteAllClusterRoleBindingToGSGroup(ctx context.Contex
 // Ensures the ClusterRoleBinding 'write-all-customer-group' between
 // ClusterRole 'cluster-admin' and the customer admin group.
 func (b *Bootstrap) createWriteAllRoleBindingToCustomerGroup(ctx context.Context) error {
-	if b.customerAdminGroup == "" {
+	subjects := subjectsFromAccessGroups(b.customerAdminGroups)
+	if len(subjects) == 0 {
 		return microerror.Maskf(invalidConfigError, "empty customer admin group name given")
 	}
 
@@ -330,12 +319,7 @@ func (b *Bootstrap) createWriteAllRoleBindingToCustomerGroup(ctx context.Context
 				label.ManagedBy: project.Name(),
 			},
 		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind: "Group",
-				Name: b.customerAdminGroup,
-			},
-		},
+		Subjects: subjects,
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
@@ -762,7 +746,6 @@ func (b *Bootstrap) createWriteSilencesClusterRoleBindingToAutomationSA(ctx cont
 //
 // - 'ui.giantswarm.io/display=true'
 // - 'giantswarm.io/managed-by=Kubernetes'
-//
 func (b *Bootstrap) labelDefaultClusterRoles(ctx context.Context) error {
 	labelsToSet := map[string]string{
 		label.DisplayInUserInterface: "true",
@@ -815,4 +798,17 @@ func isRestrictedResource(resource string) bool {
 		}
 	}
 	return false
+}
+
+func subjectsFromAccessGroups(groups []accessgroup.AccessGroup) []rbacv1.Subject {
+	var subjects []rbacv1.Subject
+	for _, group := range groups {
+		if group.Name != "" {
+			subjects = append(subjects, rbacv1.Subject{
+				Kind: "Group",
+				Name: group.Name,
+			})
+		}
+	}
+	return subjects
 }
