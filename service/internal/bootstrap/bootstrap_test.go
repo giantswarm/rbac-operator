@@ -8,8 +8,6 @@ import (
 	"github.com/giantswarm/k8sclient/v7/pkg/k8scrdclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/rbac-operator/pkg/key"
-	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 	v1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -20,6 +18,9 @@ import (
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+
+	"github.com/giantswarm/rbac-operator/pkg/key"
+	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 
 	fakek8s "k8s.io/client-go/kubernetes/fake"
 )

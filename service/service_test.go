@@ -7,8 +7,9 @@ import (
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/rbac-operator/flag"
 	"github.com/spf13/viper"
+
+	"github.com/giantswarm/rbac-operator/flag"
 )
 
 func Test_Service(t *testing.T) {
