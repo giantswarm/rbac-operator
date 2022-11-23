@@ -44,8 +44,8 @@ func New(config Config) (*Bootstrap, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
-	if len(config.GSAdminGroups) == 0 {
-		return nil, microerror.Maskf(invalidConfigError, "%T.GSAdminGroup must not be empty", config)
+	if !accessgroup.ValidateGroups(config.GSAdminGroups) {
+		return nil, microerror.Maskf(invalidConfigError, "%T.GSAdminGroups must not be empty", config)
 	}
 
 	r := &Bootstrap{

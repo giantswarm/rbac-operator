@@ -1,5 +1,7 @@
 package accessgroup
 
+import rbacv1 "k8s.io/api/rbac/v1"
+
 type AccessGroup struct {
 	Name string
 }
@@ -17,8 +19,8 @@ func (a *AccessGroups) AddLegacyGiantswarmAdminGroup(legacyGroupName string) {
 	a.WriteAllGiantswarmGroups = addLegacyGroupIfMissing(a.WriteAllGiantswarmGroups, legacyGroupName)
 }
 
-func (a *AccessGroups) Validate() bool {
-	return len(a.WriteAllCustomerGroups) > 0 && len(a.WriteAllGiantswarmGroups) > 0
+func (a *AccessGroups) HasValidWriteAllGiantswarmAdminGroups() bool {
+	return ValidateGroups(a.WriteAllGiantswarmGroups)
 }
 
 func addLegacyGroupIfMissing(groups []AccessGroup, legacyGroupName string) []AccessGroup {
@@ -31,4 +33,26 @@ func addLegacyGroupIfMissing(groups []AccessGroup, legacyGroupName string) []Acc
 		}
 	}
 	return append(groups, AccessGroup{Name: legacyGroupName})
+}
+
+func GroupsToSubjects(groups []AccessGroup) []rbacv1.Subject {
+	var subjects []rbacv1.Subject
+	for _, group := range groups {
+		if group.Name != "" {
+			subjects = append(subjects, rbacv1.Subject{
+				Kind: "Group",
+				Name: group.Name,
+			})
+		}
+	}
+	return subjects
+}
+
+func ValidateGroups(groups []AccessGroup) bool {
+	for _, group := range groups {
+		if group.Name != "" {
+			return true
+		}
+	}
+	return false
 }

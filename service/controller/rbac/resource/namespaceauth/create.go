@@ -3,6 +3,7 @@ package namespaceauth
 import (
 	"context"
 	"fmt"
+	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 
 	k8smetadata "github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
@@ -71,7 +72,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	// Bind the ClusterRole created before to the writeAllCustomerGroup (if set)
-	if r.writeAllCustomerGroup != "" {
+	writeAllCustomerGroupSubjects := accessgroup.GroupsToSubjects(r.writeAllCustomerGroups)
+	if len(writeAllCustomerGroupSubjects) > 0 {
 		roleBindingToCustomerGroupName := pkgkey.WriteAllCustomerGroupRoleBindingName()
 
 		writeAllRoleBindingToCustomerGroup := &rbacv1.RoleBinding{
@@ -85,12 +87,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 					k8smetadata.ManagedBy: project.Name(),
 				},
 			},
-			Subjects: []rbacv1.Subject{
-				{
-					Kind: "Group",
-					Name: r.writeAllCustomerGroup,
-				},
-			},
+			Subjects: writeAllCustomerGroupSubjects,
 			RoleRef: rbacv1.RoleRef{
 				APIGroup: "rbac.authorization.k8s.io",
 				Kind:     "ClusterRole",

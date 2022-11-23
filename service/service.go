@@ -119,8 +119,8 @@ func New(config Config) (*Service, error) {
 		legacyGiantswarmAdminGroup := config.Viper.GetString(config.Flag.Service.WriteAllGiantswarmGroup)
 		accessGroups.AddLegacyGiantswarmAdminGroup(legacyGiantswarmAdminGroup)
 
-		if !accessGroups.Validate() {
-			return nil, microerror.Maskf(invalidConfigError, "Customer and Giantswarm access groups must not be empty")
+		if !accessGroups.HasValidWriteAllGiantswarmAdminGroups() {
+			return nil, microerror.Maskf(invalidConfigError, "Giantswarm Write All Admin groups must not be empty")
 		}
 	}
 
@@ -161,7 +161,7 @@ func New(config Config) (*Service, error) {
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
 
-			WriteAllCustomerGroup: config.Viper.GetString(config.Flag.Service.WriteAllCustomerGroup),
+			WriteAllCustomerGroups: accessGroups.WriteAllCustomerGroups,
 		}
 
 		rbacController, err = rbac.NewRBAC(c)
