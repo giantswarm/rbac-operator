@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/operatorkit/v7/pkg/resource"
 	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/retryresource"
+
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/externalresources"

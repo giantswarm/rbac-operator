@@ -6,9 +6,10 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/v7/pkg/controller"
 	"github.com/giantswarm/operatorkit/v7/pkg/resource"
-	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 
 	"github.com/giantswarm/rbac-operator/pkg/project"
 )

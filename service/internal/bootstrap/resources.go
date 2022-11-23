@@ -6,7 +6,6 @@ package bootstrap
 import (
 	"context"
 	"fmt"
-	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
@@ -16,6 +15,8 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+
+	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 
 	"github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/pkg/project"
