@@ -23,6 +23,20 @@ data:
           keyFile: ''
       accessGroups:
         writeAllCustomerGroups:
+        {{- if .Values.oidc.customer.write_all_group }}
         - name: {{ .Values.oidc.customer.write_all_group }}
+        {{- end }}
+        {{- if .Values.oidc.customer.write_all_groups }}
+        {{- range .Values.oidc.customer.write_all_groups }}
+        - name: {{ . }}
+        {{- end }}
+        {{- end }}
         writeAllGiantswarmGroups:
+        {{- if .Values.oidc.giantswarm.write_all_group }}
         - name: {{ .Values.oidc.giantswarm.write_all_group }}
+        {{- end }}
+        {{- if .Values.oidc.giantswarm.write_all_groups }}
+        {{- range .Values.oidc.giantswarm.write_all_groups }}
+        - name: {{ . }}
+        {{- end }}
+        {{- end }}
