@@ -9,6 +9,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
+
 	"github.com/giantswarm/rbac-operator/pkg/project"
 )
 
@@ -16,7 +18,7 @@ type RBACConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	WriteAllCustomerGroup string
+	WriteAllCustomerGroups []accessgroup.AccessGroup
 }
 
 type RBAC struct {

@@ -6,6 +6,8 @@ import (
 	"context"
 	"sync"
 
+	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
+
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
@@ -51,7 +53,9 @@ func New(config Config) (*Service, error) {
 	if config.Viper == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.Viper must not be empty")
 	}
-	if config.Flag.Service.Kubernetes.KubeConfig == "" {
+
+	kubeConfig := config.Viper.GetString(config.Flag.Service.Kubernetes.KubeConfig)
+	if kubeConfig == "" {
 		serviceAddress = config.Viper.GetString(config.Flag.Service.Kubernetes.Address)
 	} else {
 		serviceAddress = ""
@@ -71,7 +75,7 @@ func New(config Config) (*Service, error) {
 
 			Address:    serviceAddress,
 			InCluster:  config.Viper.GetBool(config.Flag.Service.Kubernetes.InCluster),
-			KubeConfig: config.Viper.GetString(config.Flag.Service.Kubernetes.KubeConfig),
+			KubeConfig: kubeConfig,
 			TLS: k8srestconfig.ConfigTLS{
 				CAFile:  config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.CAFile),
 				CrtFile: config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.CrtFile),
@@ -101,14 +105,33 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var accessGroups accessgroup.AccessGroups
+	{
+		err = config.Viper.UnmarshalKey(config.Flag.Service.AccessGroups, &accessGroups)
+		if err != nil {
+			// TODO: Log error
+			accessGroups = accessgroup.AccessGroups{}
+		}
+
+		legacyCustomerAdminGroup := config.Viper.GetString(config.Flag.Service.WriteAllCustomerGroup)
+		accessGroups.AddLegacyCustomerAdminGroup(legacyCustomerAdminGroup)
+
+		legacyGiantswarmAdminGroup := config.Viper.GetString(config.Flag.Service.WriteAllGiantswarmGroup)
+		accessGroups.AddLegacyGiantswarmAdminGroup(legacyGiantswarmAdminGroup)
+
+		if !accessGroups.HasValidWriteAllGiantswarmAdminGroups() {
+			return nil, microerror.Maskf(invalidConfigError, "Giantswarm Write All Admin groups must not be empty")
+		}
+	}
+
 	var bootstrapRunner *bootstrap.Bootstrap
 	{
 		c := bootstrap.Config{
 			Logger:    config.Logger,
 			K8sClient: k8sClient,
 
-			CustomerAdminGroup: config.Viper.GetString(config.Flag.Service.WriteAllCustomerGroup),
-			GSAdminGroup:       config.Viper.GetString(config.Flag.Service.WriteAllGiantswarmGroup),
+			CustomerAdminGroups: accessGroups.WriteAllCustomerGroups,
+			GSAdminGroups:       accessGroups.WriteAllGiantswarmGroups,
 		}
 
 		bootstrapRunner, err = bootstrap.New(c)
@@ -138,7 +161,7 @@ func New(config Config) (*Service, error) {
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
 
-			WriteAllCustomerGroup: config.Viper.GetString(config.Flag.Service.WriteAllCustomerGroup),
+			WriteAllCustomerGroups: accessGroups.WriteAllCustomerGroups,
 		}
 
 		rbacController, err = rbac.NewRBAC(c)

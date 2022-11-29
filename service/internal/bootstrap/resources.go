@@ -16,6 +16,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
+	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
+
 	"github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/pkg/rbac"
@@ -159,7 +161,8 @@ func (b *Bootstrap) createWriteOrganizationsClusterRole(ctx context.Context) err
 // Ensures the ClusterRoleBinding 'write-organizations-customer-group' between
 // ClusterRole 'write-organizations' and the customer admin group.
 func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToCustomerGroup(ctx context.Context) error {
-	if b.customerAdminGroup == "" {
+	subjects := accessgroup.GroupsToSubjects(b.customerAdminGroups)
+	if len(subjects) == 0 {
 		return microerror.Maskf(invalidConfigError, "empty customer admin group name given")
 	}
 
@@ -176,12 +179,7 @@ func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToCustomerGroup(ct
 				label.ManagedBy: project.Name(),
 			},
 		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind: "Group",
-				Name: b.customerAdminGroup,
-			},
-		},
+		Subjects: subjects,
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
@@ -195,7 +193,8 @@ func (b *Bootstrap) createWriteOrganizationsClusterRoleBindingToCustomerGroup(ct
 // Ensures the ClusterRoleBinding 'read-all-customer-group' between
 // ClusterRole 'read-all' and the customer admin group.
 func (b *Bootstrap) createReadAllClusterRoleBindingToCustomerGroup(ctx context.Context) error {
-	if b.customerAdminGroup == "" {
+	subjects := accessgroup.GroupsToSubjects(b.customerAdminGroups)
+	if len(subjects) == 0 {
 		return microerror.Maskf(invalidConfigError, "empty customer admin group name given")
 	}
 
@@ -212,12 +211,7 @@ func (b *Bootstrap) createReadAllClusterRoleBindingToCustomerGroup(ctx context.C
 				label.ManagedBy: project.Name(),
 			},
 		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind: "Group",
-				Name: b.customerAdminGroup,
-			},
-		},
+		Subjects: subjects,
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
@@ -294,12 +288,7 @@ func (b *Bootstrap) createWriteAllClusterRoleBindingToGSGroup(ctx context.Contex
 				label.ManagedBy: project.Name(),
 			},
 		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind: "Group",
-				Name: b.gsAdminGroup,
-			},
-		},
+		Subjects: accessgroup.GroupsToSubjects(b.gsAdminGroups),
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
@@ -313,7 +302,8 @@ func (b *Bootstrap) createWriteAllClusterRoleBindingToGSGroup(ctx context.Contex
 // Ensures the ClusterRoleBinding 'write-all-customer-group' between
 // ClusterRole 'cluster-admin' and the customer admin group.
 func (b *Bootstrap) createWriteAllRoleBindingToCustomerGroup(ctx context.Context) error {
-	if b.customerAdminGroup == "" {
+	subjects := accessgroup.GroupsToSubjects(b.customerAdminGroups)
+	if len(subjects) == 0 {
 		return microerror.Maskf(invalidConfigError, "empty customer admin group name given")
 	}
 
@@ -330,12 +320,7 @@ func (b *Bootstrap) createWriteAllRoleBindingToCustomerGroup(ctx context.Context
 				label.ManagedBy: project.Name(),
 			},
 		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind: "Group",
-				Name: b.customerAdminGroup,
-			},
-		},
+		Subjects: subjects,
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
@@ -762,7 +747,6 @@ func (b *Bootstrap) createWriteSilencesClusterRoleBindingToAutomationSA(ctx cont
 //
 // - 'ui.giantswarm.io/display=true'
 // - 'giantswarm.io/managed-by=Kubernetes'
-//
 func (b *Bootstrap) labelDefaultClusterRoles(ctx context.Context) error {
 	labelsToSet := map[string]string{
 		label.DisplayInUserInterface: "true",

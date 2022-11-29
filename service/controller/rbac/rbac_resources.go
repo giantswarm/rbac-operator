@@ -8,6 +8,8 @@ import (
 	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/retryresource"
 
+	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
+
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/externalresources"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/fluxauth"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/namespaceauth"
@@ -17,7 +19,7 @@ type rbacResourcesConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	WriteAllCustomerGroup string
+	WriteAllCustomerGroups []accessgroup.AccessGroup
 }
 
 func newRBACResources(config rbacResourcesConfig) ([]resource.Interface, error) {
@@ -55,7 +57,7 @@ func newRBACResources(config rbacResourcesConfig) ([]resource.Interface, error) 
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			WriteAllCustomerGroup: config.WriteAllCustomerGroup,
+			WriteAllCustomerGroups: config.WriteAllCustomerGroups,
 		}
 
 		namespaceAuthResource, err = namespaceauth.New(c)

@@ -3,6 +3,8 @@ package bootstrap
 import (
 	"context"
 
+	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
+
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -14,8 +16,8 @@ type Config struct {
 	Logger    micrologger.Logger
 
 	// internal
-	CustomerAdminGroup string
-	GSAdminGroup       string
+	CustomerAdminGroups []accessgroup.AccessGroup
+	GSAdminGroups       []accessgroup.AccessGroup
 }
 
 type Bootstrap struct {
@@ -23,8 +25,8 @@ type Bootstrap struct {
 	logger    micrologger.Logger
 
 	// internal
-	customerAdminGroup string
-	gsAdminGroup       string
+	customerAdminGroups []accessgroup.AccessGroup
+	gsAdminGroups       []accessgroup.AccessGroup
 }
 
 func (b Bootstrap) K8sClient() kubernetes.Interface {
@@ -42,16 +44,16 @@ func New(config Config) (*Bootstrap, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
-	if config.GSAdminGroup == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.GSAdminGroup must not be empty", config)
+	if !accessgroup.ValidateGroups(config.GSAdminGroups) {
+		return nil, microerror.Maskf(invalidConfigError, "%T.GSAdminGroups must not be empty", config)
 	}
 
 	r := &Bootstrap{
 		k8sClient: config.K8sClient.K8sClient(),
 		logger:    config.Logger,
 
-		customerAdminGroup: config.CustomerAdminGroup,
-		gsAdminGroup:       config.GSAdminGroup,
+		customerAdminGroups: config.CustomerAdminGroups,
+		gsAdminGroups:       config.GSAdminGroups,
 	}
 
 	return r, nil
@@ -165,7 +167,7 @@ func (b *Bootstrap) Run(ctx context.Context) error {
 		return microerror.Mask(err)
 	}
 
-	if b.customerAdminGroup != "" {
+	if len(b.customerAdminGroups) > 0 {
 		err = b.createReadAllClusterRoleBindingToCustomerGroup(ctx)
 		if err != nil {
 			return microerror.Mask(err)

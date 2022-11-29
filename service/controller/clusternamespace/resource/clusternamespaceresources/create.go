@@ -19,9 +19,9 @@ import (
 )
 
 // EnsureCreated Ensures that
-// - Roles for read/write access to org cluster resources are ensured in each cluster namespace
-// - For each RoleBinding in an org-namespace that references the read/write org cluster resource clusterRole,
-//   RoleBindings are created in the organizations cluster namespaces which reference above Role
+//   - Roles for read/write access to org cluster resources are ensured in each cluster namespace
+//   - For each RoleBinding in an org-namespace that references the read/write org cluster resource clusterRole,
+//     RoleBindings are created in the organizations cluster namespaces which reference above Role
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	var err error
 

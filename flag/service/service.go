@@ -10,4 +10,6 @@ type Service struct {
 
 	WriteAllCustomerGroup   string
 	WriteAllGiantswarmGroup string
+
+	AccessGroups string
 }
