@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.31.0] - 2022-12-01
 
+- Allow an array of write-all-groups.
+
 ## [0.30.3] - 2022-10-26
 
 - Extend readonly ClusterRole to include pods/log so customers can debug failures on the management clusters.
