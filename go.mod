@@ -81,7 +81,7 @@ require (
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
 	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec // indirect
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
@@ -105,7 +105,12 @@ replace (
 	github.com/coreos/etcd => go.etcd.io/etcd/v3 v3.5.1
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/gin-gonic/gin v1.4.0 => github.com/gin-gonic/gin v1.7.7
+	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.18.0
+	github.com/hashicorp/consul/sdk => github.com/hashicorp/consul/sdk v0.13.0
+	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.9.1
 	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.16
+	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.9.8
 	github.com/nats-io/nats-server/v2 v2.5.0 => github.com/nats-io/nats-server/v2 v2.8.3
 	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.34.0
+	golang.org/x/text => golang.org/x/text v0.4.0
 )

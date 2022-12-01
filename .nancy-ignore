@@ -3,7 +3,7 @@ CVE-2022-29153 until=2022-11-30
 CVE-2022-24687 until=2022-11-30
 CVE-2021-41803 until=2022-11-30
 # kataras/iris/v12@v12.1.8 -> no new version
-CVE-2021-23772 until=2022-11-30
+CVE-2021-23772 until=2022-12-30
 # github.com/valyala/fasthttp
 CVE-2022-21221 until=2022-11-30
 # github.com/microcosm-cc/bluemonday
@@ -14,6 +14,6 @@ CVE-2022-42709 until=2022-11-30
 # x/text
 CVE-2022-32149 until=2022-11-30
 # github.com/urfave/negroni
-sonatype-2021-1485 until=2022-11-30
-sonatype-2022-5436 until=2022-11-30
+sonatype-2021-1485 until=2022-12-30
+sonatype-2022-5436 until=2022-12-30
 
