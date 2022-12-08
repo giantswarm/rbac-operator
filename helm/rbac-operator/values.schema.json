@@ -1,0 +1,72 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "image": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "oidc": {
+            "type": "object",
+            "properties": {
+                "customer": {
+                    "type": "object",
+                    "properties": {
+                        "write_all_group": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "giantswarm": {
+                    "type": "object",
+                    "properties": {
+                        "write_all_group": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "pod": {
+            "type": "object",
+            "properties": {
+                "group": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "user": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        },
+        "registry": {
+            "type": "object",
+            "properties": {
+                "domain": {
+                    "type": "string"
+                },
+                "pullSecret": {
+                    "type": "object",
+                    "properties": {
+                        "dockerConfigJSON": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

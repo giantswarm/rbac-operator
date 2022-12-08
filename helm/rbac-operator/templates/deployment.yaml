@@ -41,6 +41,8 @@ spec:
         runAsGroup: {{ .Values.pod.group.id }}
       containers:
       - name: {{ include "name" . }}
+        securityContext:
+          readOnlyRootFilesystem: true
         image: "{{ .Values.registry.domain }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
         args:
         - daemon

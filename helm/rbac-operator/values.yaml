@@ -1,6 +1,5 @@
 image:
   name: "giantswarm/rbac-operator"
-  tag: "[[ .Version ]]"
 
 pod:
   user:
@@ -18,7 +17,3 @@ oidc:
     write_all_group: ""
   giantswarm:
     write_all_group: ""
-
-project:
-  branch: "[[ .Branch ]]"
-  commit: "[[ .SHA ]]"
