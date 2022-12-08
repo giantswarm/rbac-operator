@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Migrate build step to app-build-suite
+
 ## [0.31.0] - 2022-12-01
 
 - Allow an array of write-all-groups.
