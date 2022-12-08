@@ -43,7 +43,7 @@ spec:
       - name: {{ include "name" . }}
         securityContext:
           readOnlyRootFilesystem: true
-        image: "{{ .Values.registry.domain }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
+        image: "{{ .Values.registry.domain }}/{{ .Values.image.name }}:{{ .Chart.AppVersion }}"
         args:
         - daemon
         - --config.dirs=/var/run/{{ include "name" . }}/configmap/
