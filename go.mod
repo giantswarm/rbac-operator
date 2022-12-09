@@ -1,6 +1,6 @@
 module github.com/giantswarm/rbac-operator
 
-go 1.17
+go 1.19
 
 require (
 	github.com/giantswarm/exporterkit v1.0.0
@@ -12,9 +12,9 @@ require (
 	github.com/giantswarm/micrologger v1.0.0
 	github.com/giantswarm/operatorkit/v7 v7.1.0
 	github.com/giantswarm/organization-operator v1.0.4
-	github.com/google/go-cmp v0.5.8
-	github.com/prometheus/client_golang v1.12.2
-	github.com/spf13/viper v1.12.0
+	github.com/google/go-cmp v0.5.9
+	github.com/prometheus/client_golang v1.14.0
+	github.com/spf13/viper v1.14.0
 	k8s.io/api v0.24.3
 	k8s.io/apiextensions-apiserver v0.24.3
 	k8s.io/apimachinery v0.24.3
@@ -30,7 +30,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
-	github.com/fsnotify/fsnotify v1.5.4 // indirect
+	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/getsentry/sentry-go v0.13.0 // indirect
 	github.com/giantswarm/backoff v1.0.0 // indirect
 	github.com/giantswarm/to v0.4.0 // indirect
@@ -64,9 +64,9 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.0.2 // indirect
+	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/prometheus/client_model v0.2.0 // indirect
+	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
@@ -75,10 +75,10 @@ require (
 	github.com/spf13/cobra v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/subosito/gotenv v1.4.0 // indirect
-	golang.org/x/net v0.0.0-20220728211354-c7608f3a8462 // indirect
-	golang.org/x/oauth2 v0.0.0-20220722155238-128564f6959c // indirect
-	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
+	github.com/subosito/gotenv v1.4.1 // indirect
+	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b // indirect
+	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
+	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec // indirect
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
 	golang.org/x/text v0.4.0 // indirect
@@ -88,7 +88,7 @@ require (
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	gopkg.in/ini.v1 v1.66.6 // indirect
+	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/resty.v1 v1.12.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
@@ -102,15 +102,15 @@ require (
 )
 
 replace (
-	github.com/coreos/etcd => go.etcd.io/etcd/v3 v3.5.1
-	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.1
+	github.com/coreos/etcd => go.etcd.io/etcd/v3 v3.5.6
+	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/gin-gonic/gin v1.4.0 => github.com/gin-gonic/gin v1.7.7
 	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.18.0
 	github.com/hashicorp/consul/sdk => github.com/hashicorp/consul/sdk v0.13.0
 	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.9.1
-	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.16
-	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.9.8
+	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.21
+	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.9.9
 	github.com/nats-io/nats-server/v2 v2.5.0 => github.com/nats-io/nats-server/v2 v2.8.3
-	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.34.0
-	golang.org/x/text => golang.org/x/text v0.4.0
+	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.43.0
+	golang.org/x/text => golang.org/x/text v0.5.0
 )
