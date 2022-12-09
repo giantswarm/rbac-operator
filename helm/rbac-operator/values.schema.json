@@ -18,6 +18,9 @@
                     "properties": {
                         "write_all_group": {
                             "type": "string"
+                        },
+                        "write_all_groups": {
+                            "type": "array"
                         }
                     }
                 },
@@ -26,6 +29,9 @@
                     "properties": {
                         "write_all_group": {
                             "type": "string"
+                        },
+                        "write_all_groups": {
+                            "type": "array"
                         }
                     }
                 }
