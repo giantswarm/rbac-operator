@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.31.1] - 2022-12-12
+
 ### Changed
 
 - Migrate build step to app-build-suite
@@ -372,7 +374,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.31.0...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.31.1...HEAD
+[0.31.1]: https://github.com/giantswarm/rbac-operator/compare/v0.31.0...v0.31.1
 [0.31.0]: https://github.com/giantswarm/rbac-operator/compare/v0.30.3...v0.31.0
 [0.30.3]: https://github.com/giantswarm/rbac-operator/compare/v0.30.2...v0.30.3
 [0.30.2]: https://github.com/giantswarm/rbac-operator/compare/v0.30.1...v0.30.2
