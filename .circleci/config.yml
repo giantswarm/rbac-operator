@@ -42,6 +42,7 @@ workflows:
 
       - architect/push-to-app-catalog:
           name: push-rbac-operator-to-control-plane-app-catalog
+          executor: app-build-suite
           context: architect
           app_catalog: "control-plane-catalog"
           app_catalog_test: "control-plane-test-catalog"
