@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Migrate build step to app-build-suite
+- Add basic chart tests
 
 ## [0.31.0] - 2022-12-01
 
