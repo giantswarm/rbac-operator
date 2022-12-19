@@ -3,3 +3,7 @@ TODO
 /rbac-operator*
 !vendor/**
 .idea
+
+
+# ats
+/tests/ats/test_results*.xml

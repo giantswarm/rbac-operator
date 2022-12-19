@@ -43,6 +43,7 @@ workflows:
       - architect/push-to-app-catalog:
           name: push-rbac-operator-to-control-plane-app-catalog
           executor: app-build-suite
+          persist_chart_archive: true
           context: architect
           app_catalog: "control-plane-catalog"
           app_catalog_test: "control-plane-test-catalog"
@@ -149,3 +150,14 @@ workflows:
               ignore: /.*/
             tags:
               only: /^v.*/
+
+      - architect/run-tests-with-ats:
+          name: execute chart tests
+          app-test-suite_version: v0.2.9
+          app-test-suite_container_tag: 0.2.9
+          filters:
+            branches:
+              ignore:
+                - main
+          requires:
+            - push-rbac-operator-to-control-plane-app-catalog

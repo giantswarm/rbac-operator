@@ -1,0 +1,21 @@
+image:
+  name: "giantswarm/rbac-operator"
+
+pod:
+  user:
+    id: 1000
+  group:
+    id: 1000
+
+registry:
+  domain: quay.io
+  pullSecret:
+    dockerConfigJSON: "e30="
+
+oidc:
+  customer:
+    write_all_group: customer:giantswarm:Employees
+  giantswarm:
+    write_all_group: giantswarm:giantswarm:giantswarm-admins
+    write_all_groups:
+      - giantswarm-ad:giantswarm-admins
