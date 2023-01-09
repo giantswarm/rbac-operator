@@ -1,5 +1,6 @@
 # Nancy found vulns for consul api 1.18.0 -> no new version
 CVE-2022-29153 until=2023-06-01
+CVE-2021-41803 until=2023-06-01
 # kataras/iris/v12@v12.1.8 -> no new version
 CVE-2021-23772 until=2023-06-01
 # nats server
