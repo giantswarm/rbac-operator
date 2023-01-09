@@ -1,13 +1,12 @@
-# Nancy found vulns for consul api 1.12.0 -> no new version
-CVE-2022-29153 until=2022-12-30
-CVE-2022-24687 until=2022-12-30
-CVE-2021-41803 until=2022-12-30
+# Nancy found vulns for consul api 1.18.0 -> no new version
+CVE-2022-29153 until=2023-06-01
+CVE-2021-41803 until=2023-06-01
 # kataras/iris/v12@v12.1.8 -> no new version
-CVE-2021-23772 until=2022-12-30
+CVE-2021-23772 until=2023-06-01
 # nats server
 CVE-2022-42708 until=2022-12-30
 CVE-2022-42709 until=2022-12-30
 # github.com/urfave/negroni
-sonatype-2021-1485 until=2022-12-30
-sonatype-2022-5436 until=2022-12-30
-
+sonatype-2021-1485 until=2023-06-01
+# k8s.io/apiserver@v0.26.0 -> no new version
+sonatype-2022-6522 until=2023-06-01
