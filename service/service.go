@@ -21,6 +21,7 @@ import (
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/collector"
 	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace"
+	"github.com/giantswarm/rbac-operator/service/controller/crossplane"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac"
 	"github.com/giantswarm/rbac-operator/service/internal/bootstrap"
 )
@@ -40,6 +41,7 @@ type Service struct {
 	bootstrapRunner            *bootstrap.Bootstrap
 	rbacController             *rbac.RBAC
 	clusterNamespaceController *clusternamespace.ClusterNamespace
+	crossplaneController       *crossplane.Crossplane
 	operatorCollector          *collector.Set
 }
 
@@ -170,6 +172,19 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var crossplaneController *crossplane.Crossplane
+	{
+		c := crossplane.CrossplaneConfig{
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+		}
+
+		crossplaneController, err = crossplane.NewCrossplane(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var operatorCollector *collector.Set
 	{
 		c := collector.SetConfig{
@@ -207,6 +222,7 @@ func New(config Config) (*Service, error) {
 		rbacController:             rbacController,
 		clusterNamespaceController: clusterNamespaceController,
 		operatorCollector:          operatorCollector,
+		crossplaneController:       crossplaneController,
 	}
 
 	return s, nil
@@ -230,5 +246,7 @@ func (s *Service) Boot(ctx context.Context) {
 		go s.rbacController.Boot(ctx)
 
 		go s.clusterNamespaceController.Boot(ctx)
+
+		go s.crossplaneController.Boot(ctx)
 	})
 }

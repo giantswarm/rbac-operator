@@ -2,19 +2,23 @@ package crossplaneauth
 
 import (
 	"context"
-	// "fmt"
+	"fmt"
+
 	"github.com/giantswarm/microerror"
-	// "github.com/giantswarm/rbac-operator/service/controller/rbac/key"
+	"github.com/giantswarm/rbac-operator/service/controller/crossplane/key"
+	// rbacv1 "k8s.io/api/rbac/v1"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	var err error
+	// var err error
 
-	// _, err := key.ToNamespace(obj)
+	cr, err := key.ToClusterRole(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	// r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating rolebinding %#q in namespace %s", roleBinding.Name, ns.Name))
+	if err == nil {
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("nfo clusterrole %s", cr.Name))
+	}
 
 	return nil
 }
