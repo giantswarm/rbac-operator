@@ -4,8 +4,9 @@ import (
 	"context"
 
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/rbac-operator/service/controller/crossplane/key"
+
 	pkgrbac "github.com/giantswarm/rbac-operator/pkg/rbac"
+	"github.com/giantswarm/rbac-operator/service/controller/crossplane/key"
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {

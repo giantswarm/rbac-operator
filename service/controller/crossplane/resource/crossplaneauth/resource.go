@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 
 	"k8s.io/client-go/kubernetes"
@@ -25,8 +26,8 @@ type Config struct {
 }
 
 type Resource struct {
-	k8sClient kubernetes.Interface
-	logger    micrologger.Logger
+	k8sClient           kubernetes.Interface
+	logger              micrologger.Logger
 	customerAdminGroups []accessgroup.AccessGroup
 }
 
@@ -39,8 +40,8 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		k8sClient: config.K8sClient.K8sClient(),
-		logger:    config.Logger,
+		k8sClient:           config.K8sClient.K8sClient(),
+		logger:              config.Logger,
 		customerAdminGroups: config.CustomerAdminGroups,
 	}
 

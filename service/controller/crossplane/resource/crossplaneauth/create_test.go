@@ -7,6 +7,7 @@ import (
 
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
+
 	"github.com/giantswarm/rbac-operator/service/controller/crossplane/key"
 	"github.com/giantswarm/rbac-operator/service/controller/crossplane/resource/crossplaneauth"
 
@@ -31,7 +32,7 @@ func Test_EnsureCreated(t *testing.T) {
 		{
 			name:                "updates when CRB present",
 			clusterRole:         &crossplaneEditCR,
-			clusterRoleBindings: []*rbacv1.ClusterRoleBinding{ &crossplaneClusterRoleBinding },
+			clusterRoleBindings: []*rbacv1.ClusterRoleBinding{&crossplaneClusterRoleBinding},
 		},
 	}
 

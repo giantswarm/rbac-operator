@@ -3,6 +3,10 @@ TODO
 /rbac-operator*
 !vendor/**
 .idea
+.vscode
+*.crt
+*.key
+*.config
 
 
 # ats
