@@ -10,7 +10,6 @@ import (
 	"github.com/giantswarm/rbac-operator/service/controller/crossplane/key"
 	"github.com/giantswarm/rbac-operator/service/controller/crossplane/resource/crossplaneauth"
 
-	// corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -18,19 +17,19 @@ import (
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 )
 
-func Test_EnsureDeleted(t *testing.T) {
+func Test_EnsureCreated(t *testing.T) {
 	tests := []struct {
 		name                string
 		clusterRole         *rbacv1.ClusterRole
 		clusterRoleBindings []*rbacv1.ClusterRoleBinding
 	}{
 		{
-			name:                "doesn't delete when CRB not present",
+			name:                "creates when CRB not present",
 			clusterRole:         &crossplaneEditCR,
 			clusterRoleBindings: make([]*rbacv1.ClusterRoleBinding, 0),
 		},
 		{
-			name:                "deletes when CRB present",
+			name:                "updates when CRB present",
 			clusterRole:         &crossplaneEditCR,
 			clusterRoleBindings: []*rbacv1.ClusterRoleBinding{ &crossplaneClusterRoleBinding },
 		},
@@ -41,10 +40,6 @@ func Test_EnsureDeleted(t *testing.T) {
 			var err error
 
 			k8sObj := []runtime.Object{tc.clusterRole}
-
-			for _, crb := range tc.clusterRoleBindings {
-				k8sObj = append(k8sObj, crb)
-			}
 
 			var k8sClientFake *k8sclienttest.Clients
 			{
@@ -61,7 +56,7 @@ func Test_EnsureDeleted(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			err = fakeCrossplaneauth.EnsureDeleted(context.TODO(), tc.clusterRole)
+			err = fakeCrossplaneauth.EnsureCreated(context.TODO(), tc.clusterRole)
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
 			}
@@ -69,8 +64,10 @@ func Test_EnsureDeleted(t *testing.T) {
 			_, err = k8sClientFake.K8sClient().RbacV1().ClusterRoleBindings().Get(context.TODO(), key.GetClusterRoleBindingName(),
 				metav1.GetOptions{})
 
-			if errors.IsNotFound(err) == false {
-				t.Fatalf("error == %#v, want NotFound", err)
+			if errors.IsNotFound(err) {
+				t.Fatalf("error == %#v, was not NotFound", err)
+			} else if err != nil {
+				t.Fatalf("error == %#v, was expecting no error", err)
 			}
 		})
 	}
