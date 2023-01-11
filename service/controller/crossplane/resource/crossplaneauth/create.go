@@ -33,6 +33,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 	for _, group := range r.customerAdminGroups {
 		subjects = append(subjects, rbacv1.Subject{
+			APIGroup:  "rbac.authorization.k8s.io",
 			Kind:      "Group",
 			Name:      group.Name,
 			Namespace: pkgkey.DefaultNamespaceName,
@@ -65,8 +66,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
-	r.logger.LogCtx(ctx, "level", "info", "message",
-		fmt.Sprintf("ClusterRoleBinding %#q between customer's admin group and rbac-manager of Crossplane been created",
+	r.logger.LogCtx(ctx, "level", "debug", "message",
+		fmt.Sprintf("ClusterRoleBinding %#q between customer's admin group and rbac-manager of Crossplane has been checked",
 			key.CrossplaneEditClusterRole()))
 
 	return nil

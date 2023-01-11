@@ -21,7 +21,7 @@ func ToClusterRole(v interface{}) (rbacv1.ClusterRole, error) {
 }
 
 func GetClusterRoleBindingName() string {
-	return "rbac-op-Crossplane-Edit-To-Users"
+	return "rbac-op-crossplane-edit-to-customer-admin"
 }
 
 func CrossplaneEditClusterRole() string {
