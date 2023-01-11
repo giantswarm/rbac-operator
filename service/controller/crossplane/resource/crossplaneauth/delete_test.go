@@ -17,16 +17,6 @@ import (
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 )
 
-var crossplaneEditCR = rbacv1.ClusterRole{
-	TypeMeta: metav1.TypeMeta{
-		Kind:       "ClusterRole",
-		APIVersion: "rbac.authorization.k8s.io",
-	},
-	ObjectMeta: metav1.ObjectMeta{
-		Name: key.CrossplaneEditClusterRole(),
-	},
-}
-
 func Test_EnsureDeleted(t *testing.T) {
 	tests := []struct {
 		name                string
@@ -41,17 +31,7 @@ func Test_EnsureDeleted(t *testing.T) {
 		{
 			name:                "deletes when CRB present",
 			clusterRole:         &crossplaneEditCR,
-			clusterRoleBindings: []*rbacv1.ClusterRoleBinding{
-				{
-					TypeMeta: metav1.TypeMeta{
-						Kind: "ClusterRoleBinding",
-						APIVersion: "rbac.authorization.k8s.io",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name: key.GetClusterRoleBindingName(),
-					},
-				},
-			},
+			clusterRoleBindings: []*rbacv1.ClusterRoleBinding{ &crossplaneClusterRoleBinding },
 		},
 	}
 
