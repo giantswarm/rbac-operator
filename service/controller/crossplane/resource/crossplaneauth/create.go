@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
@@ -49,6 +50,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			Name: key.GetClusterRoleBindingName(),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
+			},
+			Annotations: map[string]string{
+				annotation.Notes: "Grants customer's cluster-admin permissions to use crossplane rbac-manager manged crossplane:edit ClusterRole",
 			},
 		},
 		Subjects: subjects,
