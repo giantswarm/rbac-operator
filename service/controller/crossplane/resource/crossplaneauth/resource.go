@@ -47,6 +47,14 @@ func New(config Config) (*Resource, error) {
 	return r, nil
 }
 
+func (r Resource) K8sClient() kubernetes.Interface {
+	return r.k8sClient
+}
+
+func (r Resource) Logger() micrologger.Logger {
+	return r.logger
+}
+
 func (r *Resource) Name() string {
 	return Name
 }
