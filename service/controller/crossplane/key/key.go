@@ -1,8 +1,8 @@
 package key
 
 import (
-	rbacv1 "k8s.io/api/rbac/v1"
 	"github.com/giantswarm/microerror"
+	rbacv1 "k8s.io/api/rbac/v1"
 )
 
 func ToClusterRole(v interface{}) (rbacv1.ClusterRole, error) {
@@ -18,4 +18,12 @@ func ToClusterRole(v interface{}) (rbacv1.ClusterRole, error) {
 	c := p.DeepCopy()
 
 	return *c, nil
+}
+
+func GetClusterRoleBindingName() string {
+	return "rbac-op-Crossplane-Edit-To-Users"
+}
+
+func CrossplaneEditClusterRole() string {
+	return "crossplane-edit"
 }

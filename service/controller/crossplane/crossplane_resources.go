@@ -9,31 +9,36 @@ import (
 	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/retryresource"
 
 	"github.com/giantswarm/rbac-operator/service/controller/crossplane/resource/crossplaneauth"
+	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 )
 
 type crossplaneResourcesConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
+
+	CustomerAdminGroups []accessgroup.AccessGroup
 }
 
 func newCrossplaneResources(config crossplaneResourcesConfig) ([]resource.Interface, error) {
 	var err error
 
-	var crossplaneAuthResource resource.Interface
+	var crossplaneClusterRoleBinderResource resource.Interface
 	{
 		c := crossplaneauth.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+
+			CustomerAdminGroups: config.CustomerAdminGroups,
 		}
 
-		crossplaneAuthResource, err = crossplaneauth.New(c)
+		crossplaneClusterRoleBinderResource, err = crossplaneauth.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
 	resources := []resource.Interface{
-		crossplaneAuthResource,
+		crossplaneClusterRoleBinderResource,
 	}
 
 	{

@@ -177,6 +177,8 @@ func New(config Config) (*Service, error) {
 		c := crossplane.CrossplaneConfig{
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
+
+			CustomerAdminGroups: accessGroups.WriteAllCustomerGroups,
 		}
 
 		crossplaneController, err = crossplane.NewCrossplane(c)

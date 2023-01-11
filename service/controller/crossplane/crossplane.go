@@ -6,15 +6,18 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/v7/pkg/controller"
 	"github.com/giantswarm/operatorkit/v7/pkg/resource"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	rbacv1 "k8s.io/api/rbac/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/rbac-operator/pkg/project"
+	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 )
 
 type CrossplaneConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
+
+	CustomerAdminGroups []accessgroup.AccessGroup
 }
 
 type Crossplane struct {
