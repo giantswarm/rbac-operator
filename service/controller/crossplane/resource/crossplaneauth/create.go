@@ -53,7 +53,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				label.ManagedBy: project.Name(),
 			},
 			Annotations: map[string]string{
-				annotation.Notes: "Grants customer's cluster-admin permissions to use crossplane rbac-manager manged crossplane:edit ClusterRole",
+				annotation.Notes: "Grants customer's cluster-admin permissions to use crossplane rbac-manager managed crossplane:edit ClusterRole",
 			},
 		},
 		Subjects: subjects,
