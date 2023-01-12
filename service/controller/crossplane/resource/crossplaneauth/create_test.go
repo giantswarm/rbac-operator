@@ -62,8 +62,8 @@ func Test_EnsureCreated(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			_, err = k8sClientFake.K8sClient().RbacV1().ClusterRoleBindings().Get(context.TODO(), key.GetClusterRoleBindingName(),
-				metav1.GetOptions{})
+			_, err = k8sClientFake.K8sClient().RbacV1().ClusterRoleBindings().Get(context.TODO(),
+				key.GetClusterRoleBindingName("crossplane-edit"), metav1.GetOptions{})
 
 			if errors.IsNotFound(err) {
 				t.Fatalf("error == %#v, was not NotFound", err)

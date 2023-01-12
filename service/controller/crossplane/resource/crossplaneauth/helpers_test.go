@@ -13,7 +13,7 @@ var crossplaneEditCR = rbacv1.ClusterRole{
 		APIVersion: "rbac.authorization.k8s.io",
 	},
 	ObjectMeta: metav1.ObjectMeta{
-		Name: key.CrossplaneEditClusterRole(),
+		Name: "crossplane-edit",
 	},
 }
 
@@ -23,6 +23,6 @@ var crossplaneClusterRoleBinding = rbacv1.ClusterRoleBinding{
 		APIVersion: "rbac.authorization.k8s.io",
 	},
 	ObjectMeta: metav1.ObjectMeta{
-		Name: key.GetClusterRoleBindingName(),
+		Name: key.GetClusterRoleBindingName("crossplane-edit"),
 	},
 }

@@ -14,12 +14,12 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	if cr.Name != key.CrossplaneEditClusterRole() {
+	if cr.Name != r.crossplaneBindTriggeringClusterRole {
 		return nil
 	}
 
 	// Delete ClusterRoleBinding for customer's admin access to crossplane-edit ClusterRole
-	err = pkgrbac.DeleteClusterRoleBinding(r, ctx, key.GetClusterRoleBindingName())
+	err = pkgrbac.DeleteClusterRoleBinding(r, ctx, key.GetClusterRoleBindingName(r.crossplaneBindTriggeringClusterRole))
 	if err != nil {
 		return microerror.Mask(err)
 	}

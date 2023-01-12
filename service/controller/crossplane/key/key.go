@@ -1,6 +1,8 @@
 package key
 
 import (
+	"fmt"
+
 	"github.com/giantswarm/microerror"
 	rbacv1 "k8s.io/api/rbac/v1"
 )
@@ -20,10 +22,6 @@ func ToClusterRole(v interface{}) (rbacv1.ClusterRole, error) {
 	return *c, nil
 }
 
-func GetClusterRoleBindingName() string {
-	return "rbac-op-crossplane-edit-to-customer-admin"
-}
-
-func CrossplaneEditClusterRole() string {
-	return "crossplane-edit"
+func GetClusterRoleBindingName(clusterRoleName string) string {
+	return fmt.Sprintf("rbac-op-%s-to-customer-admin", clusterRoleName)
 }

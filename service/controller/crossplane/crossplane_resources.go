@@ -16,7 +16,8 @@ type crossplaneResourcesConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	CustomerAdminGroups []accessgroup.AccessGroup
+	CustomerAdminGroups                 []accessgroup.AccessGroup
+	CrossplaneBindTriggeringClusterRole string
 }
 
 func newCrossplaneResources(config crossplaneResourcesConfig) ([]resource.Interface, error) {
@@ -28,7 +29,8 @@ func newCrossplaneResources(config crossplaneResourcesConfig) ([]resource.Interf
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			CustomerAdminGroups: config.CustomerAdminGroups,
+			CustomerAdminGroups:                 config.CustomerAdminGroups,
+			CrossplaneBindTriggeringClusterRole: config.CrossplaneBindTriggeringClusterRole,
 		}
 
 		crossplaneClusterRoleBinderResource, err = crossplaneauth.New(c)

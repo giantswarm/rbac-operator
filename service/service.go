@@ -178,7 +178,8 @@ func New(config Config) (*Service, error) {
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
 
-			CustomerAdminGroups: accessGroups.WriteAllCustomerGroups,
+			CustomerAdminGroups:                 accessGroups.WriteAllCustomerGroups,
+			CrossplaneBindTriggeringClusterRole: config.Viper.GetString(config.Flag.Service.CrossplaneBindTriggeringClusterRoleName),
 		}
 
 		crossplaneController, err = crossplane.NewCrossplane(c)

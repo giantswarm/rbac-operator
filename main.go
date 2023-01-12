@@ -110,6 +110,8 @@ func mainE(ctx context.Context) error {
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.TLS.CrtFile, "", "Certificate file path to use to authenticate with Kubernetes.")
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.TLS.KeyFile, "", "Key file path to use to authenticate with Kubernetes.")
 	daemonCommand.PersistentFlags().String(f.Service.AccessGroups, "", "Groups to be granted access to resources in the cluster")
+	daemonCommand.PersistentFlags().String(f.Service.CrossplaneBindTriggeringClusterRoleName, "crossplane-edit",
+		"ClusterRole name created by rbac-manager from crossplane that triggers binding to customer's admin group.")
 
 	err = newCommand.CobraCommand().Execute()
 	if err != nil {

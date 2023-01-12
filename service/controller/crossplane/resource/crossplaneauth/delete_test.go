@@ -67,8 +67,8 @@ func Test_EnsureDeleted(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			_, err = k8sClientFake.K8sClient().RbacV1().ClusterRoleBindings().Get(context.TODO(), key.GetClusterRoleBindingName(),
-				metav1.GetOptions{})
+			_, err = k8sClientFake.K8sClient().RbacV1().ClusterRoleBindings().Get(context.TODO(),
+				key.GetClusterRoleBindingName("crossplane-edit"), metav1.GetOptions{})
 
 			if errors.IsNotFound(err) == false {
 				t.Fatalf("error == %#v, want NotFound", err)

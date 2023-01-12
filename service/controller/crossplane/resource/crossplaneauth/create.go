@@ -22,7 +22,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	if cr.Name != key.CrossplaneEditClusterRole() {
+	if cr.Name != r.crossplaneBindTriggeringClusterRole {
 		return nil
 	}
 
@@ -48,7 +48,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: key.GetClusterRoleBindingName(),
+			Name: key.GetClusterRoleBindingName(r.crossplaneBindTriggeringClusterRole),
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
@@ -60,7 +60,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
-			Name:     key.CrossplaneEditClusterRole(),
+			Name:     r.crossplaneBindTriggeringClusterRole,
 		},
 	}
 
@@ -73,7 +73,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 	r.logger.LogCtx(ctx, "level", "debug", "message",
 		fmt.Sprintf("ClusterRoleBinding %#q between customer's admin group and rbac-manager of Crossplane has been checked",
-			key.CrossplaneEditClusterRole()))
+			r.crossplaneBindTriggeringClusterRole))
 
 	return nil
 }

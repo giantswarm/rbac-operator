@@ -22,13 +22,15 @@ type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	CustomerAdminGroups []accessgroup.AccessGroup
+	CustomerAdminGroups                 []accessgroup.AccessGroup
+	CrossplaneBindTriggeringClusterRole string
 }
 
 type Resource struct {
-	k8sClient           kubernetes.Interface
-	logger              micrologger.Logger
-	customerAdminGroups []accessgroup.AccessGroup
+	k8sClient                           kubernetes.Interface
+	logger                              micrologger.Logger
+	customerAdminGroups                 []accessgroup.AccessGroup
+	crossplaneBindTriggeringClusterRole string
 }
 
 func New(config Config) (*Resource, error) {
@@ -40,9 +42,10 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		k8sClient:           config.K8sClient.K8sClient(),
-		logger:              config.Logger,
-		customerAdminGroups: config.CustomerAdminGroups,
+		k8sClient:                           config.K8sClient.K8sClient(),
+		logger:                              config.Logger,
+		customerAdminGroups:                 config.CustomerAdminGroups,
+		crossplaneBindTriggeringClusterRole: config.CrossplaneBindTriggeringClusterRole,
 	}
 
 	return r, nil

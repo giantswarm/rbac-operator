@@ -17,7 +17,8 @@ type CrossplaneConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	CustomerAdminGroups []accessgroup.AccessGroup
+	CustomerAdminGroups                 []accessgroup.AccessGroup
+	CrossplaneBindTriggeringClusterRole string
 }
 
 type Crossplane struct {

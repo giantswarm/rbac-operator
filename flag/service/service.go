@@ -12,4 +12,6 @@ type Service struct {
 	WriteAllGiantswarmGroup string
 
 	AccessGroups string
+
+	CrossplaneBindTriggeringClusterRoleName string
 }
