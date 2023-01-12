@@ -55,8 +55,9 @@ func Test_EnsureDeleted(t *testing.T) {
 			}
 
 			fakeCrossplaneauth, err := crossplaneauth.New(crossplaneauth.Config{
-				K8sClient: k8sClientFake,
-				Logger:    microloggertest.New(),
+				K8sClient:                           k8sClientFake,
+				Logger:                              microloggertest.New(),
+				CrossplaneBindTriggeringClusterRole: testCrossplaneClusterRoleName,
 			})
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
