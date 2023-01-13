@@ -110,7 +110,6 @@ replace (
 	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.9.1
 	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.21
 	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.9.11
-	github.com/nats-io/nats-server/v2 v2.5.0 => github.com/nats-io/nats-server/v2 v2.9.11
 	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.43.0
 	golang.org/x/text => golang.org/x/text v0.5.0
 )
