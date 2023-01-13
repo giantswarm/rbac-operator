@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Fix `pods/log` policy rule.
+
 ## [0.31.1] - 2022-12-12
 
 ### Changed
