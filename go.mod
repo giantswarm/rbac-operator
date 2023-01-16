@@ -11,6 +11,7 @@ require (
 	github.com/giantswarm/microkit v1.0.0
 	github.com/giantswarm/micrologger v1.0.0
 	github.com/giantswarm/operatorkit/v7 v7.1.0
+	github.com/giantswarm/operatorkit/v8 v8.0.0
 	github.com/giantswarm/organization-operator v1.0.4
 	github.com/google/go-cmp v0.5.9
 	github.com/prometheus/client_golang v1.14.0
@@ -110,7 +111,6 @@ replace (
 	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.9.1
 	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.21
 	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.9.11
-	github.com/nats-io/nats-server/v2 v2.5.0 => github.com/nats-io/nats-server/v2 v2.9.11
 	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.43.0
 	golang.org/x/text => golang.org/x/text v0.5.0
 )
