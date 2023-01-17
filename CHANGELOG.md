@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added a new crossplane specific controller, `crossplaneauth`. It detects when a ClusterRole `crossplane-edit` is created
+  (which means crossplane is installed with its `rbac-manager` and binds `default:automation` SA and customer's admin
+  user group to this ClusterRole.
+
 ## [0.31.2] - 2023-01-16
 
 ### Changed
