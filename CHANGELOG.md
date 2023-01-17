@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.32.0] - 2023-01-17
+
 ### Added
 
 - Added a new crossplane specific controller, `crossplaneauth`. It detects when a ClusterRole `crossplane-edit` is created
@@ -387,7 +389,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.31.2...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.32.0...HEAD
+[0.32.0]: https://github.com/giantswarm/rbac-operator/compare/v0.31.2...v0.32.0
 [0.31.2]: https://github.com/giantswarm/rbac-operator/compare/v0.31.1...v0.31.2
 [0.31.1]: https://github.com/giantswarm/rbac-operator/compare/v0.31.0...v0.31.1
 [0.31.0]: https://github.com/giantswarm/rbac-operator/compare/v0.30.3...v0.31.0
