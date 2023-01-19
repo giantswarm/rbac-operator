@@ -14,7 +14,7 @@ require (
 	github.com/giantswarm/organization-operator v1.0.5
 	github.com/google/go-cmp v0.5.9
 	github.com/prometheus/client_golang v1.14.0
-	github.com/spf13/viper v1.14.0
+	github.com/spf13/viper v1.15.0
 	k8s.io/api v0.25.0
 	k8s.io/apiextensions-apiserver v0.25.0
 	k8s.io/apimachinery v0.25.0
@@ -56,7 +56,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/magiconair/properties v1.8.6 // indirect
+	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
@@ -64,19 +64,18 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
-	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
-	github.com/spf13/afero v1.9.2 // indirect
+	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/cobra v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/subosito/gotenv v1.4.1 // indirect
+	github.com/subosito/gotenv v1.4.2 // indirect
 	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
 	golang.org/x/sync v0.1.0 // indirect
@@ -108,9 +107,9 @@ replace (
 	github.com/gin-gonic/gin v1.4.0 => github.com/gin-gonic/gin v1.7.7
 	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.18.0
 	github.com/hashicorp/consul/sdk => github.com/hashicorp/consul/sdk v0.13.0
-	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.9.1
+	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.10.0
 	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.21
 	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.9.11
-	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.43.0
-	golang.org/x/text => golang.org/x/text v0.5.0
+	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.44.0
+	golang.org/x/text => golang.org/x/text v0.6.0
 )
