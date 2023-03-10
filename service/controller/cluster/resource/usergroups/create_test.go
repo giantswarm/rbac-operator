@@ -114,11 +114,6 @@ func Test_UserGroups(t *testing.T) {
 
 			ctx := context.TODO()
 
-			k8sObj := make([]runtime.Object, 0)
-			for _, cr := range tc.InitialObjects {
-				k8sObj = append(k8sObj, cr)
-			}
-
 			var k8sClientFake *k8sclienttest.Clients
 			{
 				schemeBuilder := runtime.SchemeBuilder{
@@ -135,7 +130,7 @@ func Test_UserGroups(t *testing.T) {
 						WithScheme(scheme.Scheme).
 						WithRuntimeObjects().
 						Build(),
-					K8sClient: clientgofake.NewSimpleClientset(k8sObj...),
+					K8sClient: clientgofake.NewSimpleClientset(tc.InitialObjects...),
 				})
 			}
 
