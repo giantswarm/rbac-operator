@@ -98,18 +98,13 @@ func Test_ClusterRoleCreation(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			clusterRoleList, err := k8sClientFake.K8sClient().RbacV1().ClusterRoles().List(ctx, metav1.ListOptions{})
-			if err != nil {
-				t.Fatalf("error == %#v, want nil", err)
-			}
-
 			namespace := &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: pkgkey.DefaultNamespaceName}}
 			err = clusterRoles.EnsureCreated(context.TODO(), namespace)
 			if err != nil {
 				t.Fatalf("failed to ensure creation of cluster roles: %s", err)
 			}
 
-			clusterRoleList, err = k8sClientFake.K8sClient().RbacV1().ClusterRoles().List(ctx, metav1.ListOptions{})
+			clusterRoleList, err := k8sClientFake.K8sClient().RbacV1().ClusterRoles().List(ctx, metav1.ListOptions{})
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
 			}

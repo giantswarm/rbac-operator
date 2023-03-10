@@ -81,6 +81,9 @@ func (c *FakeDiscoveryWithResources) ServerPreferredResources() ([]*metav1.APIRe
 		Verb:     "get",
 		Resource: schema.GroupVersionResource{Resource: "resource"},
 	}
-	c.Invokes(action, nil)
+	_, err = c.Invokes(action, nil)
+	if err != nil {
+		return preferredResources, err
+	}
 	return preferredResources, nil
 }
