@@ -4,8 +4,9 @@ package service
 
 import (
 	"context"
-	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace"
 	"sync"
+
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace"
 
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 
