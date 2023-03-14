@@ -13,7 +13,7 @@ import (
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/pkg/project"
-	"github.com/giantswarm/rbac-operator/service/controller/cluster/key"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/key"
 )
 
 // EnsureCreated Ensures the Role 'read-default-catalogs'.

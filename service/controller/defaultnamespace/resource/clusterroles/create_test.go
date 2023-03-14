@@ -16,8 +16,8 @@ import (
 	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
-	"github.com/giantswarm/rbac-operator/service/controller/cluster/clustertest"
-	"github.com/giantswarm/rbac-operator/service/controller/cluster/key"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/defaultnamespacetest"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/key"
 )
 
 func Test_ClusterRoleCreation(t *testing.T) {
@@ -35,30 +35,30 @@ func Test_ClusterRoleCreation(t *testing.T) {
 		{
 			Name: "case1: Update static cluster roles",
 			InitialObjects: []runtime.Object{
-				clustertest.NewClusterRole(pkgkey.DefaultReadAllPermissionsName, []rbacv1.PolicyRule{}),
-				clustertest.NewClusterRole(pkgkey.WriteOrganizationsPermissionsName, clustertest.NewSingletonRulesNoResources()),
-				clustertest.NewClusterRole(pkgkey.WriteFluxResourcesPermissionsName, clustertest.NewSingletonRulesNoResources()),
-				clustertest.NewClusterRole(pkgkey.WriteClustersPermissionsName, clustertest.NewSingletonRulesNoResources()),
-				clustertest.NewClusterRole(pkgkey.WriteNodePoolsPermissionsName, clustertest.NewSingletonRulesNoResources()),
-				clustertest.NewClusterRole(pkgkey.WriteClientCertsPermissionsName, clustertest.NewSingletonRulesNoResources()),
-				clustertest.NewClusterRole(pkgkey.WriteSilencesPermissionsName, clustertest.NewSingletonRulesNoResources()),
+				defaultnamespacetest.NewClusterRole(pkgkey.DefaultReadAllPermissionsName, []rbacv1.PolicyRule{}),
+				defaultnamespacetest.NewClusterRole(pkgkey.WriteOrganizationsPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
+				defaultnamespacetest.NewClusterRole(pkgkey.WriteFluxResourcesPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
+				defaultnamespacetest.NewClusterRole(pkgkey.WriteClustersPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
+				defaultnamespacetest.NewClusterRole(pkgkey.WriteNodePoolsPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
+				defaultnamespacetest.NewClusterRole(pkgkey.WriteClientCertsPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
+				defaultnamespacetest.NewClusterRole(pkgkey.WriteSilencesPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 			},
 			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{}),
 		},
 		{
 			Name: "case2: Update read-all cluster role with new resources",
 			InitialObjects: []runtime.Object{
-				clustertest.NewClusterRole(pkgkey.DefaultReadAllPermissionsName, []rbacv1.PolicyRule{
-					clustertest.NewSingleResourceRule("security.giantswarm.io", "organizations"),
-					clustertest.NewSingleResourceRule("", "pods/log"),
+				defaultnamespacetest.NewClusterRole(pkgkey.DefaultReadAllPermissionsName, []rbacv1.PolicyRule{
+					defaultnamespacetest.NewSingleResourceRule("security.giantswarm.io", "organizations"),
+					defaultnamespacetest.NewSingleResourceRule("", "pods/log"),
 				}),
 			},
 			InitialResources: []metav1.APIResource{
-				clustertest.NewApiResource("release.giantswarm.io", "v1alpha1", "Release", "releases", true),
+				defaultnamespacetest.NewApiResource("release.giantswarm.io", "v1alpha1", "Release", "releases", true),
 			},
 			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{
-				clustertest.NewSingleResourceRule("release.giantswarm.io", "releases"),
-				clustertest.NewSingleResourceRule("", "pods/log"),
+				defaultnamespacetest.NewSingleResourceRule("release.giantswarm.io", "releases"),
+				defaultnamespacetest.NewSingleResourceRule("", "pods/log"),
 			}),
 		},
 	}
@@ -85,7 +85,7 @@ func Test_ClusterRoleCreation(t *testing.T) {
 						WithScheme(scheme.Scheme).
 						WithRuntimeObjects().
 						Build(),
-					K8sClient: clustertest.NewClientSet(tc.InitialObjects...).WithResources(tc.InitialResources...),
+					K8sClient: defaultnamespacetest.NewClientSet(tc.InitialObjects...).WithResources(tc.InitialResources...),
 				})
 			}
 
@@ -108,7 +108,7 @@ func Test_ClusterRoleCreation(t *testing.T) {
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
 			}
-			clustertest.ClusterRolesShouldEqual(t, tc.ExpectedClusterRoles, clusterRoleList.Items)
+			defaultnamespacetest.ClusterRolesShouldEqual(t, tc.ExpectedClusterRoles, clusterRoleList.Items)
 		})
 	}
 }
@@ -151,7 +151,7 @@ func Test_ClusterRoleLabeling(t *testing.T) {
 						WithScheme(scheme.Scheme).
 						WithRuntimeObjects().
 						Build(),
-					K8sClient: clustertest.NewClientSet(clustertest.NewClusterAdminRole()),
+					K8sClient: defaultnamespacetest.NewClientSet(defaultnamespacetest.NewClusterAdminRole()),
 				})
 			}
 
@@ -164,7 +164,7 @@ func Test_ClusterRoleLabeling(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			err = clusterRoles.EnsureCreated(ctx, clustertest.NewDefaultNamespace())
+			err = clusterRoles.EnsureCreated(ctx, defaultnamespacetest.NewDefaultNamespace())
 			if err != nil {
 				t.Fatal("failed to ensure creation of cluster roles")
 			}
@@ -186,12 +186,12 @@ func Test_ClusterRoleLabeling(t *testing.T) {
 
 func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule) []*rbacv1.ClusterRole {
 	return []*rbacv1.ClusterRole{
-		clustertest.NewClusterRole(pkgkey.DefaultReadAllPermissionsName, readAllRules),
-		clustertest.NewClusterRole(pkgkey.WriteOrganizationsPermissionsName, clustertest.NewSingletonRules(
+		defaultnamespacetest.NewClusterRole(pkgkey.DefaultReadAllPermissionsName, readAllRules),
+		defaultnamespacetest.NewClusterRole(pkgkey.WriteOrganizationsPermissionsName, defaultnamespacetest.NewSingletonRules(
 			[]string{"security.giantswarm.io"},
 			[]string{"organizations"},
 		)),
-		clustertest.NewClusterRole(pkgkey.WriteFluxResourcesPermissionsName, clustertest.NewSingletonRules(
+		defaultnamespacetest.NewClusterRole(pkgkey.WriteFluxResourcesPermissionsName, defaultnamespacetest.NewSingletonRules(
 			[]string{
 				"helm.toolkit.fluxcd.io",
 				"image.toolkit.fluxcd.io",
@@ -214,7 +214,7 @@ func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule) []*rbacv1.Cluster
 				"receivers",
 			},
 		)),
-		clustertest.NewClusterRole(pkgkey.WriteClustersPermissionsName, clustertest.NewSingletonRules(
+		defaultnamespacetest.NewClusterRole(pkgkey.WriteClustersPermissionsName, defaultnamespacetest.NewSingletonRules(
 			[]string{
 				"cluster.x-k8s.io",
 				"infrastructure.cluster.x-k8s.io",
@@ -229,7 +229,7 @@ func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule) []*rbacv1.Cluster
 				"g8scontrolplanes",
 			},
 		)),
-		clustertest.NewClusterRole(pkgkey.WriteNodePoolsPermissionsName, clustertest.NewSingletonRules(
+		defaultnamespacetest.NewClusterRole(pkgkey.WriteNodePoolsPermissionsName, defaultnamespacetest.NewSingletonRules(
 			[]string{
 				"cluster.x-k8s.io",
 				"core.giantswarm.io",
@@ -246,11 +246,11 @@ func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule) []*rbacv1.Cluster
 				"sparks",
 			},
 		)),
-		clustertest.NewClusterRole(pkgkey.WriteClientCertsPermissionsName, clustertest.NewSingletonRules(
+		defaultnamespacetest.NewClusterRole(pkgkey.WriteClientCertsPermissionsName, defaultnamespacetest.NewSingletonRules(
 			[]string{"core.giantswarm.io"},
 			[]string{"certconfigs"},
 		)),
-		clustertest.NewClusterRole(pkgkey.WriteSilencesPermissionsName, clustertest.NewSingletonRules(
+		defaultnamespacetest.NewClusterRole(pkgkey.WriteSilencesPermissionsName, defaultnamespacetest.NewSingletonRules(
 			[]string{"monitoring.giantswarm.io"},
 			[]string{"silences"},
 		)),

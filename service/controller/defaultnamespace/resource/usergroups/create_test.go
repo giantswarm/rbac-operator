@@ -17,7 +17,7 @@ import (
 	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
-	"github.com/giantswarm/rbac-operator/service/controller/cluster/clustertest"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/defaultnamespacetest"
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 )
 
@@ -36,69 +36,69 @@ func Test_UserGroups(t *testing.T) {
 			CustomerAdminGroups: []accessgroup.AccessGroup{{Name: "customers1"}, {Name: "customers2"}},
 			GSAdminGroups:       []accessgroup.AccessGroup{{Name: "giantswarm1"}, {Name: "giantswarm2"}},
 			ExpectedRoleBindings: []*rbacv1.RoleBinding{
-				clustertest.NewRoleBinding(
+				defaultnamespacetest.NewRoleBinding(
 					pkgkey.WriteAllCustomerGroupRoleBindingName(),
 					pkgkey.DefaultNamespaceName,
-					clustertest.NewGroupSubjects("customers1", "customers2"),
+					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
 				),
 			},
 			ExpectedClusterRoleBindings: []*rbacv1.ClusterRoleBinding{
-				clustertest.NewClusterRoleBinding(
+				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.WriteOrganizationsCustomerGroupClusterRoleBindingName(),
-					clustertest.NewGroupSubjects("customers1", "customers2"),
+					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
 				),
-				clustertest.NewClusterRoleBinding(
+				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.ReadAllCustomerGroupClusterRoleBindingName(),
-					clustertest.NewGroupSubjects("customers1", "customers2"),
+					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
 				),
-				clustertest.NewClusterRoleBinding(
+				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.WriteAllGSGroupClusterRoleBindingName(),
-					clustertest.NewGroupSubjects("giantswarm1", "giantswarm2"),
+					defaultnamespacetest.NewGroupSubjects("giantswarm1", "giantswarm2"),
 				),
 			},
 		},
 		{
 			Name: "case 1: Add multiple subjects to existing bindings",
 			InitialObjects: []runtime.Object{
-				clustertest.NewRoleBinding(
+				defaultnamespacetest.NewRoleBinding(
 					pkgkey.WriteAllCustomerGroupRoleBindingName(),
 					pkgkey.DefaultNamespaceName,
-					clustertest.NewGroupSubjects("customers"),
+					defaultnamespacetest.NewGroupSubjects("customers"),
 				),
-				clustertest.NewClusterRoleBinding(
+				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.WriteOrganizationsCustomerGroupClusterRoleBindingName(),
-					clustertest.NewGroupSubjects("customers"),
+					defaultnamespacetest.NewGroupSubjects("customers"),
 				),
-				clustertest.NewClusterRoleBinding(
+				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.ReadAllCustomerGroupClusterRoleBindingName(),
-					clustertest.NewGroupSubjects("customers"),
+					defaultnamespacetest.NewGroupSubjects("customers"),
 				),
-				clustertest.NewClusterRoleBinding(
+				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.WriteAllGSGroupClusterRoleBindingName(),
-					clustertest.NewGroupSubjects("giantswarm"),
+					defaultnamespacetest.NewGroupSubjects("giantswarm"),
 				),
 			},
 			CustomerAdminGroups: []accessgroup.AccessGroup{{Name: "customers1"}, {Name: "customers2"}},
 			GSAdminGroups:       []accessgroup.AccessGroup{{Name: "giantswarm1"}, {Name: "giantswarm2"}},
 			ExpectedRoleBindings: []*rbacv1.RoleBinding{
-				clustertest.NewRoleBinding(
+				defaultnamespacetest.NewRoleBinding(
 					pkgkey.WriteAllCustomerGroupRoleBindingName(),
 					pkgkey.DefaultNamespaceName,
-					clustertest.NewGroupSubjects("customers1", "customers2"),
+					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
 				),
 			},
 			ExpectedClusterRoleBindings: []*rbacv1.ClusterRoleBinding{
-				clustertest.NewClusterRoleBinding(
+				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.WriteOrganizationsCustomerGroupClusterRoleBindingName(),
-					clustertest.NewGroupSubjects("customers1", "customers2"),
+					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
 				),
-				clustertest.NewClusterRoleBinding(
+				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.ReadAllCustomerGroupClusterRoleBindingName(),
-					clustertest.NewGroupSubjects("customers1", "customers2"),
+					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
 				),
-				clustertest.NewClusterRoleBinding(
+				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.WriteAllGSGroupClusterRoleBindingName(),
-					clustertest.NewGroupSubjects("giantswarm1", "giantswarm2"),
+					defaultnamespacetest.NewGroupSubjects("giantswarm1", "giantswarm2"),
 				),
 			},
 		},
@@ -156,13 +156,13 @@ func Test_UserGroups(t *testing.T) {
 			if err != nil {
 				t.Fatalf("failed to get cluster role bindings: %s", err)
 			}
-			clustertest.ClusterRoleBindingsShouldEqual(t, tc.ExpectedClusterRoleBindings, clusterRoleBindingList.Items)
+			defaultnamespacetest.ClusterRoleBindingsShouldEqual(t, tc.ExpectedClusterRoleBindings, clusterRoleBindingList.Items)
 
 			roleBindingList, err := k8sClientFake.K8sClient().RbacV1().RoleBindings(pkgkey.DefaultNamespaceName).List(ctx, metav1.ListOptions{})
 			if err != nil {
 				t.Fatalf("failed to get role bindings: %s", err)
 			}
-			clustertest.RoleBindingsShouldEqual(t, tc.ExpectedRoleBindings, roleBindingList.Items)
+			defaultnamespacetest.RoleBindingsShouldEqual(t, tc.ExpectedRoleBindings, roleBindingList.Items)
 		})
 	}
 }

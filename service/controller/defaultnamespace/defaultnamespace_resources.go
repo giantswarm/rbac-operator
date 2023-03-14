@@ -1,4 +1,4 @@
-package cluster
+package defaultnamespace
 
 import (
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
@@ -8,16 +8,16 @@ import (
 	"github.com/giantswarm/operatorkit/v8/pkg/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/v8/pkg/resource/wrapper/retryresource"
 
-	"github.com/giantswarm/rbac-operator/service/controller/cluster/resource/automationsa"
-	"github.com/giantswarm/rbac-operator/service/controller/cluster/resource/catalog"
-	"github.com/giantswarm/rbac-operator/service/controller/cluster/resource/clusternamespace"
-	"github.com/giantswarm/rbac-operator/service/controller/cluster/resource/clusterroles"
-	"github.com/giantswarm/rbac-operator/service/controller/cluster/resource/releases"
-	"github.com/giantswarm/rbac-operator/service/controller/cluster/resource/usergroups"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/resource/automationsa"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/resource/catalog"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/resource/clusternamespace"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/resource/clusterroles"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/resource/releases"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/resource/usergroups"
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 )
 
-type clusterBootstrapResourcesConfig struct {
+type defaultNamespaceBootstrapResourcesConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
@@ -25,7 +25,7 @@ type clusterBootstrapResourcesConfig struct {
 	GSAdminGroups       []accessgroup.AccessGroup
 }
 
-func newClusterBootstrapResources(config clusterBootstrapResourcesConfig) ([]resource.Interface, error) {
+func newDefaultNamespaceResources(config defaultNamespaceBootstrapResourcesConfig) ([]resource.Interface, error) {
 	var err error
 
 	var clusterRolesResource resource.Interface

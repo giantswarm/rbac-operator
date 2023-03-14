@@ -1,4 +1,4 @@
-package cluster
+package defaultnamespace
 
 import (
 	"context"
@@ -13,11 +13,11 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
-	"github.com/giantswarm/rbac-operator/service/controller/cluster/clustertest"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/defaultnamespacetest"
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 )
 
-func Test_Cluster(t *testing.T) {
+func Test_DefaultNamespaceController(t *testing.T) {
 	testCases := []struct {
 		Name                        string
 		CustomerAdminGroups         []accessgroup.AccessGroup
@@ -44,10 +44,10 @@ func Test_Cluster(t *testing.T) {
 
 			var err error
 
-			defaultNamespace := clustertest.NewDefaultNamespace()
+			defaultNamespace := defaultnamespacetest.NewDefaultNamespace()
 			k8sValues := []runtime.Object{
 				defaultNamespace,
-				clustertest.NewClusterAdminRole(),
+				defaultnamespacetest.NewClusterAdminRole(),
 			}
 
 			var k8sClientFake *k8sclienttest.Clients
@@ -70,7 +70,7 @@ func Test_Cluster(t *testing.T) {
 				})
 			}
 
-			cluster, err := NewCluster(ClusterConfig{
+			defaultNamespaceController, err := NewDefaultNamespace(DefaultNamespaceConfig{
 				K8sClient:           k8sClientFake,
 				Logger:              microloggertest.New(),
 				CustomerAdminGroups: tc.CustomerAdminGroups,
@@ -81,7 +81,7 @@ func Test_Cluster(t *testing.T) {
 				t.Fatalf("received unexpected error %s", err)
 			}
 
-			err = cluster.EnsureResourcesCreated(ctx)
+			err = defaultNamespaceController.EnsureResourcesCreated(ctx)
 
 			if err != nil {
 				t.Fatalf("received unexpected error %s", err)

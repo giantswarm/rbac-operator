@@ -1,4 +1,4 @@
-package clustertest
+package defaultnamespacetest
 
 import (
 	"reflect"

@@ -16,7 +16,7 @@ import (
 	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
-	"github.com/giantswarm/rbac-operator/service/controller/cluster/clustertest"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/defaultnamespacetest"
 )
 
 func Test_Catalog(t *testing.T) {
@@ -28,23 +28,23 @@ func Test_Catalog(t *testing.T) {
 		{
 			Name: "case0: Create a role with permissions to read catalogs and catalog entries",
 			ExpectedRoles: []*rbacv1.Role{
-				clustertest.NewRole(pkgkey.ReadDefaultCatalogsRole, pkgkey.DefaultNamespaceName, []rbacv1.PolicyRule{
-					clustertest.NewSingleResourceRule("application.giantswarm.io", "catalogs"),
-					clustertest.NewSingleResourceRule("application.giantswarm.io", "appcatalogentries"),
+				defaultnamespacetest.NewRole(pkgkey.ReadDefaultCatalogsRole, pkgkey.DefaultNamespaceName, []rbacv1.PolicyRule{
+					defaultnamespacetest.NewSingleResourceRule("application.giantswarm.io", "catalogs"),
+					defaultnamespacetest.NewSingleResourceRule("application.giantswarm.io", "appcatalogentries"),
 				}),
 			},
 		},
 		{
 			Name: "case1: Update a role with permissions to read catalogs and catalog entries",
 			InitialObjects: []runtime.Object{
-				clustertest.NewRole(pkgkey.ReadDefaultCatalogsRole, pkgkey.DefaultNamespaceName, []rbacv1.PolicyRule{
-					clustertest.NewRule([]string{}, []string{}),
+				defaultnamespacetest.NewRole(pkgkey.ReadDefaultCatalogsRole, pkgkey.DefaultNamespaceName, []rbacv1.PolicyRule{
+					defaultnamespacetest.NewRule([]string{}, []string{}),
 				}),
 			},
 			ExpectedRoles: []*rbacv1.Role{
-				clustertest.NewRole(pkgkey.ReadDefaultCatalogsRole, pkgkey.DefaultNamespaceName, []rbacv1.PolicyRule{
-					clustertest.NewSingleResourceRule("application.giantswarm.io", "catalogs"),
-					clustertest.NewSingleResourceRule("application.giantswarm.io", "appcatalogentries"),
+				defaultnamespacetest.NewRole(pkgkey.ReadDefaultCatalogsRole, pkgkey.DefaultNamespaceName, []rbacv1.PolicyRule{
+					defaultnamespacetest.NewSingleResourceRule("application.giantswarm.io", "catalogs"),
+					defaultnamespacetest.NewSingleResourceRule("application.giantswarm.io", "appcatalogentries"),
 				}),
 			},
 		},
@@ -94,7 +94,7 @@ func Test_Catalog(t *testing.T) {
 			if err != nil {
 				t.Fatalf("failed to get roles: %s", err)
 			}
-			clustertest.RolesShouldEqual(t, tc.ExpectedRoles, roleList.Items)
+			defaultnamespacetest.RolesShouldEqual(t, tc.ExpectedRoles, roleList.Items)
 		})
 	}
 }

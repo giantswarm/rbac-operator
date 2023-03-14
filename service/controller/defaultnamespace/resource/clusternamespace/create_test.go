@@ -1,4 +1,4 @@
-package releases
+package clusternamespace
 
 import (
 	"context"
@@ -16,37 +16,32 @@ import (
 	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
-	"github.com/giantswarm/rbac-operator/service/controller/cluster/clustertest"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/defaultnamespacetest"
 )
 
-func Test_Releases(t *testing.T) {
+func Test_AutomationSA(t *testing.T) {
+
 	testCases := []struct {
 		Name                 string
 		InitialObjects       []runtime.Object
 		ExpectedClusterRoles []*rbacv1.ClusterRole
 	}{
 		{
-			Name: "case0: Create cluster role for fetching Release CRs",
+			Name: "case0: Create cluster roles to read and write apps in org namespaces",
 			ExpectedClusterRoles: []*rbacv1.ClusterRole{
-				clustertest.NewClusterRole(
-					pkgkey.ReadReleasesRole,
-					clustertest.NewSingletonRules([]string{"release.giantswarm.io"}, []string{"releases"}),
-				),
+				defaultnamespacetest.NewClusterRole(pkgkey.ReadClusterNamespaceAppsRole, []rbacv1.PolicyRule{}),
+				defaultnamespacetest.NewClusterRole(pkgkey.WriteClusterNamespaceAppsRole, []rbacv1.PolicyRule{}),
 			},
 		},
 		{
-			Name: "case1: Update cluster role for fetching Release CRs",
+			Name: "case1: Update cluster roles to read and write apps in org namespaces",
 			InitialObjects: []runtime.Object{
-				clustertest.NewClusterRole(
-					pkgkey.ReadReleasesRole,
-					clustertest.NewSingletonRules([]string{}, []string{}),
-				),
+				defaultnamespacetest.NewClusterRole(pkgkey.ReadClusterNamespaceAppsRole, []rbacv1.PolicyRule{}),
+				defaultnamespacetest.NewClusterRole(pkgkey.WriteClusterNamespaceAppsRole, []rbacv1.PolicyRule{}),
 			},
 			ExpectedClusterRoles: []*rbacv1.ClusterRole{
-				clustertest.NewClusterRole(
-					pkgkey.ReadReleasesRole,
-					clustertest.NewSingletonRules([]string{"release.giantswarm.io"}, []string{"releases"}),
-				),
+				defaultnamespacetest.NewClusterRole(pkgkey.ReadClusterNamespaceAppsRole, []rbacv1.PolicyRule{}),
+				defaultnamespacetest.NewClusterRole(pkgkey.WriteClusterNamespaceAppsRole, []rbacv1.PolicyRule{}),
 			},
 		},
 	}
@@ -77,14 +72,14 @@ func Test_Releases(t *testing.T) {
 				})
 			}
 
-			releases, err := New(Config{
+			clusternamespaces, err := New(Config{
 				K8sClient: k8sClientFake,
 				Logger:    microloggertest.New(),
 			})
 
 			if err == nil {
 				namespace := &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: pkgkey.DefaultNamespaceName}}
-				err = releases.EnsureCreated(ctx, namespace)
+				err = clusternamespaces.EnsureCreated(ctx, namespace)
 			}
 
 			if err != nil {
@@ -93,9 +88,9 @@ func Test_Releases(t *testing.T) {
 
 			clusterRoleList, err := k8sClientFake.K8sClient().RbacV1().ClusterRoles().List(ctx, metav1.ListOptions{})
 			if err != nil {
-				t.Fatalf("failed to get cluster roles: %s", err)
+				t.Fatalf("failed to get cluster role bindings: %s", err)
 			}
-			clustertest.ClusterRolesShouldEqual(t, tc.ExpectedClusterRoles, clusterRoleList.Items)
+			defaultnamespacetest.ClusterRolesShouldEqual(t, tc.ExpectedClusterRoles, clusterRoleList.Items)
 		})
 	}
 }

@@ -1,4 +1,4 @@
-package cluster
+package defaultnamespace
 
 import (
 	"context"
@@ -19,34 +19,34 @@ import (
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 )
 
-type ClusterConfig struct {
+type DefaultNamespaceConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
 	CustomerAdminGroups []accessgroup.AccessGroup
 	GSAdminGroups       []accessgroup.AccessGroup
 }
-type Cluster struct {
+type DefaultNamespace struct {
 	Controller *controller.Controller
 	k8sClient  k8sclient.Interface
 	resources  []resource.Interface
 }
 
-func NewCluster(config ClusterConfig) (*Cluster, error) {
+func NewDefaultNamespace(config DefaultNamespaceConfig) (*DefaultNamespace, error) {
 
 	var err error
 
 	var resources []resource.Interface
 	{
-		c := clusterBootstrapResourcesConfig(config)
+		c := defaultNamespaceBootstrapResourcesConfig(config)
 
-		resources, err = newClusterBootstrapResources(c)
+		resources, err = newDefaultNamespaceResources(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	var clusterController *controller.Controller
+	var defaultNamespaceController *controller.Controller
 	{
 		//kubernetes.io/metadata.name: default
 		//selector, err := labels.Parse("kubernetes.io/metadata.name: default")
@@ -66,17 +66,17 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 
 			// Name is used to compute finalizer names. This here results in something
 			// like operatorkit.giantswarm.io/rbac-operator-cluster-namespace-controller.
-			Name: project.Name() + "-cluster-bootstrap-controller",
+			Name: project.Name() + "-default-namespace-controller",
 		}
 
-		clusterController, err = controller.New(c)
+		defaultNamespaceController, err = controller.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	c := &Cluster{
-		Controller: clusterController,
+	c := &DefaultNamespace{
+		Controller: defaultNamespaceController,
 		k8sClient:  config.K8sClient,
 		resources:  resources,
 	}
@@ -84,7 +84,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	return c, nil
 }
 
-func (c *Cluster) EnsureResourcesCreated(ctx context.Context) error {
+func (c *DefaultNamespace) EnsureResourcesCreated(ctx context.Context) error {
 	namespace, err := c.k8sClient.K8sClient().CoreV1().Namespaces().Get(ctx, pkgkey.DefaultNamespaceName, metav1.GetOptions{})
 	if err != nil {
 		return microerror.Mask(err)

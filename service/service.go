@@ -4,9 +4,8 @@ package service
 
 import (
 	"context"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace"
 	"sync"
-
-	"github.com/giantswarm/rbac-operator/service/controller/cluster"
 
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 
@@ -39,7 +38,7 @@ type Service struct {
 	Version *version.Service
 
 	bootOnce                   sync.Once
-	clusterController          *cluster.Cluster
+	clusterController          *defaultnamespace.DefaultNamespace
 	rbacController             *rbac.RBAC
 	clusterNamespaceController *clusternamespace.ClusterNamespace
 	crossplaneController       *crossplane.Crossplane
@@ -127,16 +126,16 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var clusterController *cluster.Cluster
+	var clusterController *defaultnamespace.DefaultNamespace
 	{
-		c := cluster.ClusterConfig{
+		c := defaultnamespace.DefaultNamespaceConfig{
 			K8sClient:           k8sClient,
 			Logger:              config.Logger,
 			CustomerAdminGroups: accessGroups.WriteAllCustomerGroups,
 			GSAdminGroups:       accessGroups.WriteAllGiantswarmGroups,
 		}
 
-		clusterController, err = cluster.NewCluster(c)
+		clusterController, err = defaultnamespace.NewDefaultNamespace(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
