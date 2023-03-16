@@ -2,13 +2,12 @@ package automationsa
 
 import (
 	"context"
-	"fmt"
+	"github.com/giantswarm/rbac-operator/pkg/core"
 
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
@@ -84,33 +83,7 @@ func (r *Resource) createAutomationServiceAccount(ctx context.Context, namespace
 		},
 	}
 
-	_, err := r.K8sClient().CoreV1().ServiceAccounts(namespace).Get(ctx, automationSA.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		r.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating serviceaccount %#q in namespace %s", automationSA.Name, namespace))
-
-		_, err := r.K8sClient().CoreV1().ServiceAccounts(namespace).Create(ctx, automationSA, metav1.CreateOptions{})
-		if apierrors.IsAlreadyExists(err) {
-			// do nothing
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("serviceaccount %#q in namespace %s has been created", automationSA.Name, namespace))
-
-	} else if err != nil {
-		return microerror.Mask(err)
-	} else {
-		r.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating serviceaccount %#q in namespace %s", automationSA.Name, namespace))
-
-		_, err := r.K8sClient().CoreV1().ServiceAccounts(namespace).Update(ctx, automationSA, metav1.UpdateOptions{})
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("serviceaccount %#q in namespace %s has been updated", automationSA.Name, namespace))
-	}
-
-	return nil
+	return core.CreateOrUpdateServiceAccount(r, ctx, namespace, automationSA)
 }
 
 // Ensures the ClusterRoleBinding 'read-all-customer-sa' between
