@@ -3,11 +3,13 @@ package core
 import (
 	"context"
 	"fmt"
+
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/rbac-operator/pkg/base"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/rbac-operator/pkg/base"
 )
 
 func CreateOrUpdateServiceAccount(c base.K8sClientWithLogging, ctx context.Context, namespace string, serviceAccount *corev1.ServiceAccount) error {

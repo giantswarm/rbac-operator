@@ -2,6 +2,7 @@ package automationsa
 
 import (
 	"context"
+
 	"github.com/giantswarm/rbac-operator/pkg/core"
 
 	"github.com/giantswarm/k8smetadata/pkg/label"
