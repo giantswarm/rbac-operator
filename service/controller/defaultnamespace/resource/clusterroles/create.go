@@ -82,7 +82,7 @@ func (r *Resource) createReadAllClusterRole(ctx context.Context) error {
 
 	lists, err := r.K8sClient().Discovery().ServerPreferredResources()
 	if err != nil {
-		panic(err)
+		return microerror.Mask(err)
 	}
 
 	var policyRules []rbacv1.PolicyRule
