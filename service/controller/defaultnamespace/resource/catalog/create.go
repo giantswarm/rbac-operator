@@ -1,4 +1,4 @@
-package bootstrap
+package catalog
 
 import (
 	"context"
@@ -11,21 +11,29 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/rbac-operator/pkg/key"
+	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/pkg/project"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/key"
 )
 
-// Ensures the Role 'read-default-catalogs'.
+// EnsureCreated Ensures the Role 'read-default-catalogs'.
 //
 // Purpose if this role is to enable read permissions (get, list, watch)
 // for catalog resources which are in the default namespace
-func (b *Bootstrap) createReadDefaultCatalogsRole(ctx context.Context) error {
-	var err error
+func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
+	namespace, err := key.ToNamespace(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if !pkgkey.IsDefaultNamespace(namespace.Name) {
+		return nil
+	}
 
 	role := &rbacv1.Role{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      key.ReadDefaultCatalogsRole,
-			Namespace: key.DefaultNamespaceName,
+			Name:      pkgkey.ReadDefaultCatalogsRole,
+			Namespace: namespace.Name,
 			Labels: map[string]string{
 				label.ManagedBy:              project.Name(),
 				label.DisplayInUserInterface: "false",
@@ -48,37 +56,28 @@ func (b *Bootstrap) createReadDefaultCatalogsRole(ctx context.Context) error {
 		},
 	}
 
-	if err = b.createOrUpdateRole(ctx, role, role.Namespace); err != nil {
-		return microerror.Mask(err)
-	}
-
-	return nil
-}
-
-func (b *Bootstrap) createOrUpdateRole(ctx context.Context, role *rbacv1.Role, namespace string) error {
-	var err error
-	_, err = b.k8sClient.RbacV1().Roles(namespace).Get(ctx, role.Name, metav1.GetOptions{})
+	_, err = r.K8sClient().RbacV1().Roles(role.Namespace).Get(ctx, role.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating role %#q in namespace %s", role.Name, namespace))
+		r.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating role %#q in namespace %s", role.Name, role.Namespace))
 
-		_, err := b.k8sClient.RbacV1().Roles(namespace).Create(ctx, role, metav1.CreateOptions{})
+		_, err := r.K8sClient().RbacV1().Roles(role.Namespace).Create(ctx, role, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
 			// do nothing
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
-		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("role %#q in namespace %s has been created", role.Name, namespace))
+		r.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("role %#q in namespace %s has been created", role.Name, role.Namespace))
 
 	} else if err != nil {
 		return microerror.Mask(err)
 	} else {
-		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating role %#q in namespace %s", role.Name, namespace))
-		_, err := b.k8sClient.RbacV1().Roles(namespace).Update(ctx, role, metav1.UpdateOptions{})
+		r.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating role %#q in namespace %s", role.Name, role.Namespace))
+		_, err := r.K8sClient().RbacV1().Roles(role.Namespace).Update(ctx, role, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		b.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("role %#q in namespace %s has been updated", role.Name, namespace))
+		r.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("role %#q in namespace %s has been updated", role.Name, role.Namespace))
 	}
 
 	return nil

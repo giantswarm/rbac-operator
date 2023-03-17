@@ -16,6 +16,7 @@ const (
 	DefaultReadAllPermissionsName        = "read-all"
 	DefaultWriteAllPermissionsName       = "write-all"
 	DefaultNamespaceName                 = "default"
+	NameLabel                            = "kubernetes.io/metadata.name"
 	FluxCRDRoleBindingName               = "flux-crd-controller"
 	FluxNamespaceName                    = "flux-system"
 	FluxReconcilerRoleBindingName        = "flux-namespace-reconciler"
@@ -55,18 +56,12 @@ var (
 	}
 )
 
-func DefaultClusterRolesToDisplayInUI() []string {
-	return []string{
-		"cluster-admin",
-	}
+func IsDefaultNamespace(ns string) bool {
+	return ns == DefaultNamespaceName
 }
 
 func IsOrgNamespace(ns string) bool {
 	return strings.HasPrefix(ns, "org-")
-}
-
-func Cluster(getter rbacLabel.LabelsGetter) string {
-	return getter.GetLabels()[label.Cluster]
 }
 
 func Organization(getter rbacLabel.LabelsGetter) string {
@@ -88,10 +83,6 @@ func OrganizationName(ns string) string {
 
 func OrganizationReadClusterRoleName(ns string) string {
 	return fmt.Sprintf("organization-%s-read", strings.TrimPrefix(ns, "org-"))
-}
-
-func OrganizationReadClusterRoleBindingName(roleBindingName, organization string) string {
-	return fmt.Sprintf("%s-organization-%s-read", roleBindingName, organization)
 }
 
 func OrganizationReadDefaultCatalogsRoleBindingName(organization string) string {

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added the use of the runtime/default seccomp profile.
+- Added reconciliation of static resources like e.g. ClusterRoles, ClusterRoleBindings, ServiceAccounts in the default namespace, etc.  
 
 ## [0.32.0] - 2023-01-17
 

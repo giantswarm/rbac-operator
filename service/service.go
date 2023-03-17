@@ -6,6 +6,8 @@ import (
 	"context"
 	"sync"
 
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace"
+
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
@@ -23,7 +25,6 @@ import (
 	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace"
 	"github.com/giantswarm/rbac-operator/service/controller/crossplane"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac"
-	"github.com/giantswarm/rbac-operator/service/internal/bootstrap"
 )
 
 // Config represents the configuration used to create a new service.
@@ -38,7 +39,7 @@ type Service struct {
 	Version *version.Service
 
 	bootOnce                   sync.Once
-	bootstrapRunner            *bootstrap.Bootstrap
+	clusterController          *defaultnamespace.DefaultNamespace
 	rbacController             *rbac.RBAC
 	clusterNamespaceController *clusternamespace.ClusterNamespace
 	crossplaneController       *crossplane.Crossplane
@@ -126,17 +127,16 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var bootstrapRunner *bootstrap.Bootstrap
+	var clusterController *defaultnamespace.DefaultNamespace
 	{
-		c := bootstrap.Config{
-			Logger:    config.Logger,
-			K8sClient: k8sClient,
-
+		c := defaultnamespace.DefaultNamespaceConfig{
+			K8sClient:           k8sClient,
+			Logger:              config.Logger,
 			CustomerAdminGroups: accessGroups.WriteAllCustomerGroups,
 			GSAdminGroups:       accessGroups.WriteAllGiantswarmGroups,
 		}
 
-		bootstrapRunner, err = bootstrap.New(c)
+		clusterController, err = defaultnamespace.NewDefaultNamespace(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -221,7 +221,7 @@ func New(config Config) (*Service, error) {
 		Version: versionService,
 
 		bootOnce:                   sync.Once{},
-		bootstrapRunner:            bootstrapRunner,
+		clusterController:          clusterController,
 		rbacController:             rbacController,
 		clusterNamespaceController: clusterNamespaceController,
 		operatorCollector:          operatorCollector,
@@ -233,8 +233,7 @@ func New(config Config) (*Service, error) {
 
 func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
-
-		err := s.bootstrapRunner.Run(ctx)
+		err := s.clusterController.EnsureResourcesCreated(ctx)
 		if err != nil {
 			panic(microerror.JSON(microerror.Mask(err)))
 		}
@@ -245,6 +244,8 @@ func (s *Service) Boot(ctx context.Context) {
 				panic(microerror.JSON(microerror.Mask(err)))
 			}
 		}()
+
+		go s.clusterController.Controller.Boot(ctx)
 
 		go s.rbacController.Boot(ctx)
 
