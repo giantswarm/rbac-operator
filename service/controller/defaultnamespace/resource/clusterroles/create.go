@@ -3,6 +3,7 @@ package clusterroles
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
@@ -99,7 +100,8 @@ func (r *Resource) createReadAllClusterRole(ctx context.Context) error {
 				if len(resource.Verbs) == 0 {
 					continue
 				}
-				if isRestrictedResource(resource.Name) {
+
+				if isRestrictedResourceOrGroup(resource.Name, gv.Group) {
 					continue
 				}
 
@@ -410,7 +412,14 @@ func (r *Resource) labelDefaultClusterRoles(ctx context.Context) error {
 	return nil
 }
 
-func isRestrictedResource(resource string) bool {
+func isRestrictedResourceOrGroup(resource, group string) bool {
+	var restrictedGroups = []string{"toolkit.fluxcd.io"}
+
+	for _, restrictedGroup := range restrictedGroups {
+		if strings.Contains(group, restrictedGroup) {
+			return true
+		}
+	}
 	var restrictedResources = []string{"configmaps", "secrets"}
 
 	for _, restrictedResource := range restrictedResources {
