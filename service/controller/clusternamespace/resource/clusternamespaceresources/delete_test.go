@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/giantswarm/rbac-operator/service/test"
+
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	corev1 "k8s.io/api/core/v1"
@@ -25,10 +27,10 @@ func Test_EnsureDeleted(t *testing.T) {
 			name:             "flawless",
 			clusterNamespace: "abc0",
 			namespaces: []*corev1.Namespace{
-				newClusterNamespace("abc0", "acme"),
+				test.NewClusterNamespace("abc0", "acme"),
 			},
 			roleBindings: []*rbacv1.RoleBinding{
-				newRoleBinding(
+				test.NewRoleBinding(
 					"flux-crd-controller",
 					"abc0",
 					map[string]string{
@@ -44,7 +46,7 @@ func Test_EnsureDeleted(t *testing.T) {
 						{Kind: "ServiceAccount", Name: "source-controller", Namespace: "flux-system"},
 					},
 				),
-				newRoleBinding(
+				test.NewRoleBinding(
 					"flux-namespace-reconciler",
 					"abc0",
 					map[string]string{
@@ -56,7 +58,7 @@ func Test_EnsureDeleted(t *testing.T) {
 						{Kind: "ServiceAccount", Name: "kustomize-controller", Namespace: "flux-system"},
 					},
 				),
-				newRoleBinding(
+				test.NewRoleBinding(
 					"write-in-cluster-ns",
 					"abc0",
 					map[string]string{
@@ -67,7 +69,7 @@ func Test_EnsureDeleted(t *testing.T) {
 						{Kind: "Group", Name: "customer:acme:Employees"},
 					},
 				),
-				newRoleBinding(
+				test.NewRoleBinding(
 					"read-in-cluster-ns",
 					"abc0",
 					map[string]string{
