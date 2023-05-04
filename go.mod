@@ -104,8 +104,9 @@ replace (
 	github.com/coreos/etcd => go.etcd.io/etcd/v3 v3.5.6
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/gin-gonic/gin v1.4.0 => github.com/gin-gonic/gin v1.7.7
-	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.18.0
+	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.20.0
 	github.com/hashicorp/consul/sdk => github.com/hashicorp/consul/sdk v0.13.0
+	github.com/kataras/iris/v12 => github.com/kataras/iris/v12 v12.2.0
 	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.10.0
 	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.21
 	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.9.11
