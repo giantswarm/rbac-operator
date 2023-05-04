@@ -3,9 +3,10 @@ package clusternamespaceresources
 import (
 	"context"
 	"fmt"
-	"github.com/giantswarm/rbac-operator/service/test"
 	"reflect"
 	"testing"
+
+	"github.com/giantswarm/rbac-operator/service/test"
 
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"

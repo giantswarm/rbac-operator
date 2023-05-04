@@ -3,12 +3,13 @@ package namespaceauth
 import (
 	"context"
 	"fmt"
+	"reflect"
+
 	k8smetadata "github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"reflect"
 
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 

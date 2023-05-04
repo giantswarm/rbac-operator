@@ -2,20 +2,22 @@ package namespaceauth
 
 import (
 	"context"
+	"reflect"
+	"testing"
+
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
-	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
-	"github.com/giantswarm/rbac-operator/service/test"
 	v1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
-	"reflect"
 	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
-	"testing"
+
+	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
+	"github.com/giantswarm/rbac-operator/service/test"
 
 	"k8s.io/client-go/kubernetes/scheme"
 )
