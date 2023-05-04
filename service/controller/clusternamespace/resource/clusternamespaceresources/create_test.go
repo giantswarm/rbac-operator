@@ -3,6 +3,7 @@ package clusternamespaceresources
 import (
 	"context"
 	"fmt"
+	"github.com/giantswarm/rbac-operator/service/test"
 	"reflect"
 	"testing"
 
@@ -31,13 +32,13 @@ func Test_EnsureCreated(t *testing.T) {
 		{
 			name: "flawless",
 			namespaces: []*corev1.Namespace{
-				newOrgNamespace("acme"),
-				newClusterNamespace("abc0", "acme"),
-				newGenericNamespace("giantswarm"),
+				test.NewOrgNamespace("acme"),
+				test.NewClusterNamespace("abc0", "acme"),
+				test.NewGenericNamespace("giantswarm"),
 			},
-			organization: newOrganization("acme"),
+			organization: test.NewOrganization("acme"),
 			roleBindings: []*rbacv1.RoleBinding{
-				newRoleBinding(
+				test.NewRoleBinding(
 					"flux-crd-controller",
 					"org-acme",
 					map[string]string{
@@ -53,7 +54,7 @@ func Test_EnsureCreated(t *testing.T) {
 						{Kind: "ServiceAccount", Name: "source-controller", Namespace: "flux-system"},
 					},
 				),
-				newRoleBinding(
+				test.NewRoleBinding(
 					"flux-namespace-reconciler",
 					"org-acme",
 					map[string]string{
@@ -65,7 +66,7 @@ func Test_EnsureCreated(t *testing.T) {
 						{Kind: "ServiceAccount", Name: "kustomize-controller", Namespace: "flux-system"},
 					},
 				),
-				newRoleBinding(
+				test.NewRoleBinding(
 					"cluster-ns-organization-acme-write",
 					"org-acme",
 					map[string]string{
@@ -76,7 +77,7 @@ func Test_EnsureCreated(t *testing.T) {
 						{Kind: "Group", Name: "customer:acme:Employees"},
 					},
 				),
-				newRoleBinding(
+				test.NewRoleBinding(
 					"cluster-ns-organization-acme-read",
 					"org-acme",
 					map[string]string{
@@ -89,7 +90,7 @@ func Test_EnsureCreated(t *testing.T) {
 				),
 			},
 			expectedRoleBindings: []*rbacv1.RoleBinding{
-				newRoleBinding(
+				test.NewRoleBinding(
 					"flux-crd-controller",
 					"abc0",
 					map[string]string{
@@ -105,7 +106,7 @@ func Test_EnsureCreated(t *testing.T) {
 						{Kind: "ServiceAccount", Name: "source-controller", Namespace: "flux-system"},
 					},
 				),
-				newRoleBinding(
+				test.NewRoleBinding(
 					"flux-namespace-reconciler",
 					"abc0",
 					map[string]string{
@@ -117,7 +118,7 @@ func Test_EnsureCreated(t *testing.T) {
 						{Kind: "ServiceAccount", Name: "kustomize-controller", Namespace: "flux-system"},
 					},
 				),
-				newRoleBinding(
+				test.NewRoleBinding(
 					"write-in-cluster-ns",
 					"abc0",
 					map[string]string{
@@ -128,7 +129,7 @@ func Test_EnsureCreated(t *testing.T) {
 						{Kind: "Group", Name: "customer:acme:Employees"},
 					},
 				),
-				newRoleBinding(
+				test.NewRoleBinding(
 					"read-in-cluster-ns",
 					"abc0",
 					map[string]string{
