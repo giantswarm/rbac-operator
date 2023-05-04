@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed `read-all` clusterRole to append `pods/log` policy rule once 
+
 ## [0.33.2] - 2023-05-04
 
 ### Changed

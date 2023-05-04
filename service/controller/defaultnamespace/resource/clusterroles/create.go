@@ -110,17 +110,18 @@ func (r *Resource) createReadAllClusterRole(ctx context.Context) error {
 				}
 				policyRules = append(policyRules, policyRule)
 			}
-			// ServerPreferredResources explicitely ignores any resource containing a '/'
-			// but we require this for enabling pods/logs for customer access to
-			// kubernetes pod logging. This is appended as a specific rule instead.
-			policyRule := rbacv1.PolicyRule{
-				APIGroups: []string{""},
-				Resources: []string{"pods/log"},
-				Verbs:     []string{"get", "list"},
-			}
-			policyRules = append(policyRules, policyRule)
 		}
 	}
+
+	// ServerPreferredResources explicitely ignores any resource containing a '/'
+	// but we require this for enabling pods/logs for customer access to
+	// kubernetes pod logging. This is appended as a specific rule instead.
+	policyRule := rbacv1.PolicyRule{
+		APIGroups: []string{""},
+		Resources: []string{"pods/log"},
+		Verbs:     []string{"get", "list"},
+	}
+	policyRules = append(policyRules, policyRule)
 
 	readOnlyClusterRole := &rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
