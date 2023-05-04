@@ -106,10 +106,10 @@ replace (
 	github.com/gin-gonic/gin v1.4.0 => github.com/gin-gonic/gin v1.7.7
 	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.20.0
 	github.com/hashicorp/consul/sdk => github.com/hashicorp/consul/sdk v0.13.0
+	github.com/kataras/iris/v12 => github.com/kataras/iris/v12 v12.2.0
 	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.10.0
 	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.21
 	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.9.11
 	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.44.0
 	golang.org/x/text => golang.org/x/text v0.6.0
-	github.com/kataras/iris/v12 => github.com/kataras/iris/v12 v12.2.0
 )
