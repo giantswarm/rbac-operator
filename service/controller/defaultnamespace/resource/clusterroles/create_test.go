@@ -58,7 +58,6 @@ func Test_ClusterRoleCreation(t *testing.T) {
 			},
 			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{
 				defaultnamespacetest.NewSingleResourceRule("release.giantswarm.io", "releases"),
-				defaultnamespacetest.NewSingleResourceRule("", "pods/log"),
 			}),
 		},
 	}
@@ -186,7 +185,9 @@ func Test_ClusterRoleLabeling(t *testing.T) {
 
 func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule) []*rbacv1.ClusterRole {
 	return []*rbacv1.ClusterRole{
-		defaultnamespacetest.NewClusterRole(pkgkey.DefaultReadAllPermissionsName, readAllRules),
+		defaultnamespacetest.NewClusterRole(pkgkey.DefaultReadAllPermissionsName, append(readAllRules, defaultnamespacetest.NewSingleResourceRule(
+			"", "pods/log",
+		))),
 		defaultnamespacetest.NewClusterRole(pkgkey.WriteOrganizationsPermissionsName, defaultnamespacetest.NewSingletonRules(
 			[]string{"security.giantswarm.io"},
 			[]string{"organizations"},
