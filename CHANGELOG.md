@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update dependency `gin` to `v1.9.0`
+
 ### Fixed
 
 - Fixed `read-all` clusterRole to append `pods/log` policy rule once 
