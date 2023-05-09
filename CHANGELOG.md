@@ -19,7 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed `read-all` clusterRole to append `pods/log` policy rule once 
+- Fixed `read-all` clusterRole to append `pods/log` policy rule once
+- Fixed reconciling subjects in existing organization namespace role bindings
 
 ## [0.33.2] - 2023-05-04
 

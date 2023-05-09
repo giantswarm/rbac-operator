@@ -3,6 +3,7 @@ package namespaceauth
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	k8smetadata "github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
@@ -178,5 +179,9 @@ func needsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.RoleBinding) bo
 		return true
 	}
 
-	return desiredRoleBinding.Subjects[0].Name != existingRoleBinding.Subjects[0].Name || desiredRoleBinding.Subjects[0].Namespace != existingRoleBinding.Subjects[0].Namespace || desiredRoleBinding.RoleRef.Name != existingRoleBinding.RoleRef.Name
+	if !reflect.DeepEqual(existingRoleBinding.RoleRef, desiredRoleBinding.RoleRef) {
+		return true
+	}
+
+	return !reflect.DeepEqual(existingRoleBinding.Subjects, desiredRoleBinding.Subjects)
 }
