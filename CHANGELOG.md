@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.4] - 2023-05-09
+
 ### Removed
 
 - Stop pushing to `openstack-app-collection`.
@@ -420,7 +422,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.33.3...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.33.4...HEAD
+[0.33.4]: https://github.com/giantswarm/rbac-operator/compare/v0.33.3...v0.33.4
 [0.33.3]: https://github.com/giantswarm/rbac-operator/compare/v0.33.2...v0.33.3
 [0.33.2]: https://github.com/giantswarm/rbac-operator/compare/v0.33.1...v0.33.2
 [0.33.1]: https://github.com/giantswarm/rbac-operator/compare/v0.33.0...v0.33.1
