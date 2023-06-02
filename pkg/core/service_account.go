@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"fmt"
-	"k8s.io/utils/pointer"
 	"reflect"
 
 	"github.com/giantswarm/microerror"
@@ -15,11 +14,14 @@ import (
 )
 
 func ServiceAccountNeedsUpdate(desiredSA, existingSA *corev1.ServiceAccount) bool {
-	if (desiredSA.AutomountServiceAccountToken == pointer.Bool(false)) != (existingSA.AutomountServiceAccountToken == pointer.Bool(false)) {
+	desiredSAHasManualAutomountSAToken := desiredSA.AutomountServiceAccountToken != nil && *desiredSA.AutomountServiceAccountToken == false
+	existingSAHasManualAutomountSAToken := existingSA.AutomountServiceAccountToken != nil && *existingSA.AutomountServiceAccountToken == false
+
+	if desiredSAHasManualAutomountSAToken != existingSAHasManualAutomountSAToken {
 		return true
 	}
 
-	if desiredSA.AutomountServiceAccountToken != nil && *desiredSA.AutomountServiceAccountToken == false {
+	if desiredSAHasManualAutomountSAToken {
 		if len(desiredSA.Secrets) != len(existingSA.Secrets) {
 			return true
 		}
