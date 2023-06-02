@@ -14,8 +14,8 @@ import (
 )
 
 func ServiceAccountNeedsUpdate(desiredSA, existingSA *corev1.ServiceAccount) bool {
-	desiredSAHasManualAutomountSAToken := desiredSA.AutomountServiceAccountToken != nil && *desiredSA.AutomountServiceAccountToken == false
-	existingSAHasManualAutomountSAToken := existingSA.AutomountServiceAccountToken != nil && *existingSA.AutomountServiceAccountToken == false
+	desiredSAHasManualAutomountSAToken := desiredSA.AutomountServiceAccountToken != nil && !*desiredSA.AutomountServiceAccountToken
+	existingSAHasManualAutomountSAToken := existingSA.AutomountServiceAccountToken != nil && !*existingSA.AutomountServiceAccountToken
 
 	if desiredSAHasManualAutomountSAToken != existingSAHasManualAutomountSAToken {
 		return true
