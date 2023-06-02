@@ -15,7 +15,7 @@ func ServiceAccountsShouldEqual(t *testing.T, expected []*corev1.ServiceAccount,
 	for _, expectedItem := range expected {
 		hasItem := false
 		for _, actualItem := range actual {
-			if expectedItem.Name == actualItem.Name || expectedItem.Namespace == actualItem.Namespace {
+			if expectedItem.Name == actualItem.Name && expectedItem.Namespace == actualItem.Namespace {
 				hasItem = true
 				break
 			}
