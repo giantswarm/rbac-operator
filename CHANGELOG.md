@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Ensured that Automation SA in the default namespace is only updated in case there are actual changes
+
 ## [0.33.4] - 2023-05-09
 
 ### Removed
