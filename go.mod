@@ -13,8 +13,8 @@ require (
 	github.com/giantswarm/operatorkit/v8 v8.0.0
 	github.com/giantswarm/organization-operator v1.0.7
 	github.com/google/go-cmp v0.5.9
-	github.com/prometheus/client_golang v1.15.0
-	github.com/spf13/viper v1.15.0
+	github.com/prometheus/client_golang v1.15.1
+	github.com/spf13/viper v1.16.0
 	k8s.io/api v0.25.0
 	k8s.io/apimachinery v0.25.0
 	k8s.io/client-go v0.25.0
@@ -63,23 +63,22 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
-	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
+	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
-	github.com/rogpeppe/go-internal v1.8.0 // indirect
-	github.com/spf13/afero v1.9.3 // indirect
-	github.com/spf13/cast v1.5.0 // indirect
+	github.com/spf13/afero v1.9.5 // indirect
+	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/cobra v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
-	golang.org/x/net v0.9.0 // indirect
-	golang.org/x/oauth2 v0.5.0 // indirect
+	golang.org/x/net v0.10.0 // indirect
+	golang.org/x/oauth2 v0.7.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.7.0 // indirect
-	golang.org/x/term v0.7.0 // indirect
+	golang.org/x/sys v0.8.0 // indirect
+	golang.org/x/term v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
@@ -101,15 +100,15 @@ require (
 )
 
 replace (
-	github.com/coreos/etcd => go.etcd.io/etcd/v3 v3.5.6
-	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.3
-	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.0
-	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.20.0
-	github.com/hashicorp/consul/sdk => github.com/hashicorp/consul/sdk v0.13.0
+	github.com/coreos/etcd => go.etcd.io/etcd/v3 v3.5.9
+	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.5.0
+	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
+	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.21.0
+	github.com/hashicorp/consul/sdk => github.com/hashicorp/consul/sdk v0.13.1
 	github.com/kataras/iris/v12 => github.com/kataras/iris/v12 v12.2.0
-	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.10.0
-	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.21
-	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.9.11
-	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.44.0
-	golang.org/x/text => golang.org/x/text v0.6.0
+	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.10.2
+	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.24
+	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.9.17
+	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.47.0
+	golang.org/x/text => golang.org/x/text v0.9.0
 )
