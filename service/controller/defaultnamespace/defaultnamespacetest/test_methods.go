@@ -15,7 +15,7 @@ func ServiceAccountsShouldEqual(t *testing.T, expected []*corev1.ServiceAccount,
 	for _, expectedItem := range expected {
 		hasItem := false
 		for _, actualItem := range actual {
-			if expectedItem.Name == actualItem.Name || expectedItem.Namespace == actualItem.Namespace {
+			if expectedItem.Name == actualItem.Name && expectedItem.Namespace == actualItem.Namespace {
 				hasItem = true
 				break
 			}
@@ -24,6 +24,29 @@ func ServiceAccountsShouldEqual(t *testing.T, expected []*corev1.ServiceAccount,
 			t.Fatalf("missing service account %v", expectedItem)
 		}
 	}
+}
+
+func ServiceAccountsShouldEqualDeep(t *testing.T, expected []*corev1.ServiceAccount, actual []corev1.ServiceAccount) {
+	if len(expected) != len(actual) {
+		t.Fatalf("service accounts do not equal: expected length %d, actual %d", len(expected), len(actual))
+	}
+	for _, expectedItem := range expected {
+		for _, actualItem := range actual {
+			if expectedItem.Name != actualItem.Name || expectedItem.Namespace != actualItem.Namespace {
+				t.Fatalf("expected service accounts %v do not equal actual service accounts %v\n", expected, actual)
+			}
+			if !((expectedItem.AutomountServiceAccountToken == nil && actualItem.AutomountServiceAccountToken == nil) || (expectedItem.AutomountServiceAccountToken != nil && actualItem.AutomountServiceAccountToken != nil && *expectedItem.AutomountServiceAccountToken == *actualItem.AutomountServiceAccountToken)) {
+				t.Fatalf("expected service accounts %v do not equal actual service accounts %v\n", expected, actual)
+			}
+			if !reflect.DeepEqual(expectedItem.ImagePullSecrets, actualItem.ImagePullSecrets) {
+				t.Fatalf("expected service accounts %v do not equal actual service accounts %v\n", expected, actual)
+			}
+			if !reflect.DeepEqual(expectedItem.Secrets, actualItem.Secrets) {
+				t.Fatalf("expected service accounts %v do not equal actual service accounts %v\n", expected, actual)
+			}
+		}
+	}
+
 }
 
 func ClusterRoleBindingsShouldEqual(t *testing.T, expected []*rbacv1.ClusterRoleBinding, actual []rbacv1.ClusterRoleBinding) {

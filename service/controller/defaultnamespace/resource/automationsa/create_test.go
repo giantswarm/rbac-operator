@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"k8s.io/utils/pointer"
+
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
@@ -175,6 +177,91 @@ func Test_AutomationSA(t *testing.T) {
 				t.Fatalf("failed to get role bindings: %s", err)
 			}
 			defaultnamespacetest.RoleBindingsShouldEqual(t, tc.ExpectedRoleBindings, roleBindingList.Items)
+		})
+	}
+}
+
+func Test_AutomationSAUpdate(t *testing.T) {
+	testCases := []struct {
+		name           string
+		InitialObjects []runtime.Object
+		ExpectedSAs    []*corev1.ServiceAccount
+	}{
+		{
+			name: "case 0: Create a new Automation SA if it does not exist",
+			ExpectedSAs: []*corev1.ServiceAccount{
+				defaultnamespacetest.NewServiceAccount(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
+			},
+		},
+		{
+			name: "case 1: Do not update existing SA in case there are no changes",
+			InitialObjects: []runtime.Object{
+				&corev1.ServiceAccount{
+					ObjectMeta:                   metav1.ObjectMeta{Name: pkgkey.AutomationServiceAccountName, Namespace: pkgkey.DefaultNamespaceName},
+					AutomountServiceAccountToken: pointer.Bool(true),
+					Secrets: []corev1.ObjectReference{
+						{Name: "automation-token-123456", Kind: "Secret"},
+					},
+				},
+			},
+			ExpectedSAs: []*corev1.ServiceAccount{
+				{
+					ObjectMeta:                   metav1.ObjectMeta{Name: pkgkey.AutomationServiceAccountName, Namespace: pkgkey.DefaultNamespaceName},
+					AutomountServiceAccountToken: pointer.Bool(true),
+					Secrets: []corev1.ObjectReference{
+						{Name: "automation-token-123456", Kind: "Secret"},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var err error
+
+			ctx := context.TODO()
+
+			namespace := defaultnamespacetest.NewDefaultNamespace()
+
+			var k8sClientFake *k8sclienttest.Clients
+			{
+				schemeBuilder := runtime.SchemeBuilder{
+					security.AddToScheme,
+				}
+
+				err = schemeBuilder.AddToScheme(scheme.Scheme)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				k8sClientFake = k8sclienttest.NewClients(k8sclienttest.ClientsConfig{
+					CtrlClient: clientfake.NewClientBuilder().
+						WithScheme(scheme.Scheme).
+						WithRuntimeObjects().
+						Build(),
+					K8sClient: clientgofake.NewSimpleClientset(tc.InitialObjects...),
+				})
+			}
+
+			automationSA, err := New(Config{
+				K8sClient: k8sClientFake,
+				Logger:    microloggertest.New(),
+			})
+
+			if err == nil {
+				err = automationSA.EnsureCreated(ctx, namespace)
+			}
+
+			if err != nil {
+				t.Fatalf("received an unexpected error: %s", err)
+			}
+
+			serviceAccountList, err := k8sClientFake.K8sClient().CoreV1().ServiceAccounts(namespace.Name).List(ctx, metav1.ListOptions{})
+			if err != nil {
+				t.Fatalf("failed to get service accounts: %s", err)
+			}
+			defaultnamespacetest.ServiceAccountsShouldEqualDeep(t, tc.ExpectedSAs, serviceAccountList.Items)
 		})
 	}
 }
