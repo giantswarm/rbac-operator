@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.5] - 2023-06-07
+
 ### Fixed
 
 - Ensured that Automation SA in the default namespace is only updated in case there are actual changes
@@ -426,7 +428,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.33.4...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.33.5...HEAD
+[0.33.5]: https://github.com/giantswarm/rbac-operator/compare/v0.33.4...v0.33.5
 [0.33.4]: https://github.com/giantswarm/rbac-operator/compare/v0.33.3...v0.33.4
 [0.33.3]: https://github.com/giantswarm/rbac-operator/compare/v0.33.2...v0.33.3
 [0.33.2]: https://github.com/giantswarm/rbac-operator/compare/v0.33.1...v0.33.2
