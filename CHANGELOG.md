@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- Remove pull secret.
+
 ## [0.33.5] - 2023-06-07
 
 ### Fixed
