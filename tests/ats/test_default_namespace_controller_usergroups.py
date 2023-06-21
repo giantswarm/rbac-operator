@@ -31,10 +31,10 @@ class TestDefaultNameSpaceControllerUserGroups:
 
     @retry()
     def check_created(self):
-        LOGGER.info("Checking for expected cluster role bindings and roles")
+        LOGGER.info("Checking for expected cluster role bindings")
         # raises if not found
         for expected_cluster_role_name in EXPECTED_CLUSTER_ROLE_BINDING_NAMES:
             pykube.ClusterRoleBinding.objects(self.kube_client).get(
                 name=expected_cluster_role_name
             )
-        LOGGER.info("Found expected cluster role bindings and roles")
+        LOGGER.info("Found expected cluster role bindings")
