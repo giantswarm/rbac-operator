@@ -1,3 +1,6 @@
+ciliumNetworkPolicy:
+  enabled: false
+
 image:
   name: "giantswarm/rbac-operator"
 
