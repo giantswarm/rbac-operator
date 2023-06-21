@@ -1,46 +1,27 @@
 import logging
-import time
 from typing import Tuple
 
 import pykube
 import pytest
 from pytest_helm_charts.clusters import Cluster
 import pytest_helm_charts.k8s.namespace as pytest_namespace
-
+from decorators import retry
 
 LOGGER = logging.getLogger(__name__)
 
-cluster_namespace_name = "r9b5q"
-org_name = "test"
-org_namespace_name = f"org-{org_name}"
+CLUSTER_NAMESPACE_NAME = "r9b5q"
+ORG_NAME = "test"
+ORG_NAMESPACE_NAME = f"org-{ORG_NAME}"
 
-expected_cluster_role_binding_names = [
-    f"organization-organization-{org_name}-read",
-    f"releases-organization-{org_name}-read",
+EXPECTED_CLUSTER_ROLE_BINDING_NAMES = [
+    f"organization-organization-{ORG_NAME}-read",
+    f"releases-organization-{ORG_NAME}-read",
 ]
 
-expected_cluster_role_names = [
+EXPECTED_CLUSTER_ROLE_NAMES = [
     "read-releases",
-    f"organization-{org_name}-read",
+    f"organization-{ORG_NAME}-read",
 ]
-
-
-def retry(max_retries=5, delay=10):
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            retries = 0
-            while retries < max_retries:
-                try:
-                    return func(*args, **kwargs)
-                except Exception as e:
-                    retries += 1
-                    time.sleep(delay)
-                    LOGGER.debug(f"Retrying {func.__name__} due to error: {e}")
-            raise Exception("Max retries exceeded")
-
-        return wrapper
-
-    return decorator
 
 
 @pytest.mark.smoke
@@ -66,19 +47,19 @@ class TestRBACControllerExternalResources:
         LOGGER.info("Creating org and cluster namespaces")
         org_namespace, _ = pytest_namespace.ensure_namespace_exists(
             self.kube_client,
-            org_namespace_name,
+            ORG_NAMESPACE_NAME,
             extra_metadata={
-                "labels": {"giantswarm.io/organization": org_namespace_name}
+                "labels": {"giantswarm.io/organization": ORG_NAMESPACE_NAME}
             },
         )
 
         cluster_namespace, _ = pytest_namespace.ensure_namespace_exists(
             self.kube_client,
-            cluster_namespace_name,
+            CLUSTER_NAMESPACE_NAME,
             extra_metadata={
                 "labels": {
-                    "giantswarm.io/organization": org_namespace_name,
-                    "giantswarm.io/cluster": cluster_namespace_name,
+                    "giantswarm.io/organization": ORG_NAMESPACE_NAME,
+                    "giantswarm.io/cluster": CLUSTER_NAMESPACE_NAME,
                 }
             },
         )
@@ -90,11 +71,11 @@ class TestRBACControllerExternalResources:
     def check_created(self):
         LOGGER.info("Checking for expected cluster role bindings and roles")
         # raises if not found
-        for expected_cluster_role_name in expected_cluster_role_binding_names:
+        for expected_cluster_role_name in EXPECTED_CLUSTER_ROLE_BINDING_NAMES:
             pykube.ClusterRoleBinding.objects(self.kube_client).get(
                 name=expected_cluster_role_name
             )
-        for expected_cluster_role_name in expected_cluster_role_names:
+        for expected_cluster_role_name in EXPECTED_CLUSTER_ROLE_NAMES:
             pykube.ClusterRole.objects(self.kube_client).get(
                 name=expected_cluster_role_name
             )
@@ -111,11 +92,11 @@ class TestRBACControllerExternalResources:
     @retry()
     def check_deleted(self):
         try:
-            for expected_cluster_role_name in expected_cluster_role_binding_names:
+            for expected_cluster_role_name in EXPECTED_CLUSTER_ROLE_BINDING_NAMES:
                 pykube.ClusterRoleBinding.objects(self.kube_client).get(
                     name=expected_cluster_role_name
                 )
-            for expected_cluster_role_name in expected_cluster_role_names:
+            for expected_cluster_role_name in EXPECTED_CLUSTER_ROLE_NAMES:
                 pykube.ClusterRole.objects(self.kube_client).get(
                     name=expected_cluster_role_name
                 )
