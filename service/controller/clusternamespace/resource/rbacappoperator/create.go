@@ -14,12 +14,6 @@ import (
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	cl, err := key.ToNamespace(obj)
-
-	r.logger.LogCtx(
-		ctx, "level", "info",
-		"message", "reached ensure created of resource rbacappoperator",
-	)
-
 	if err != nil {
 		return microerror.Mask(err)
 	}
