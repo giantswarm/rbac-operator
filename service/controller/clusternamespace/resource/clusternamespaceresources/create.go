@@ -2,7 +2,6 @@ package clusternamespaceresources
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
@@ -25,14 +24,6 @@ import (
 //     RoleBindings are created in the organizations cluster namespaces which reference above Role
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	var err error
-
-	r.logger.LogCtx(
-		ctx,
-		"level",
-		"debug",
-		"message",
-		fmt.Sprintf("running resource rbacappoperator ensurecreated on namespace %s", obj),
-	)
 
 	cl, err := key.ToNamespace(obj)
 	if err != nil {

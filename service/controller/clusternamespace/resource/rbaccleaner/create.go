@@ -16,14 +16,6 @@ import (
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	var err error
 
-	r.logger.LogCtx(
-		ctx,
-		"level",
-		"debug",
-		"message",
-		fmt.Sprintf("running resource rbacappoperator ensurecreated on namespace %s", obj),
-	)
-
 	cl, err := key.ToNamespace(obj)
 	if err != nil {
 		return microerror.Mask(err)
