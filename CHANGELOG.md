@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.1] - 2023-06-23
+
 ## [0.34.0] - 2023-06-15
 
 ### Removed
@@ -434,7 +436,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.34.0...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.34.1...HEAD
+[0.34.1]: https://github.com/giantswarm/rbac-operator/compare/v0.34.0...v0.34.1
 [0.34.0]: https://github.com/giantswarm/rbac-operator/compare/v0.33.5...v0.34.0
 [0.33.5]: https://github.com/giantswarm/rbac-operator/compare/v0.33.4...v0.33.5
 [0.33.4]: https://github.com/giantswarm/rbac-operator/compare/v0.33.3...v0.33.4
