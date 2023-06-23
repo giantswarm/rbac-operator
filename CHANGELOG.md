@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.34.1] - 2023-06-23
 
+### Added
+
+- Add cilium network policies (#429).
+
 ## [0.34.0] - 2023-06-15
 
 ### Removed
