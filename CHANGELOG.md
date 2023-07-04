@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Add chart tests for specific controllers.
+- Update deployment to be PSS compliant.
 
 ## [0.34.1] - 2023-06-23
 
