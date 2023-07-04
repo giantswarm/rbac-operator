@@ -1,4 +1,5 @@
 from typing import List
+import logging
 
 import pykube
 import pytest
@@ -6,10 +7,12 @@ from pytest_helm_charts.clusters import Cluster
 from pytest_helm_charts.k8s.deployment import wait_for_deployments_to_run
 
 
-timeout: int = 60
+LOGGER = logging.getLogger(__name__)
 
-deployment_names = ["rbac-operator"]
-namespace_name = "default"
+TIMEOUT: int = 60
+
+DEPLOYMENT_NAMES = ["rbac-operator"]
+NAMESPACE_NAME = "default"
 
 
 @pytest.mark.smoke
@@ -22,12 +25,11 @@ def test_api_working(kube_cluster: Cluster) -> None:
 def app_deployments(kube_cluster: Cluster) -> List[pykube.Deployment]:
     if kube_cluster.kube_client is None:
         raise Exception("kube_client is None")
-    print(pykube.Deployment.objects(kube_cluster.kube_client))
     deployments = wait_for_deployments_to_run(
         kube_cluster.kube_client,
-        deployment_names,
-        namespace_name,
-        timeout,
+        DEPLOYMENT_NAMES,
+        NAMESPACE_NAME,
+        TIMEOUT,
     )
     return deployments
 
