@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.2] - 2023-07-04
+
+- Update deployment to be PSS compliant.
+
 ## [0.34.1] - 2023-06-23
 
 ### Added
@@ -440,7 +444,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.34.1...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.34.2...HEAD
+[0.34.2]: https://github.com/giantswarm/rbac-operator/compare/v0.34.1...v0.34.2
 [0.34.1]: https://github.com/giantswarm/rbac-operator/compare/v0.34.0...v0.34.1
 [0.34.0]: https://github.com/giantswarm/rbac-operator/compare/v0.33.5...v0.34.0
 [0.33.5]: https://github.com/giantswarm/rbac-operator/compare/v0.33.4...v0.33.5
