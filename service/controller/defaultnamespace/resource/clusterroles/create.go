@@ -76,7 +76,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 // Ensures the ClusterRole 'read-all'.
 //
-// Purpose if this role is to enable read permissions (get, list, watch)
+// Purpose of this role is to enable read permissions (get, list, watch)
 // for all resources except ConfigMap and Secret.
 func (r *Resource) createReadAllClusterRole(ctx context.Context) error {
 
