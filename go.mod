@@ -11,7 +11,7 @@ require (
 	github.com/giantswarm/microkit v1.0.0
 	github.com/giantswarm/micrologger v1.0.0
 	github.com/giantswarm/operatorkit/v8 v8.0.0
-	github.com/giantswarm/organization-operator v1.2.0
+	github.com/giantswarm/organization-operator v1.4.0
 	github.com/google/go-cmp v0.5.9
 	github.com/prometheus/client_golang v1.16.0
 	github.com/spf13/viper v1.16.0
@@ -27,7 +27,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
@@ -103,12 +103,12 @@ replace (
 	github.com/coreos/etcd => go.etcd.io/etcd/v3 v3.5.9
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
-	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.21.0
-	github.com/hashicorp/consul/sdk => github.com/hashicorp/consul/sdk v0.13.1
+	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.22.0
+	github.com/hashicorp/consul/sdk => github.com/hashicorp/consul/sdk v0.14.0
 	github.com/kataras/iris/v12 => github.com/kataras/iris/v12 v12.2.0
 	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.10.2
 	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.24
 	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.9.19
 	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.48.0
-	golang.org/x/text => golang.org/x/text v0.10.0
+	golang.org/x/text => golang.org/x/text v0.11.0
 )
