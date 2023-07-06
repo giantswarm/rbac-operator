@@ -62,8 +62,9 @@ github.com/coreos/go-semver v0.3.0/go.mod h1:nnelYz7RCh+5ahJtPPxZlU+153eP4D4r3Ee
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
+github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815/go.mod h1:WwZ+bS3ebgob9U8Nd0kOddGdZWjyMGR8Wziv+TBNwSE=
 github.com/emicklei/go-restful/v3 v3.9.0 h1:XwGDlfxEnQZzuopoqxwSEllNcCOM9DhhFyhFIIGKwxE=
 github.com/emicklei/go-restful/v3 v3.9.0/go.mod h1:6n3XBCmQQb25CM2LCACGz8ukIrRry+4bhvbpWn3mrbc=
@@ -104,8 +105,8 @@ github.com/giantswarm/micrologger v1.0.0 h1:5W4h3K414CXhoXQ3rkGbrMl8yUGdbCLKMdg/
 github.com/giantswarm/micrologger v1.0.0/go.mod h1:jFY9TUZLYnQ437GwbodmGmwEJ5cImEJ1f5NTPyDHB24=
 github.com/giantswarm/operatorkit/v8 v8.0.0 h1:AM1Xxg8X6xQjhxh+Jn1Tiv2MkpG8Ro4gqEsytZBBU5M=
 github.com/giantswarm/operatorkit/v8 v8.0.0/go.mod h1:dPrvvQj2UNBw6jLDYqvGhnDfJImwih8A+F3Oc1VS8XM=
-github.com/giantswarm/organization-operator v1.2.0 h1:2Ud1CFeiUXYUbT3akbnWioo/8tBKNOJM+KhxiiGb30M=
-github.com/giantswarm/organization-operator v1.2.0/go.mod h1:6Z1GOtz8sKny0yGIux2kASuWSInhEKqb9VRLuX1mCys=
+github.com/giantswarm/organization-operator v1.4.0 h1:Idbu2gXFeFeaj+0OP77bIixvi6Anqh5+ny3U9oxAipA=
+github.com/giantswarm/organization-operator v1.4.0/go.mod h1:0LZ8NoGB/0iCb/Vth1eFln8u2+MBW/pzrSB9W1XDqkA=
 github.com/giantswarm/to v0.4.0 h1:x0GjbI94/nxcHztJiRtJzihCjgmUlEOto8RD98VA7WI=
 github.com/giantswarm/to v0.4.0/go.mod h1:RTRtw+Dyk6YqoiNBOGLO981BqhibtVwogdaFIMO1y/A=
 github.com/giantswarm/versionbundle v1.0.0 h1:36wuA6qrA5MkqKLKyUWmQLab1f293svA8/ac28VAG+4=
