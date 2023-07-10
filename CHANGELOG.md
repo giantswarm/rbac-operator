@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add check to fluxauth resource to only delete resources after 15 minutes to give flux enough time for cleanup.
+
 ## [0.34.3] - 2023-07-04
 
 ### Added

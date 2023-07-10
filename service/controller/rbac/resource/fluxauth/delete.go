@@ -3,6 +3,7 @@ package fluxauth
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -10,6 +11,10 @@ import (
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/key"
+)
+
+const (
+	DeletionBackOffMinutes = 15
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
@@ -23,6 +28,11 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	}
 
 	if !pkgkey.IsOrgNamespace(ns.Name) {
+		return nil
+	}
+
+	// We wait to delete rbac resources to give flux some time to clean up before losing access to the org
+	if deletionTimeNotPassed(ns.DeletionTimestamp.Time) {
 		return nil
 	}
 
@@ -98,4 +108,8 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	}
 
 	return nil
+}
+
+func deletionTimeNotPassed(deletionTime time.Time) bool {
+	return deletionTime.Add(DeletionBackOffMinutes * time.Minute).After(time.Now())
 }
