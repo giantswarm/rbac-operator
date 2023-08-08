@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
@@ -198,7 +198,7 @@ func Test_AutomationSAUpdate(t *testing.T) {
 			InitialObjects: []runtime.Object{
 				&corev1.ServiceAccount{
 					ObjectMeta:                   metav1.ObjectMeta{Name: pkgkey.AutomationServiceAccountName, Namespace: pkgkey.DefaultNamespaceName},
-					AutomountServiceAccountToken: pointer.Bool(true),
+					AutomountServiceAccountToken: ptr.To(true),
 					Secrets: []corev1.ObjectReference{
 						{Name: "automation-token-123456", Kind: "Secret"},
 					},
@@ -207,7 +207,7 @@ func Test_AutomationSAUpdate(t *testing.T) {
 			ExpectedSAs: []*corev1.ServiceAccount{
 				{
 					ObjectMeta:                   metav1.ObjectMeta{Name: pkgkey.AutomationServiceAccountName, Namespace: pkgkey.DefaultNamespaceName},
-					AutomountServiceAccountToken: pointer.Bool(true),
+					AutomountServiceAccountToken: ptr.To(true),
 					Secrets: []corev1.ObjectReference{
 						{Name: "automation-token-123456", Kind: "Secret"},
 					},
