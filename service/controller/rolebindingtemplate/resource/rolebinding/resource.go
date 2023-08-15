@@ -4,17 +4,20 @@ package rolebinding
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
+	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
-	"github.com/giantswarm/rbac-operator/api/v1alpha1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/giantswarm/rbac-operator/api/v1alpha1"
 )
 
 const (
@@ -78,9 +81,24 @@ func (r *Resource) getNamespacesFromScope(ctx context.Context, scopes v1alpha1.R
 	namespaces := []string{}
 	{
 		for _, o := range organizations.Items {
+			// get the org namespace
 			namespaces = append(namespaces, o.Namespace)
+
+			// get the cluster namespaces that belong to the org namespace
+			labelSelector, err := labels.Parse(fmt.Sprintf("%s=%s,%s", label.Organization, o.Name, label.Cluster))
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+			clusterNamespaces, err := r.k8sClient.K8sClient().CoreV1().Namespaces().List(ctx, metav1.ListOptions{LabelSelector: labelSelector.String()})
+			if err != nil {
+				if !apierrors.IsNotFound(err) {
+					return nil, microerror.Mask(err)
+				}
+			}
+			for _, cns := range clusterNamespaces.Items {
+				namespaces = append(namespaces, cns.Name)
+			}
 		}
-		// TODO: org-namespaces
 	}
 	return namespaces, nil
 }
