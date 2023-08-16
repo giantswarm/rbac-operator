@@ -6,6 +6,7 @@ import (
 	"context"
 	"sync"
 
+	"github.com/giantswarm/rbac-operator/api/v1alpha1"
 	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace"
 	"github.com/giantswarm/rbac-operator/service/controller/rolebindingtemplate"
 
@@ -100,6 +101,7 @@ func New(config Config) (*Service, error) {
 			Logger: config.Logger,
 			SchemeBuilder: k8sclient.SchemeBuilder{
 				security.AddToScheme,
+				v1alpha1.AddToScheme,
 			},
 			RestConfig: restConfig,
 		}
