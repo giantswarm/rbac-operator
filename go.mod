@@ -103,14 +103,14 @@ replace (
 	github.com/coreos/etcd => go.etcd.io/etcd/v3 v3.5.9
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
-	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.22.0
-	github.com/hashicorp/consul/sdk => github.com/hashicorp/consul/sdk v0.14.0
-	github.com/kataras/iris/v12 => github.com/kataras/iris/v12 v12.2.0
-	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.10.2
-	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.24
-	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.9.19
+	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.24.0
+	github.com/hashicorp/consul/sdk => github.com/hashicorp/consul/sdk v0.14.1
+	github.com/kataras/iris/v12 => github.com/kataras/iris/v12 v12.2.1
+	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.11.1
+	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.25
+	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.9.21
 	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.48.0
-	golang.org/x/text => golang.org/x/text v0.11.0
+	golang.org/x/text => golang.org/x/text v0.12.0
 )
 
 replace golang.org/x/net => golang.org/x/net v0.14.0
