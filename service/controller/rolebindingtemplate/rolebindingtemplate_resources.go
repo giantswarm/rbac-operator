@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/operatorkit/v8/pkg/resource"
 	"github.com/giantswarm/operatorkit/v8/pkg/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/v8/pkg/resource/wrapper/retryresource"
+
 	"github.com/giantswarm/rbac-operator/service/controller/rolebindingtemplate/resource/rolebinding"
 )
 
