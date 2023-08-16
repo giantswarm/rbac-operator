@@ -10,7 +10,6 @@ import (
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/micrologger/microloggertest"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
-	"github.com/giantswarm/rbac-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -18,6 +17,7 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
+	"github.com/giantswarm/rbac-operator/api/v1alpha1"
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
 )
 
@@ -32,9 +32,37 @@ func TestGetNamespacesFromScope(t *testing.T) {
 		expectError        bool
 	}{
 		{
-			Name:                 "case0: no matcher",
-			ExistingOrgStructure: []int{0},
-			expectedNamespaces:   []string{"org-0"},
+			Name:                 "case0: no matcher, no cluster namespaces",
+			ExistingOrgStructure: []int{0, 0, 0},
+			expectedNamespaces:   []string{"org-organization-0", "org-organization-1", "org-organization-2"},
+		},
+		{
+			Name:                 "case1: no matcher, cluster namespaces",
+			ExistingOrgStructure: []int{1, 2},
+			expectedNamespaces:   []string{"org-organization-0", "cluster-0-org-0", "org-organization-1", "cluster-0-org-1", "cluster-1-org-1"},
+		},
+		{
+			Name:                 "case2: matcher for uneven orgs, no cluster namespaces",
+			MatchLabels:          map[string]string{"key": "value-1"},
+			ExistingOrgStructure: []int{0, 0, 0},
+			expectedNamespaces:   []string{"org-organization-1"},
+		},
+		{
+			Name:                 "case3: matcher for uneven orgs, cluster namespaces",
+			MatchLabels:          map[string]string{"key": "value-1"},
+			ExistingOrgStructure: []int{1, 2, 3},
+			expectedNamespaces:   []string{"org-organization-1", "cluster-0-org-1", "cluster-1-org-1"},
+		},
+		{
+			Name:                 "case4: no matching orgs",
+			MatchLabels:          map[string]string{"key": "value-2"},
+			ExistingOrgStructure: []int{1, 2, 3, 1},
+			expectedNamespaces:   []string{},
+		},
+		{
+			Name:                 "case4: no orgs",
+			ExistingOrgStructure: []int{},
+			expectedNamespaces:   []string{},
 		},
 	}
 

@@ -6,10 +6,11 @@ import (
 
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
-	"github.com/giantswarm/rbac-operator/api/v1alpha1"
-	"github.com/giantswarm/rbac-operator/pkg/project"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/rbac-operator/api/v1alpha1"
+	"github.com/giantswarm/rbac-operator/pkg/project"
 )
 
 func TestGetRoleBindingFromTemplate(t *testing.T) {
@@ -69,7 +70,7 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 		},
 
 		{
-			Name: "case2: no roleRef",
+			Name: "case3: no roleRef",
 			Template: &rbacv1.RoleBinding{
 				Subjects: []rbacv1.Subject{
 					{Kind: "Group", Name: "test-group"},
@@ -80,6 +81,62 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 			Namespace:    "org-example",
 
 			expectError: true,
+		},
+
+		{
+			Name: "case4: retain values",
+			Template: &rbacv1.RoleBinding{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "name",
+					Namespace: "org-example",
+					Labels: map[string]string{
+						"the-label": "the-value",
+					},
+					Annotations: map[string]string{
+						annotation.Notes: "There is already a note here",
+					},
+				},
+				RoleRef: rbacv1.RoleRef{
+					Name:     "example",
+					Kind:     "ClusterRole",
+					APIGroup: "rbac.authorization.k8s.io",
+				},
+				Subjects: []rbacv1.Subject{
+					{Kind: "Group", Name: "test-group"},
+					{Kind: "ServiceAccount", Name: "test-SA", Namespace: "org-example"},
+					{Kind: "ServiceAccount", Name: "test-SA"},
+				},
+			},
+			TemplateName: "another-name",
+			Namespace:    "another-namespace",
+
+			expectedRoleBinding: &rbacv1.RoleBinding{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "name",
+					Namespace: "another-namespace",
+					Labels: map[string]string{
+						"the-label":     "the-value",
+						label.ManagedBy: project.Name(),
+					},
+					Annotations: map[string]string{
+						annotation.Notes: "There is already a note here",
+					},
+				},
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "RoleBinding",
+					APIVersion: "rbac.authorization.k8s.io/v1",
+				},
+				RoleRef: rbacv1.RoleRef{
+					Name:     "example",
+					Kind:     "ClusterRole",
+					APIGroup: "rbac.authorization.k8s.io",
+				},
+				Subjects: []rbacv1.Subject{
+					{Kind: "Group", Name: "test-group"},
+					{Kind: "ServiceAccount", Name: "test-SA", Namespace: "org-example"},
+					{Kind: "ServiceAccount", Name: "test-SA", Namespace: "another-namespace"},
+				},
+			},
 		},
 	}
 

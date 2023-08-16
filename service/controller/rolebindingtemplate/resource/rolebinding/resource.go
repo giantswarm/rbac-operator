@@ -82,7 +82,7 @@ func (r *Resource) getNamespacesFromScope(ctx context.Context, scopes v1alpha1.R
 	{
 		for _, o := range organizations.Items {
 			// get the org namespace
-			namespaces = append(namespaces, o.Namespace)
+			namespaces = append(namespaces, o.Status.Namespace)
 
 			// get the cluster namespaces that belong to the org namespace
 			labelSelector, err := labels.Parse(fmt.Sprintf("%s=%s,%s", label.Organization, o.Name, label.Cluster))
