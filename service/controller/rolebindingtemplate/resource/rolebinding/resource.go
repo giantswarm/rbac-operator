@@ -102,3 +102,11 @@ func (r *Resource) getNamespacesFromScope(ctx context.Context, scopes v1alpha1.R
 	}
 	return namespaces, nil
 }
+
+func getRoleBindingNameFromTemplate(template v1alpha1.RoleBindingTemplate) string {
+	roleBindingName := template.Spec.Template.Spec.Name
+	if roleBindingName == "" {
+		roleBindingName = template.Name
+	}
+	return roleBindingName
+}

@@ -15,16 +15,9 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	namespaces, err := r.getNamespacesFromScope(ctx, template.Spec.Scopes)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-	roleBindingName := template.Spec.Template.Spec.Name
-	if roleBindingName == "" {
-		roleBindingName = template.Name
-	}
+	roleBindingName := getRoleBindingNameFromTemplate(template)
 
-	for _, ns := range namespaces {
+	for _, ns := range template.Status.Namespaces {
 		if err = rbac.DeleteRoleBinding(r, ctx, ns, roleBindingName); err != nil {
 			return microerror.Mask(err)
 		}

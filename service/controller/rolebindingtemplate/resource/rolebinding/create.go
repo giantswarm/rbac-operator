@@ -38,6 +38,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
+	// go through old list of namespaces and compare for scope changes
+	for _, ns := range template.Status.Namespaces {
+		if !contains(namespaces, ns) {
+			if err = rbac.DeleteRoleBinding(r, ctx, ns, getRoleBindingNameFromTemplate(template)); err != nil {
+				return microerror.Mask(err)
+			}
+		}
+	}
+
 	template.Status.Namespaces = namespaces
 	if err := r.k8sClient.CtrlClient().Status().Update(ctx, &template); err != nil {
 		return microerror.Mask(err)
@@ -50,9 +59,7 @@ func getRoleBindingFromTemplate(template v1alpha1.RoleBindingTemplate, namespace
 	roleBinding := &template.Spec.Template.Spec
 
 	// ensure namespaced name
-	if roleBinding.Name == "" {
-		roleBinding.Name = template.Name
-	}
+	roleBinding.Name = getRoleBindingNameFromTemplate(template)
 	roleBinding.Namespace = namespace
 
 	// ensure type meta
@@ -100,6 +107,15 @@ func incompleteRoleRef(roleRef rbacv1.RoleRef) bool {
 	}
 	if roleRef.Kind != "Role" && roleRef.Kind != "ClusterRole" {
 		return true
+	}
+	return false
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
 	}
 	return false
 }
