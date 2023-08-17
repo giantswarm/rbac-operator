@@ -20,6 +20,9 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 	roleBindingName := template.Spec.Template.Spec.Name
+	if roleBindingName == "" {
+		roleBindingName = template.Name
+	}
 
 	for _, ns := range namespaces {
 		if err = rbac.DeleteRoleBinding(r, ctx, ns, roleBindingName); err != nil {
