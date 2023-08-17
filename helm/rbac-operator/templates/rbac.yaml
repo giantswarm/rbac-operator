@@ -32,6 +32,19 @@ rules:
       - list
       - watch
   - apiGroups:
+      - "auth.giantswarm.io"
+    resources:
+      - rolebindingtemplates
+      - rolebindingtemplates/status
+    verbs:
+      - create
+      - get
+      - list
+      - patch
+      - update
+      - delete
+      - watch
+  - apiGroups:
       - "rbac.authorization.k8s.io"
     resources:
       - roles

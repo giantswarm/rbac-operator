@@ -6,7 +6,9 @@ import (
 	"context"
 	"sync"
 
+	"github.com/giantswarm/rbac-operator/api/v1alpha1"
 	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace"
+	"github.com/giantswarm/rbac-operator/service/controller/rolebindingtemplate"
 
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 
@@ -38,12 +40,13 @@ type Config struct {
 type Service struct {
 	Version *version.Service
 
-	bootOnce                   sync.Once
-	clusterController          *defaultnamespace.DefaultNamespace
-	rbacController             *rbac.RBAC
-	clusterNamespaceController *clusternamespace.ClusterNamespace
-	crossplaneController       *crossplane.Crossplane
-	operatorCollector          *collector.Set
+	bootOnce                      sync.Once
+	clusterController             *defaultnamespace.DefaultNamespace
+	rbacController                *rbac.RBAC
+	clusterNamespaceController    *clusternamespace.ClusterNamespace
+	crossplaneController          *crossplane.Crossplane
+	roleBindingTemplateController *rolebindingtemplate.RoleBindingTemplate
+	operatorCollector             *collector.Set
 }
 
 // New creates a new configured service object.
@@ -98,6 +101,7 @@ func New(config Config) (*Service, error) {
 			Logger: config.Logger,
 			SchemeBuilder: k8sclient.SchemeBuilder{
 				security.AddToScheme,
+				v1alpha1.AddToScheme,
 			},
 			RestConfig: restConfig,
 		}
@@ -188,6 +192,19 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var roleBindingTemplateController *rolebindingtemplate.RoleBindingTemplate
+	{
+		c := rolebindingtemplate.RoleBindingTemplateConfig{
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+		}
+
+		roleBindingTemplateController, err = rolebindingtemplate.NewRoleBindingTemplate(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var operatorCollector *collector.Set
 	{
 		c := collector.SetConfig{
@@ -220,12 +237,13 @@ func New(config Config) (*Service, error) {
 	s := &Service{
 		Version: versionService,
 
-		bootOnce:                   sync.Once{},
-		clusterController:          clusterController,
-		rbacController:             rbacController,
-		clusterNamespaceController: clusterNamespaceController,
-		operatorCollector:          operatorCollector,
-		crossplaneController:       crossplaneController,
+		bootOnce:                      sync.Once{},
+		clusterController:             clusterController,
+		rbacController:                rbacController,
+		clusterNamespaceController:    clusterNamespaceController,
+		operatorCollector:             operatorCollector,
+		crossplaneController:          crossplaneController,
+		roleBindingTemplateController: roleBindingTemplateController,
 	}
 
 	return s, nil
@@ -252,5 +270,7 @@ func (s *Service) Boot(ctx context.Context) {
 		go s.clusterNamespaceController.Boot(ctx)
 
 		go s.crossplaneController.Boot(ctx)
+
+		go s.roleBindingTemplateController.Boot(ctx)
 	})
 }
