@@ -149,7 +149,9 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 				},
 				Spec: v1alpha1.RoleBindingTemplateSpec{
 					Template: v1alpha1.RoleBindingTemplateResource{
-						Spec: *tc.Template,
+						ObjectMeta: tc.Template.ObjectMeta,
+						RoleRef:    tc.Template.RoleRef,
+						Subjects:   tc.Template.Subjects,
 					},
 				},
 			}

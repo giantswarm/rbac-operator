@@ -60,9 +60,17 @@ type RoleBindingTemplateList struct {
 
 // RoleBindingTemplateResource describes the data needed to create a rolebinding from a template.
 type RoleBindingTemplateResource struct {
+	// Standard object's metadata.
+	// +optional
+	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// Spec is the specification of the desired rolebinding
-	Spec rbacv1.RoleBinding `json:"spec"`
+	// Subjects holds references to the objects the role applies to.
+	// +optional
+	Subjects []rbacv1.Subject `json:"subjects,omitempty"`
+
+	// RoleRef can reference a Role in the current namespace or a ClusterRole in the global namespace.
+	// If the RoleRef cannot be resolved, the Authorizer must return an error.
+	RoleRef rbacv1.RoleRef `json:"roleRef"`
 }
 
 // RoleBindingTemplateScopes describes the scopes the RoleBindingTemplate should be applied to

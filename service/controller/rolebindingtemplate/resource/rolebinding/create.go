@@ -56,49 +56,59 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 }
 
 func getRoleBindingFromTemplate(template v1alpha1.RoleBindingTemplate, namespace string) (*rbacv1.RoleBinding, error) {
-	roleBinding := &template.Spec.Template.Spec
-
-	// ensure namespaced name
-	roleBinding.Name = getRoleBindingNameFromTemplate(template)
-	roleBinding.Namespace = namespace
-
-	// ensure type meta
-	roleBinding.TypeMeta = metav1.TypeMeta{
-		Kind:       "RoleBinding",
-		APIVersion: "rbac.authorization.k8s.io/v1",
+	objectMeta := template.Spec.Template.ObjectMeta
+	{
+		// ensure namespaced name
+		objectMeta.Name = getRoleBindingNameFromTemplate(template)
+		objectMeta.Namespace = namespace
+		// add labels and annotations
+		labels := objectMeta.GetLabels()
+		if labels == nil {
+			labels = map[string]string{}
+		}
+		labels[label.ManagedBy] = project.Name()
+		objectMeta.SetLabels(labels)
+		annotations := objectMeta.GetAnnotations()
+		if annotations == nil {
+			annotations = map[string]string{}
+		}
+		if annotations[annotation.Notes] == "" {
+			annotations[annotation.Notes] = fmt.Sprintf("Generated based on RoleBindingTemplate %s", template.Name)
+		}
+		objectMeta.SetAnnotations(annotations)
 	}
-
-	// add labels and annotations
-	labels := roleBinding.GetLabels()
-	if labels == nil {
-		labels = map[string]string{}
-	}
-	labels[label.ManagedBy] = project.Name()
-	roleBinding.SetLabels(labels)
-	annotations := roleBinding.GetAnnotations()
-	if annotations == nil {
-		annotations = map[string]string{}
-	}
-	if annotations[annotation.Notes] == "" {
-		annotations[annotation.Notes] = fmt.Sprintf("Generated based on RoleBindingTemplate %s", template.Name)
-	}
-	roleBinding.SetAnnotations(annotations)
 
 	// ensure role reference
-	if incompleteRoleRef(roleBinding.RoleRef) {
-		return nil, microerror.Maskf(invalidConfigError, "RoleBindingTemplate %s has incomplete roleRef %v", template.Name, roleBinding.RoleRef)
-	}
-	if roleBinding.RoleRef.APIGroup == "" {
-		roleBinding.RoleRef.APIGroup = "rbac.authorization.k8s.io"
-	}
-
-	for i, s := range roleBinding.Subjects {
-		if s.Kind == rbacv1.ServiceAccountKind && s.Namespace == "" {
-			roleBinding.Subjects[i].Namespace = namespace
+	roleRef := template.Spec.Template.RoleRef
+	{
+		if incompleteRoleRef(roleRef) {
+			return nil, microerror.Maskf(invalidConfigError, "RoleBindingTemplate %s has incomplete roleRef %v", template.Name, roleRef)
+		}
+		if roleRef.APIGroup == "" {
+			roleRef.APIGroup = "rbac.authorization.k8s.io"
 		}
 	}
 
-	return roleBinding, nil
+	// ensure subjects
+	subjects := template.Spec.Template.Subjects
+	{
+		for i, s := range subjects {
+			if s.Kind == rbacv1.ServiceAccountKind && s.Namespace == "" {
+				subjects[i].Namespace = namespace
+			}
+		}
+	}
+
+	return &rbacv1.RoleBinding{
+
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "RoleBinding",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: objectMeta,
+		RoleRef:    roleRef,
+		Subjects:   subjects,
+	}, nil
 }
 
 func incompleteRoleRef(roleRef rbacv1.RoleRef) bool {
