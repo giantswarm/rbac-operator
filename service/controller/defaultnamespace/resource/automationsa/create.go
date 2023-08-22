@@ -49,16 +49,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	err = r.createWriteClustersClusterRoleBindingToAutomationSA(ctx, namespace.Name)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = r.createWriteNodePoolsClusterRoleBindingToAutomationSA(ctx, namespace.Name)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	err = r.createWriteClientCertsClusterRoleBindingToAutomationSA(ctx, namespace.Name)
 	if err != nil {
 		return microerror.Mask(err)
@@ -185,72 +175,6 @@ func (r *Resource) createWriteOrganizationsClusterRoleBindingToAutomationSA(ctx 
 	}
 
 	return rbac.CreateOrUpdateClusterRoleBinding(r, ctx, writeOrganizationsClusterRoleBinding)
-}
-
-// Ensures the ClusterRoleBinding 'write-clusters-customer-sa' between
-// ClusterRole 'write-clusters' and ServiceAccount 'automation'.
-func (r *Resource) createWriteClustersClusterRoleBindingToAutomationSA(ctx context.Context, namespace string) error {
-	clusterRoleBindingName := pkgkey.WriteClustersAutomationSARoleBindingName()
-
-	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "ClusterRoleBinding",
-			APIVersion: "rbac.authorization.k8s.io/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: clusterRoleBindingName,
-			Labels: map[string]string{
-				label.ManagedBy: project.Name(),
-			},
-		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind:      "ServiceAccount",
-				Name:      pkgkey.AutomationServiceAccountName,
-				Namespace: namespace,
-			},
-		},
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     pkgkey.WriteClustersPermissionsName,
-		},
-	}
-
-	return rbac.CreateOrUpdateClusterRoleBinding(r, ctx, clusterRoleBinding)
-}
-
-// Ensures the ClusterRoleBinding 'write-nodepools-customer-sa' between
-// ClusterRole 'write-nodepools' and ServiceAccount 'automation'.
-func (r *Resource) createWriteNodePoolsClusterRoleBindingToAutomationSA(ctx context.Context, namespace string) error {
-	clusterRoleBindingName := pkgkey.WriteNodePoolsAutomationSARoleBindingName()
-
-	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "ClusterRoleBinding",
-			APIVersion: "rbac.authorization.k8s.io/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: clusterRoleBindingName,
-			Labels: map[string]string{
-				label.ManagedBy: project.Name(),
-			},
-		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind:      "ServiceAccount",
-				Name:      pkgkey.AutomationServiceAccountName,
-				Namespace: namespace,
-			},
-		},
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     pkgkey.WriteNodePoolsPermissionsName,
-		},
-	}
-
-	return rbac.CreateOrUpdateClusterRoleBinding(r, ctx, clusterRoleBinding)
 }
 
 // Ensures the ClusterRoleBinding 'write-client-certificates-customer-sa' between

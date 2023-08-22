@@ -38,8 +38,6 @@ func Test_ClusterRoleCreation(t *testing.T) {
 				defaultnamespacetest.NewClusterRole(pkgkey.DefaultReadAllPermissionsName, []rbacv1.PolicyRule{}),
 				defaultnamespacetest.NewClusterRole(pkgkey.WriteOrganizationsPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 				defaultnamespacetest.NewClusterRole(pkgkey.WriteFluxResourcesPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
-				defaultnamespacetest.NewClusterRole(pkgkey.WriteClustersPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
-				defaultnamespacetest.NewClusterRole(pkgkey.WriteNodePoolsPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 				defaultnamespacetest.NewClusterRole(pkgkey.WriteClientCertsPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 				defaultnamespacetest.NewClusterRole(pkgkey.WriteSilencesPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 			},
@@ -213,38 +211,6 @@ func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule) []*rbacv1.Cluster
 				"kustomizations",
 				"providers",
 				"receivers",
-			},
-		)),
-		defaultnamespacetest.NewClusterRole(pkgkey.WriteClustersPermissionsName, defaultnamespacetest.NewSingletonRules(
-			[]string{
-				"cluster.x-k8s.io",
-				"infrastructure.cluster.x-k8s.io",
-				"infrastructure.giantswarm.io",
-			},
-			[]string{
-				"awsclusters",
-				"awscontrolplanes",
-				"azureclusters",
-				"azuremachines",
-				"clusters",
-				"g8scontrolplanes",
-			},
-		)),
-		defaultnamespacetest.NewClusterRole(pkgkey.WriteNodePoolsPermissionsName, defaultnamespacetest.NewSingletonRules(
-			[]string{
-				"cluster.x-k8s.io",
-				"core.giantswarm.io",
-				"exp.cluster.x-k8s.io",
-				"infrastructure.cluster.x-k8s.io",
-				"infrastructure.giantswarm.io",
-			},
-			[]string{
-				"awsmachinedeployments",
-				"azuremachinepools",
-				"machinedeployments",
-				"machinepools",
-				"networkpools",
-				"sparks",
 			},
 		)),
 		defaultnamespacetest.NewClusterRole(pkgkey.WriteClientCertsPermissionsName, defaultnamespacetest.NewSingletonRules(
