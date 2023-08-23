@@ -46,16 +46,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	err = r.createWriteClustersClusterRole(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = r.createWriteNodePoolsClusterRole(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	err = r.createWriteClientCertsClusterRole(ctx)
 	if err != nil {
 		return microerror.Mask(err)
@@ -208,87 +198,6 @@ func (r *Resource) createWriteFluxResourcesClusterRole(ctx context.Context) erro
 			},
 			Annotations: map[string]string{
 				annotation.Notes: "Grants full permissions to FluxCD related resource types.",
-			},
-		},
-		Rules: []rbacv1.PolicyRule{policyRule},
-	}
-
-	return rbac.CreateOrUpdateClusterRole(r, ctx, clusterRole)
-}
-
-// Ensures the ClusterRole 'write-clusters'.
-//
-// Purpose of this role is to grant all permissions needed for
-// creating, modifying, and deleting clusters, not including
-// node pools.
-func (r *Resource) createWriteClustersClusterRole(ctx context.Context) error {
-	policyRule := rbacv1.PolicyRule{
-		APIGroups: []string{
-			"cluster.x-k8s.io",
-			"infrastructure.cluster.x-k8s.io",
-			"infrastructure.giantswarm.io",
-		},
-		Resources: []string{
-			"awsclusters",
-			"awscontrolplanes",
-			"azureclusters",
-			"azuremachines",
-			"clusters",
-			"g8scontrolplanes",
-		},
-		Verbs: []string{"*"},
-	}
-
-	clusterRole := &rbacv1.ClusterRole{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: pkgkey.WriteClustersPermissionsName,
-			Labels: map[string]string{
-				label.ManagedBy:              project.Name(),
-				label.DisplayInUserInterface: "true",
-			},
-			Annotations: map[string]string{
-				annotation.Notes: "Grants full permissions to resources for clusters, excluding node pools.",
-			},
-		},
-		Rules: []rbacv1.PolicyRule{policyRule},
-	}
-
-	return rbac.CreateOrUpdateClusterRole(r, ctx, clusterRole)
-}
-
-// Ensures the ClusterRole 'write-nodepools'.
-//
-// Purpose of this role is to grant all permissions needed for
-// creating, modifying, and deleting node pools.
-func (r *Resource) createWriteNodePoolsClusterRole(ctx context.Context) error {
-	policyRule := rbacv1.PolicyRule{
-		APIGroups: []string{
-			"cluster.x-k8s.io",
-			"core.giantswarm.io",
-			"exp.cluster.x-k8s.io",
-			"infrastructure.cluster.x-k8s.io",
-			"infrastructure.giantswarm.io",
-		},
-		Resources: []string{
-			"awsmachinedeployments",
-			"azuremachinepools",
-			"machinedeployments",
-			"machinepools",
-			"networkpools",
-			"sparks",
-		},
-		Verbs: []string{"*"},
-	}
-
-	clusterRole := &rbacv1.ClusterRole{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: pkgkey.WriteNodePoolsPermissionsName,
-			Labels: map[string]string{
-				label.ManagedBy:              project.Name(),
-				label.DisplayInUserInterface: "true",
-			},
-			Annotations: map[string]string{
-				annotation.Notes: "Grants full permissions on resources representing node pools.",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{policyRule},

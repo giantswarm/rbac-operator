@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- Remove `write-clusters` and `write-nodepools` cluster roles as it is unused.
+
 ## [0.35.0] - 2023-08-22
 
 ### Added
