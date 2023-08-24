@@ -51,14 +51,6 @@ func Test_AutomationSA(t *testing.T) {
 					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
 				),
 				defaultnamespacetest.NewClusterRoleBinding(
-					pkgkey.WriteClustersAutomationSARoleBindingName(),
-					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
-				),
-				defaultnamespacetest.NewClusterRoleBinding(
-					pkgkey.WriteNodePoolsAutomationSARoleBindingName(),
-					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
-				),
-				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.WriteClientCertsAutomationSARoleBindingName(),
 					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
 				),
@@ -75,8 +67,6 @@ func Test_AutomationSA(t *testing.T) {
 				defaultnamespacetest.NewRoleBinding(pkgkey.WriteAllAutomationSARoleBindingName(), pkgkey.DefaultNamespaceName, []rbacv1.Subject{}),
 				defaultnamespacetest.NewClusterRoleBinding(pkgkey.ReadAllAutomationSAClusterRoleBindingName(), []rbacv1.Subject{}),
 				defaultnamespacetest.NewClusterRoleBinding(pkgkey.WriteOrganizationsAutomationSARoleBindingName(), []rbacv1.Subject{}),
-				defaultnamespacetest.NewClusterRoleBinding(pkgkey.WriteClustersAutomationSARoleBindingName(), []rbacv1.Subject{}),
-				defaultnamespacetest.NewClusterRoleBinding(pkgkey.WriteNodePoolsAutomationSARoleBindingName(), []rbacv1.Subject{}),
 				defaultnamespacetest.NewClusterRoleBinding(pkgkey.WriteClientCertsAutomationSARoleBindingName(), []rbacv1.Subject{}),
 				defaultnamespacetest.NewClusterRoleBinding(pkgkey.WriteSilencesAutomationSARoleBindingName(), []rbacv1.Subject{}),
 			},
@@ -97,14 +87,6 @@ func Test_AutomationSA(t *testing.T) {
 				),
 				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.WriteOrganizationsAutomationSARoleBindingName(),
-					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
-				),
-				defaultnamespacetest.NewClusterRoleBinding(
-					pkgkey.WriteClustersAutomationSARoleBindingName(),
-					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
-				),
-				defaultnamespacetest.NewClusterRoleBinding(
-					pkgkey.WriteNodePoolsAutomationSARoleBindingName(),
 					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
 				),
 				defaultnamespacetest.NewClusterRoleBinding(

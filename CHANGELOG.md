@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Move flux auth out of org/cluster namespace controllers and reconcile it via RoleBindingTemplates instead.
 
+## [0.36.0] - 2023-08-23
+
+### Removed
+
+- Remove `write-clusters` and `write-nodepools` cluster roles as it is unused.
+
 ## [0.35.0] - 2023-08-22
 
 ### Added
@@ -460,7 +466,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.35.0...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.36.0...HEAD
+[0.36.0]: https://github.com/giantswarm/rbac-operator/compare/v0.35.0...v0.36.0
 [0.35.0]: https://github.com/giantswarm/rbac-operator/compare/v0.34.3...v0.35.0
 [0.34.3]: https://github.com/giantswarm/rbac-operator/compare/v0.34.2...v0.34.3
 [0.34.2]: https://github.com/giantswarm/rbac-operator/compare/v0.34.1...v0.34.2
