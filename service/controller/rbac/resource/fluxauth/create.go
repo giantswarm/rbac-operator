@@ -64,45 +64,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	// create a RoleBinding granting :
-	// - cluster-admin access for "automation" ServiceAccount *in this org namespace*
-	// - cluster-admin access for "automation" ServiceAccount *in default namespace*
-	// cluster-admin permissions are limited in scope to org namespace
-	roleBinding := &rbacv1.RoleBinding{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "RoleBinding",
-			APIVersion: "rbac.authorization.k8s.io/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: pkgkey.WriteAllAutomationSARoleBindingName(),
-			Labels: map[string]string{
-				label.ManagedBy: project.Name(),
-			},
-			Namespace: ns.Name,
-		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind:      "ServiceAccount",
-				Name:      pkgkey.AutomationServiceAccountName,
-				Namespace: ns.Name,
-			},
-			{
-				Kind:      "ServiceAccount",
-				Name:      pkgkey.AutomationServiceAccountName,
-				Namespace: pkgkey.DefaultNamespaceName,
-			},
-		},
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     pkgkey.ClusterAdminClusterRoleName,
-		},
-	}
-
-	if err := r.createOrUpdateRoleBinding(ctx, ns, roleBinding); err != nil {
-		return microerror.Mask(err)
-	}
-
-	// create a RoleBinding granting :
 	// - write-silences access for "automation" ServiceAccount *in this org namespace*
 	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
@@ -125,107 +86,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if err := r.createOrUpdateClusterRoleBinding(ctx, ns, clusterRoleBinding); err != nil {
 		return microerror.Mask(err)
 	}
-
-	// create a RoleBinding allowing ServiceAccounts in flux-system to access
-	// Flux CRs in org namespace
-	roleBinding = &rbacv1.RoleBinding{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "RoleBinding",
-			APIVersion: "rbac.authorization.k8s.io/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: pkgkey.FluxCRDRoleBindingName,
-			Labels: map[string]string{
-				label.ManagedBy: project.Name(),
-			},
-			Namespace: ns.Name,
-		},
-		Subjects: []rbacv1.Subject{},
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     pkgkey.UpstreamFluxCRDClusterRole,
-		},
-	}
-
-	for _, serviceAccount := range pkgkey.FluxCrdServiceAccounts {
-		roleBinding.Subjects = append(roleBinding.Subjects,
-			rbacv1.Subject{
-				Kind:      "ServiceAccount",
-				Name:      serviceAccount,
-				Namespace: pkgkey.FluxNamespaceName,
-			},
-		)
-	}
-
-	if err := r.createOrUpdateRoleBinding(ctx, ns, roleBinding); err != nil {
-		return microerror.Mask(err)
-	}
-
-	// create a RoleBinding allowing *some* ServiceAccounts in flux-system to
-	// reconcile (read, write) Flux CRs in org namespace
-	roleBinding = &rbacv1.RoleBinding{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "RoleBinding",
-			APIVersion: "rbac.authorization.k8s.io/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: pkgkey.FluxReconcilerRoleBindingName,
-			Labels: map[string]string{
-				label.ManagedBy: project.Name(),
-			},
-			Namespace: ns.Name,
-		},
-		Subjects: []rbacv1.Subject{},
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     pkgkey.ClusterAdminClusterRoleName,
-		},
-	}
-
-	for _, serviceAccount := range pkgkey.FluxReconcilerServiceAccounts {
-		roleBinding.Subjects = append(roleBinding.Subjects,
-			rbacv1.Subject{
-				Kind:      "ServiceAccount",
-				Name:      serviceAccount,
-				Namespace: pkgkey.FluxNamespaceName,
-			},
-		)
-	}
-
-	if err := r.createOrUpdateRoleBinding(ctx, ns, roleBinding); err != nil {
-		return microerror.Mask(err)
-	}
-	return nil
-}
-
-func (r *Resource) createOrUpdateRoleBinding(ctx context.Context, ns corev1.Namespace, roleBinding *rbacv1.RoleBinding) error {
-	existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Get(ctx, roleBinding.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating rolebinding %#q in namespace %s", roleBinding.Name, ns.Name))
-
-		_, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Create(ctx, roleBinding, metav1.CreateOptions{})
-		if apierrors.IsAlreadyExists(err) {
-			// do nothing
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been created", roleBinding.Name, ns.Name))
-
-	} else if err != nil {
-		return microerror.Mask(err)
-	} else if needsUpdate(roleBinding, existingRoleBinding) {
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating role binding %#q in namespace %s", roleBinding.Name, ns.Name))
-		_, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Update(ctx, roleBinding, metav1.UpdateOptions{})
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("role binding %#q in namespace %s has been updated", roleBinding.Name, ns.Name))
-
-	}
-
 	return nil
 }
 
@@ -256,18 +116,6 @@ func (r *Resource) createOrUpdateClusterRoleBinding(ctx context.Context, ns core
 	}
 
 	return nil
-}
-
-func needsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.RoleBinding) bool {
-	if len(existingRoleBinding.Subjects) < 1 {
-		return true
-	}
-
-	if !reflect.DeepEqual(desiredRoleBinding.Subjects, existingRoleBinding.Subjects) {
-		return true
-	}
-
-	return false
 }
 
 func needsUpdateClusterRoleBinding(desiredClusterRoleBinding, existingClusterRoleBinding *rbacv1.ClusterRoleBinding) bool {

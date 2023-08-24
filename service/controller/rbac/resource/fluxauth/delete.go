@@ -26,33 +26,6 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	roleBindings := []string{
-		pkgkey.FluxCRDRoleBindingName,
-		pkgkey.FluxReconcilerRoleBindingName,
-		pkgkey.WriteAllAutomationSARoleBindingName(),
-	}
-
-	for _, roleBinding := range roleBindings {
-		_, err = r.k8sClient.RbacV1().RoleBindings(ns.Name).Get(ctx, roleBinding, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			continue
-		} else if err != nil {
-			return microerror.Mask(err)
-		} else {
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("deleting %#q rolebinding from namespace %s", roleBinding, ns.Name))
-
-			err = r.k8sClient.RbacV1().RoleBindings(ns.Name).Delete(ctx, roleBinding, metav1.DeleteOptions{})
-			if apierrors.IsNotFound(err) {
-				continue
-			}
-			if err != nil {
-				return microerror.Mask(err)
-			} else {
-				r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q has been deleted from namespace %s", roleBinding, ns.Name))
-			}
-		}
-	}
-
 	clusterRoleBindings := []string{
 		pkgkey.WriteSilencesAutomationSAinNSRoleBindingName(ns.Name),
 	}

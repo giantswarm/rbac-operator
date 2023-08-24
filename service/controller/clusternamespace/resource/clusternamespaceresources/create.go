@@ -90,38 +90,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
-	{
-		err = r.ensureClusterNamespaceFluxRole(ctx, cl.Name, pkgkey.FluxReconcilerServiceAccounts, fluxNSRolePair)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		err = r.ensureClusterNamespaceFluxRole(ctx, cl.Name, pkgkey.FluxCrdServiceAccounts, fluxCRDRolePair)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
-	return nil
-}
-
-func (r *Resource) ensureClusterNamespaceFluxRole(ctx context.Context, clusterNamespace string, serviceAccounts []string, rolesRef rolePair) error {
-	var subjects []rbacv1.Subject
-	for _, sa := range serviceAccounts {
-		subjects = append(subjects,
-			rbacv1.Subject{
-				Kind:      "ServiceAccount",
-				Name:      sa,
-				Namespace: pkgkey.FluxNamespaceName,
-			},
-		)
-	}
-
-	err := r.ensureClusterNamespaceNSRoleBinding(ctx, subjects, clusterNamespace, rolesRef)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	return nil
 }
 

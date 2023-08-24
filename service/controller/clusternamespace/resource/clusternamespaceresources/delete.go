@@ -30,15 +30,5 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		}
 	}
 
-	err = rbac.DeleteRoleBinding(r, ctx, cl.Name, fluxCRDRolePair.roleBindingName)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = rbac.DeleteRoleBinding(r, ctx, cl.Name, fluxNSRolePair.roleBindingName)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	return nil
 }

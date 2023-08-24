@@ -14,19 +14,6 @@ type rolePair struct {
 	roleName        string
 }
 
-var (
-	fluxCRDRolePair = rolePair{
-		roleBindingName: pkgkey.FluxCRDRoleBindingName,
-		roleKind:        "ClusterRole",
-		roleName:        pkgkey.UpstreamFluxCRDClusterRole,
-	}
-	fluxNSRolePair = rolePair{
-		roleBindingName: pkgkey.FluxReconcilerRoleBindingName,
-		roleKind:        "ClusterRole",
-		roleName:        pkgkey.ClusterAdminClusterRoleName,
-	}
-)
-
 // List of roles and roleBinding pairs that should be ensured as well as the granted permissions
 func referencedClusterRoles() []rolePair {
 	return []rolePair{
