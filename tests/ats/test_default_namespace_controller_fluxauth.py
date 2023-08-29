@@ -4,7 +4,6 @@ from typing import Tuple
 import pykube
 import pytest
 from pytest_helm_charts.clusters import Cluster
-from pytest_helm_charts.clusters import Organization
 import pytest_helm_charts.k8s.namespace as pytest_namespace
 from decorators import retry
 
