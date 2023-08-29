@@ -4,6 +4,7 @@ from typing import Tuple
 import pykube
 import pytest
 from pytest_helm_charts.clusters import Cluster
+from pytest_helm_charts.clusters import Organization
 import pytest_helm_charts.k8s.namespace as pytest_namespace
 from decorators import retry
 
@@ -34,8 +35,10 @@ class TestDefaultNamespaceControllerFluxAuth:
         self.init(kube_cluster)
 
         org_namespace, cluster_namespace = self.create_namespaces()
+        self.create_organization(kube_cluster)
         self.check_created()
 
+        self.delete_organization()
         self.delete_namespaces(cluster_namespace, org_namespace)
         self.check_deleted()
 
@@ -63,6 +66,12 @@ class TestDefaultNamespaceControllerFluxAuth:
 
         return org_namespace, cluster_namespace
     
+    def create_organization(self, kube_cluster: Cluster):
+        LOGGER.info("Creating organization")
+        kube_cluster.kubectl("apply", filename="https://raw.githubusercontent.com/giantswarm/organization-operator/main/config/crd/security.giantswarm.io_organizations.yaml", output_format="json")
+        kube_cluster.kubectl("apply", filename="test-organization.yaml", output_format="json")
+        LOGGER.info("Created organization")
+    
     @retry()
     def check_created(self):
         LOGGER.info("Checking for expected role bindings")
@@ -78,6 +87,11 @@ class TestDefaultNamespaceControllerFluxAuth:
         cluster_namespace.delete()
         org_namespace.delete()
         LOGGER.info("Deleted org and cluster namespaces")
+
+    def delete_organization(self, kube_cluster: Cluster):
+        LOGGER.info("Deleting organization")
+        kube_cluster.kubectl("delete", "organizations.security.giantswarm.io", ORG_NAME, output_format="json")
+        LOGGER.info("Deleted organization")
 
     @retry()
     def check_deleted(self):
