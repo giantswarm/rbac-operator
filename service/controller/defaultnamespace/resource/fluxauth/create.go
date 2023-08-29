@@ -181,7 +181,8 @@ func (r *Resource) createOrUpdateRoleBindingTemplate(ctx context.Context, roleBi
 		}
 	} else if needsUpdate(roleBindingTemplate, existingRoleBindingTemplate) {
 		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating role binding template %#q", roleBindingTemplate.Name))
-		if err := r.k8sClient.CtrlClient().Update(ctx, roleBindingTemplate); err != nil {
+		existingRoleBindingTemplate.Spec = roleBindingTemplate.Spec
+		if err := r.k8sClient.CtrlClient().Update(ctx, existingRoleBindingTemplate); err != nil {
 			return microerror.Mask(err)
 		}
 		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("role binding template %#q has been updated", roleBindingTemplate.Name))
