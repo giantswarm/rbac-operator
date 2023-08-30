@@ -27,7 +27,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	for i, ns := range namespaces {
+	status := []string{}
+	for _, ns := range namespaces {
 		roleBinding, err := getRoleBindingFromTemplate(template, ns)
 		if err != nil {
 			return microerror.Mask(err)
@@ -35,20 +36,21 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		if err = rbac.CreateOrUpdateRoleBinding(r, ctx, ns, roleBinding); err != nil {
 			r.logger.Debugf(ctx, "Could not apply roleBinding %s to namespace %s due to error %v", roleBinding.Name, ns, err)
-			namespaces = append(namespaces[:i], namespaces[i+1:]...)
+			continue
 		}
+		status = append(status, ns)
 	}
 
 	// go through old list of namespaces and compare for scope changes
 	for _, ns := range template.Status.Namespaces {
-		if !contains(namespaces, ns) {
+		if !contains(status, ns) {
 			if err = rbac.DeleteRoleBinding(r, ctx, ns, getRoleBindingNameFromTemplate(template)); err != nil {
 				return microerror.Mask(err)
 			}
 		}
 	}
 
-	template.Status.Namespaces = namespaces
+	template.Status.Namespaces = status
 	if err := r.k8sClient.CtrlClient().Status().Update(ctx, &template); err != nil {
 		return microerror.Mask(err)
 	}

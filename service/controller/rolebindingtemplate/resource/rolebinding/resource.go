@@ -100,16 +100,18 @@ func (r *Resource) getNamespacesFromScope(ctx context.Context, scopes v1alpha1.R
 			}
 		}
 	}
-	for i, ns := range namespaces {
+	scope := []string{}
+	for _, ns := range namespaces {
 		namespace, err := r.k8sClient.K8sClient().CoreV1().Namespaces().Get(ctx, ns, metav1.GetOptions{})
 		if err != nil {
-			namespaces = append(namespaces[:i], namespaces[i+1:]...)
+			continue
 		} else if namespace.DeletionTimestamp != nil {
-			namespaces = append(namespaces[:i], namespaces[i+1:]...)
+			continue
 		}
+		scope = append(scope, ns)
 	}
 
-	return namespaces, nil
+	return scope, nil
 }
 
 func getRoleBindingNameFromTemplate(template v1alpha1.RoleBindingTemplate) string {
