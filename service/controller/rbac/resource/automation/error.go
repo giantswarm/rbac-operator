@@ -1,4 +1,4 @@
-package fluxauth
+package automation
 
 import (
 	"github.com/giantswarm/microerror"
