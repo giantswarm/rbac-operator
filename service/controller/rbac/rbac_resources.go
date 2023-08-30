@@ -10,8 +10,8 @@ import (
 
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 
+	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/automation"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/externalresources"
-	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/fluxauth"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/resource/namespaceauth"
 )
 
@@ -38,14 +38,14 @@ func newRBACResources(config rbacResourcesConfig) ([]resource.Interface, error) 
 		}
 	}
 
-	var fluxAuthResource resource.Interface
+	var automationResource resource.Interface
 	{
-		c := fluxauth.Config{
+		c := automation.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
 
-		fluxAuthResource, err = fluxauth.New(c)
+		automationResource, err = automation.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -67,7 +67,7 @@ func newRBACResources(config rbacResourcesConfig) ([]resource.Interface, error) 
 	}
 
 	resources := []resource.Interface{
-		fluxAuthResource,
+		automationResource,
 		namespaceAuthResource,
 		externalResourcesResource,
 	}

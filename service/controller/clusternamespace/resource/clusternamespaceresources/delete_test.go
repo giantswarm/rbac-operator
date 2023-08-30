@@ -31,34 +31,6 @@ func Test_EnsureDeleted(t *testing.T) {
 			},
 			roleBindings: []*rbacv1.RoleBinding{
 				test.NewRoleBinding(
-					"flux-crd-controller",
-					"abc0",
-					map[string]string{
-						"kind": "ClusterRole",
-						"name": "crd-controller",
-					},
-					[]rbacv1.Subject{
-						{Kind: "ServiceAccount", Name: "helm-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "image-automation-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "image-reflector-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "kustomize-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "notification-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "source-controller", Namespace: "flux-system"},
-					},
-				),
-				test.NewRoleBinding(
-					"flux-namespace-reconciler",
-					"abc0",
-					map[string]string{
-						"kind": "ClusterRole",
-						"name": "cluster-admin",
-					},
-					[]rbacv1.Subject{
-						{Kind: "ServiceAccount", Name: "helm-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "kustomize-controller", Namespace: "flux-system"},
-					},
-				),
-				test.NewRoleBinding(
 					"write-in-cluster-ns",
 					"abc0",
 					map[string]string{

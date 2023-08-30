@@ -13,28 +13,31 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
+	"github.com/giantswarm/rbac-operator/api/v1alpha1"
 	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/defaultnamespacetest"
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 )
 
 func Test_DefaultNamespaceController(t *testing.T) {
 	testCases := []struct {
-		Name                        string
-		CustomerAdminGroups         []accessgroup.AccessGroup
-		GSAdminGroup                []accessgroup.AccessGroup
-		ExpectedClusterRoles        int
-		ExpectedClusterRoleBindings int
-		ExpectedRoles               int
-		ExpectedRoleBindings        int
+		Name                         string
+		CustomerAdminGroups          []accessgroup.AccessGroup
+		GSAdminGroup                 []accessgroup.AccessGroup
+		ExpectedClusterRoles         int
+		ExpectedClusterRoleBindings  int
+		ExpectedRoles                int
+		ExpectedRoleBindings         int
+		ExpectedRoleBindingTemplates int
 	}{
 		{
-			Name:                        "case0: Check that all resources are ensured created",
-			CustomerAdminGroups:         []accessgroup.AccessGroup{{Name: "customer"}},
-			GSAdminGroup:                []accessgroup.AccessGroup{{Name: "giantswarm"}},
-			ExpectedClusterRoles:        9,
-			ExpectedClusterRoleBindings: 7,
-			ExpectedRoles:               1,
-			ExpectedRoleBindings:        2,
+			Name:                         "case0: Check that all resources are ensured created",
+			CustomerAdminGroups:          []accessgroup.AccessGroup{{Name: "customer"}},
+			GSAdminGroup:                 []accessgroup.AccessGroup{{Name: "giantswarm"}},
+			ExpectedClusterRoles:         9,
+			ExpectedClusterRoleBindings:  7,
+			ExpectedRoles:                1,
+			ExpectedRoleBindings:         2,
+			ExpectedRoleBindingTemplates: 3,
 		},
 	}
 
@@ -54,6 +57,7 @@ func Test_DefaultNamespaceController(t *testing.T) {
 			{
 				schemeBuilder := runtime.SchemeBuilder{
 					security.AddToScheme,
+					v1alpha1.AddToScheme,
 				}
 
 				err = schemeBuilder.AddToScheme(scheme.Scheme)
@@ -110,6 +114,13 @@ func Test_DefaultNamespaceController(t *testing.T) {
 				t.Fatalf("received unexpected error %s", err)
 			}
 			shouldContainNumberOfResources(t, "roleBindings.Kind", len(roleBindings.Items), tc.ExpectedRoleBindings)
+
+			roleBindingTemplates := v1alpha1.RoleBindingTemplateList{}
+			err = k8sClientFake.CtrlClient().List(ctx, &roleBindingTemplates)
+			if err != nil {
+				t.Fatalf("received unexpected error %s", err)
+			}
+			shouldContainNumberOfResources(t, "roleBindingTemplates.Kind", len(roleBindingTemplates.Items), tc.ExpectedRoleBindingTemplates)
 		})
 	}
 }

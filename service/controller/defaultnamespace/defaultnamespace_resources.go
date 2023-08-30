@@ -12,6 +12,7 @@ import (
 	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/resource/catalog"
 	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/resource/clusternamespace"
 	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/resource/clusterroles"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/resource/fluxauth"
 	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/resource/releases"
 	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/resource/usergroups"
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
@@ -109,6 +110,19 @@ func newDefaultNamespaceResources(config defaultNamespaceBootstrapResourcesConfi
 		}
 	}
 
+	var fluxAuthResource resource.Interface
+	{
+		c := fluxauth.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+
+		fluxAuthResource, err = fluxauth.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []resource.Interface{
 		clusterRolesResource,
 		automationSAResource,
@@ -116,6 +130,7 @@ func newDefaultNamespaceResources(config defaultNamespaceBootstrapResourcesConfi
 		releasesResource,
 		catalogResource,
 		clusterNamespaceResource,
+		fluxAuthResource,
 	}
 
 	{

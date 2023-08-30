@@ -40,34 +40,6 @@ func Test_EnsureCreated(t *testing.T) {
 			organization: test.NewOrganization("acme"),
 			roleBindings: []*rbacv1.RoleBinding{
 				test.NewRoleBinding(
-					"flux-crd-controller",
-					"org-acme",
-					map[string]string{
-						"kind": "ClusterRole",
-						"name": "crd-controller",
-					},
-					[]rbacv1.Subject{
-						{Kind: "ServiceAccount", Name: "helm-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "image-automation-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "image-reflector-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "kustomize-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "notification-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "source-controller", Namespace: "flux-system"},
-					},
-				),
-				test.NewRoleBinding(
-					"flux-namespace-reconciler",
-					"org-acme",
-					map[string]string{
-						"kind": "ClusterRole",
-						"name": "cluster-admin",
-					},
-					[]rbacv1.Subject{
-						{Kind: "ServiceAccount", Name: "helm-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "kustomize-controller", Namespace: "flux-system"},
-					},
-				),
-				test.NewRoleBinding(
 					"cluster-ns-organization-acme-write",
 					"org-acme",
 					map[string]string{
@@ -92,34 +64,6 @@ func Test_EnsureCreated(t *testing.T) {
 			},
 			expectedRoleBindings: []*rbacv1.RoleBinding{
 				test.NewRoleBinding(
-					"flux-crd-controller",
-					"abc0",
-					map[string]string{
-						"kind": "ClusterRole",
-						"name": "crd-controller",
-					},
-					[]rbacv1.Subject{
-						{Kind: "ServiceAccount", Name: "helm-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "image-automation-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "image-reflector-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "kustomize-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "notification-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "source-controller", Namespace: "flux-system"},
-					},
-				),
-				test.NewRoleBinding(
-					"flux-namespace-reconciler",
-					"abc0",
-					map[string]string{
-						"kind": "ClusterRole",
-						"name": "cluster-admin",
-					},
-					[]rbacv1.Subject{
-						{Kind: "ServiceAccount", Name: "helm-controller", Namespace: "flux-system"},
-						{Kind: "ServiceAccount", Name: "kustomize-controller", Namespace: "flux-system"},
-					},
-				),
-				test.NewRoleBinding(
 					"write-in-cluster-ns",
 					"abc0",
 					map[string]string{
@@ -143,8 +87,8 @@ func Test_EnsureCreated(t *testing.T) {
 				),
 			},
 			expectedRoleBindingsNum: map[string]int{
-				"abc0":       4,
-				"org-acme":   4,
+				"abc0":       2,
+				"org-acme":   2,
 				"giantswarm": 0,
 			},
 		},

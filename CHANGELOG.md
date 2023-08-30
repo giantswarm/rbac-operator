@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Move flux auth out of org/cluster namespace controllers and reconcile it via RoleBindingTemplates instead.
+
 ## [0.36.0] - 2023-08-23
 
 ### Removed
