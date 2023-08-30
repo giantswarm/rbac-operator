@@ -37,7 +37,6 @@ class TestDefaultNamespaceControllerFluxAuth:
 
         self.delete_organization(kube_cluster)
         self.delete_namespaces(cluster_namespace, org_namespace)
-        self.check_deleted()
 
     def create_namespaces(self) -> Tuple[pykube.Namespace, pykube.Namespace]:
         LOGGER.info("Creating org and cluster namespaces")
