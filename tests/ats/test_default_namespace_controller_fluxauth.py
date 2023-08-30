@@ -86,7 +86,7 @@ class TestDefaultNamespaceControllerFluxAuth:
 
     def delete_organization(self, kube_cluster: Cluster):
         LOGGER.info("Deleting organization")
-        kube_cluster.kubectl("delete", "organizations.security.giantswarm.io", ORG_NAME, output_format="json")
+        kube_cluster.kubectl("delete", filename="test-organization.yaml", output_format="")
         LOGGER.info("Deleted organization")
 
     @retry()
