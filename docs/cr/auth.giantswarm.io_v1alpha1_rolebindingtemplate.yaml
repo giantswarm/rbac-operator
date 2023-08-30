@@ -1,0 +1,19 @@
+apiVersion: auth.giantswarm.io/v1alpha1
+kind: RoleBindingTemplate
+metadata:
+  name: rolebindingtemplate-sample
+spec:
+  template:
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: example-role
+    subjects:
+    - kind: ServiceAccount
+      name: example-sa
+    - kind: Group
+      name: example-group
+  scopes:
+    organizationSelector:
+      matchLabels:
+        key: value
