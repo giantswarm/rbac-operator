@@ -34,7 +34,6 @@ class TestDefaultNamespaceControllerFluxAuth:
         self.init(kube_cluster)
 
         org_namespace, cluster_namespace = self.create_namespaces()
-        self.install_crd(kube_cluster)
         self.create_organization(kube_cluster)
         self.check_created()
 
@@ -68,14 +67,9 @@ class TestDefaultNamespaceControllerFluxAuth:
     
     def create_organization(self, kube_cluster: Cluster):
         LOGGER.info("Creating organization")
+        kube_cluster.kubectl("apply", filename="https://raw.githubusercontent.com/giantswarm/organization-operator/main/config/crd/security.giantswarm.io_organizations.yaml", output_format="json")
         kube_cluster.kubectl("apply", filename="test-organization.yaml", output_format="json")
         LOGGER.info("Created organization")
-
-    def install_crd(self, kube_cluster: Cluster):
-        LOGGER.info("Installing crds")
-        kube_cluster.kubectl("apply", filename="https://raw.githubusercontent.com/giantswarm/rbac-operator/main/config/crd/auth.giantswarm.io_rolebindingtemplates.yaml", output_format="json")
-        kube_cluster.kubectl("apply", filename="https://raw.githubusercontent.com/giantswarm/organization-operator/main/config/crd/security.giantswarm.io_organizations.yaml", output_format="json")
-        LOGGER.info("Installed crds")
     
     @retry()
     def check_created(self):

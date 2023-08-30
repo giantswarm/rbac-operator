@@ -25,6 +25,7 @@ def test_api_working(kube_cluster: Cluster) -> None:
 def app_deployments(kube_cluster: Cluster) -> List[pykube.Deployment]:
     if kube_cluster.kube_client is None:
         raise Exception("kube_client is None")
+    kube_cluster.kubectl("apply", filename="https://raw.githubusercontent.com/giantswarm/rbac-operator/main/config/crd/auth.giantswarm.io_rolebindingtemplates.yaml", output_format="json")
     deployments = wait_for_deployments_to_run(
         kube_cluster.kube_client,
         DEPLOYMENT_NAMES,
