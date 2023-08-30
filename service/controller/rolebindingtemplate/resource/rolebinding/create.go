@@ -27,14 +27,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	for _, ns := range namespaces {
+	for i, ns := range namespaces {
 		roleBinding, err := getRoleBindingFromTemplate(template, ns)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
 		if err = rbac.CreateOrUpdateRoleBinding(r, ctx, ns, roleBinding); err != nil {
-			return microerror.Mask(err)
+			r.logger.Debugf(ctx, "Could not apply roleBinding %s to namespace %s due to error %v", roleBinding.Name, ns, err)
+			namespaces = append(namespaces[:i], namespaces[i+1:]...)
 		}
 	}
 
