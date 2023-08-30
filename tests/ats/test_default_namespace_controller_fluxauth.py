@@ -35,7 +35,7 @@ class TestDefaultNamespaceControllerFluxAuth:
         self.create_organization(kube_cluster)
         self.check_created()
 
-        self.delete_organization()
+        self.delete_organization(kube_cluster)
         self.delete_namespaces(cluster_namespace, org_namespace)
         self.check_deleted()
 
