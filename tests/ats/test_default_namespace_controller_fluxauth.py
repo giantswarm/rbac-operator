@@ -14,8 +14,6 @@ ORG_NAME = "test"
 ORG_NAMESPACE_NAME = f"org-{ORG_NAME}"
 
 EXPECTED_ROLE_BINDING_NAMES = [
-    "flux-crd-controller",
-    "flux-namespace-reconciler",
     "write-all-customer-sa"
 ]
 
@@ -67,7 +65,6 @@ class TestDefaultNamespaceControllerFluxAuth:
     
     def create_organization(self, kube_cluster: Cluster):
         LOGGER.info("Creating organization")
-        kube_cluster.kubectl("apply", filename="https://raw.githubusercontent.com/giantswarm/organization-operator/main/config/crd/security.giantswarm.io_organizations.yaml", output_format="json")
         kube_cluster.kubectl("apply", filename="test-organization.yaml", output_format="json")
         LOGGER.info("Created organization")
     
