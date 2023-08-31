@@ -93,12 +93,13 @@ func getRoleBindingFromTemplate(template v1alpha1.RoleBindingTemplate, namespace
 	}
 
 	// ensure subjects
-	subjects := template.Spec.Template.Subjects
+	var subjects []rbacv1.Subject
 	{
-		for i, s := range subjects {
-			if s.Kind == rbacv1.ServiceAccountKind && s.Namespace == "" {
-				subjects[i].Namespace = namespace
+		for _, subject := range template.Spec.Template.Subjects {
+			if subject.Kind == rbacv1.ServiceAccountKind && subject.Namespace == "" {
+				subject.Namespace = namespace
 			}
+			subjects = append(subjects, subject)
 		}
 	}
 
