@@ -19,18 +19,18 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 		Name         string
 		Template     *rbacv1.RoleBinding
 		TemplateName string
-		Namespace    string
+		Namespaces   []string
 
-		expectedRoleBinding *rbacv1.RoleBinding
-		expectError         bool
+		expectedRoleBindings []*rbacv1.RoleBinding
+		expectError          bool
 	}{
 		{
 			Name:         "case0: no changes",
 			Template:     getTestRoleBinding(),
 			TemplateName: "something",
-			Namespace:    "org-example",
+			Namespaces:   []string{"org-example"},
 
-			expectedRoleBinding: getTestRoleBinding(),
+			expectedRoleBindings: []*rbacv1.RoleBinding{getTestRoleBinding()},
 		},
 
 		{
@@ -46,9 +46,9 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 				},
 			},
 			TemplateName: "something",
-			Namespace:    "org-example",
+			Namespaces:   []string{"org-example"},
 
-			expectedRoleBinding: getTestRoleBinding(),
+			expectedRoleBindings: []*rbacv1.RoleBinding{getTestRoleBinding()},
 		},
 
 		{
@@ -64,7 +64,7 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 				},
 			},
 			TemplateName: "something",
-			Namespace:    "org-example",
+			Namespaces:   []string{"org-example"},
 
 			expectError: true,
 		},
@@ -78,7 +78,7 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 				},
 			},
 			TemplateName: "something",
-			Namespace:    "org-example",
+			Namespaces:   []string{"org-example"},
 
 			expectError: true,
 		},
@@ -108,23 +108,51 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 				},
 			},
 			TemplateName: "another-name",
-			Namespace:    "another-namespace",
+			Namespaces:   []string{"another-namespace"},
 
-			expectedRoleBinding: &rbacv1.RoleBinding{
+			expectedRoleBindings: []*rbacv1.RoleBinding{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "name",
+						Namespace: "another-namespace",
+						Labels: map[string]string{
+							"the-label":     "the-value",
+							label.ManagedBy: project.Name(),
+						},
+						Annotations: map[string]string{
+							annotation.Notes: "There is already a note here",
+						},
+					},
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "RoleBinding",
+						APIVersion: "rbac.authorization.k8s.io/v1",
+					},
+					RoleRef: rbacv1.RoleRef{
+						Name:     "example",
+						Kind:     "ClusterRole",
+						APIGroup: "rbac.authorization.k8s.io",
+					},
+					Subjects: []rbacv1.Subject{
+						{Kind: "Group", Name: "test-group"},
+						{Kind: "ServiceAccount", Name: "test-SA", Namespace: "org-example"},
+						{Kind: "ServiceAccount", Name: "test-SA", Namespace: "another-namespace"},
+					},
+				},
+			},
+		},
+
+		{
+			Name: "case5: apply template to multiple namespaces",
+			Template: &rbacv1.RoleBinding{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "name",
-					Namespace: "another-namespace",
+					Namespace: "org-example",
 					Labels: map[string]string{
-						"the-label":     "the-value",
-						label.ManagedBy: project.Name(),
+						"the-label": "the-value",
 					},
 					Annotations: map[string]string{
 						annotation.Notes: "There is already a note here",
 					},
-				},
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "RoleBinding",
-					APIVersion: "rbac.authorization.k8s.io/v1",
 				},
 				RoleRef: rbacv1.RoleRef{
 					Name:     "example",
@@ -134,7 +162,66 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 				Subjects: []rbacv1.Subject{
 					{Kind: "Group", Name: "test-group"},
 					{Kind: "ServiceAccount", Name: "test-SA", Namespace: "org-example"},
-					{Kind: "ServiceAccount", Name: "test-SA", Namespace: "another-namespace"},
+					{Kind: "ServiceAccount", Name: "test-SA"},
+				},
+			},
+			TemplateName: "another-name",
+			Namespaces:   []string{"another-namespace-1", "another-namespace-2"},
+
+			expectedRoleBindings: []*rbacv1.RoleBinding{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "name",
+						Namespace: "another-namespace-1",
+						Labels: map[string]string{
+							"the-label":     "the-value",
+							label.ManagedBy: project.Name(),
+						},
+						Annotations: map[string]string{
+							annotation.Notes: "There is already a note here",
+						},
+					},
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "RoleBinding",
+						APIVersion: "rbac.authorization.k8s.io/v1",
+					},
+					RoleRef: rbacv1.RoleRef{
+						Name:     "example",
+						Kind:     "ClusterRole",
+						APIGroup: "rbac.authorization.k8s.io",
+					},
+					Subjects: []rbacv1.Subject{
+						{Kind: "Group", Name: "test-group"},
+						{Kind: "ServiceAccount", Name: "test-SA", Namespace: "org-example"},
+						{Kind: "ServiceAccount", Name: "test-SA", Namespace: "another-namespace-1"},
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "name",
+						Namespace: "another-namespace-2",
+						Labels: map[string]string{
+							"the-label":     "the-value",
+							label.ManagedBy: project.Name(),
+						},
+						Annotations: map[string]string{
+							annotation.Notes: "There is already a note here",
+						},
+					},
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "RoleBinding",
+						APIVersion: "rbac.authorization.k8s.io/v1",
+					},
+					RoleRef: rbacv1.RoleRef{
+						Name:     "example",
+						Kind:     "ClusterRole",
+						APIGroup: "rbac.authorization.k8s.io",
+					},
+					Subjects: []rbacv1.Subject{
+						{Kind: "Group", Name: "test-group"},
+						{Kind: "ServiceAccount", Name: "test-SA", Namespace: "org-example"},
+						{Kind: "ServiceAccount", Name: "test-SA", Namespace: "another-namespace-2"},
+					},
 				},
 			},
 		},
@@ -155,16 +242,38 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 					},
 				},
 			}
-			result, err := getRoleBindingFromTemplate(template, tc.Namespace)
-			if !tc.expectError && err != nil {
-				t.Fatalf("Expected success, got error %v", err)
-			}
-			if tc.expectError && err == nil {
-				t.Fatalf("Expected error, got success")
+
+			var results []*rbacv1.RoleBinding
+
+			for _, namespace := range tc.Namespaces {
+				result, err := getRoleBindingFromTemplate(template, namespace)
+				if !tc.expectError && err != nil {
+					t.Fatalf("Expected success, got error %v", err)
+				}
+				if tc.expectError && err == nil {
+					t.Fatalf("Expected error, got success")
+				}
+
+				results = append(results, result)
 			}
 
-			if !reflect.DeepEqual(result, tc.expectedRoleBinding) {
-				t.Fatalf("Expected %v to be equal to %v", result, tc.expectedRoleBinding)
+			if !tc.expectError {
+				if len(tc.expectedRoleBindings) != len(results) {
+					t.Fatalf("Expected %d role bindings, got %d\n", len(tc.expectedRoleBindings), len(results))
+				}
+
+				for _, expected := range tc.expectedRoleBindings {
+					hasEqualResult := false
+					for _, result := range results {
+						if reflect.DeepEqual(expected, result) {
+							hasEqualResult = true
+							break
+						}
+					}
+					if !hasEqualResult {
+						t.Fatalf("Did not find expected role binding\n%v\n\n ...in:\n%v\n", expected, results)
+					}
+				}
 			}
 		})
 	}

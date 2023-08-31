@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix applying RoleBindingTemplate to multiple namespaces
+
 ## [0.37.1] - 2023-08-30
 
 ### Added
