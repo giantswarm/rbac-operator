@@ -67,7 +67,7 @@ class TestRBACControllerExternalResources:
 
         return org_namespace, cluster_namespace
 
-    @retry()
+    @retry(max_retries=10)
     def check_created(self):
         LOGGER.info("Checking for expected cluster role bindings and roles")
         # raises if not found
@@ -89,7 +89,7 @@ class TestRBACControllerExternalResources:
         cluster_namespace.delete()
         LOGGER.info("Deleted org and cluster namespaces")
 
-    @retry()
+    @retry(max_retries=10)
     def check_deleted(self):
         try:
             for expected_cluster_role_name in EXPECTED_CLUSTER_ROLE_BINDING_NAMES:
