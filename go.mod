@@ -103,13 +103,13 @@ replace (
 	github.com/coreos/etcd => go.etcd.io/etcd/v3 v3.5.9
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
-	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.24.0
+	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.25.1
 	github.com/hashicorp/consul/sdk => github.com/hashicorp/consul/sdk v0.14.1
 	github.com/kataras/iris/v12 => github.com/kataras/iris/v12 v12.2.5
 	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.11.1
 	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.25
-	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.9.22
-	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.49.0
+	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.10.0
+	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.50.0
 	golang.org/x/text => golang.org/x/text v0.13.0
 )
 
