@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Try to fix flaky tests by increasing retries.
 
+### Changed
+
+- Propagate `global.podSecurityStandards.enforced` value set to `false` for PSS migration
+
 ## [0.37.2] - 2023-09-01
 
 ### Fixed
