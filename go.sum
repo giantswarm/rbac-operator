@@ -105,8 +105,8 @@ github.com/giantswarm/micrologger v1.0.0 h1:5W4h3K414CXhoXQ3rkGbrMl8yUGdbCLKMdg/
 github.com/giantswarm/micrologger v1.0.0/go.mod h1:jFY9TUZLYnQ437GwbodmGmwEJ5cImEJ1f5NTPyDHB24=
 github.com/giantswarm/operatorkit/v8 v8.0.0 h1:AM1Xxg8X6xQjhxh+Jn1Tiv2MkpG8Ro4gqEsytZBBU5M=
 github.com/giantswarm/operatorkit/v8 v8.0.0/go.mod h1:dPrvvQj2UNBw6jLDYqvGhnDfJImwih8A+F3Oc1VS8XM=
-github.com/giantswarm/organization-operator v1.4.0 h1:Idbu2gXFeFeaj+0OP77bIixvi6Anqh5+ny3U9oxAipA=
-github.com/giantswarm/organization-operator v1.4.0/go.mod h1:0LZ8NoGB/0iCb/Vth1eFln8u2+MBW/pzrSB9W1XDqkA=
+github.com/giantswarm/organization-operator v1.6.0 h1:Dr8/WeWtmIO84xXjQW8Mp7ABjuUpU84zinjlOuTWOxQ=
+github.com/giantswarm/organization-operator v1.6.0/go.mod h1:1s2QrcDgEDGVKDUbb2Ojk5umqYGbfs48m3nBgJB7V9Q=
 github.com/giantswarm/to v0.4.0 h1:x0GjbI94/nxcHztJiRtJzihCjgmUlEOto8RD98VA7WI=
 github.com/giantswarm/to v0.4.0/go.mod h1:RTRtw+Dyk6YqoiNBOGLO981BqhibtVwogdaFIMO1y/A=
 github.com/giantswarm/versionbundle v1.0.0 h1:36wuA6qrA5MkqKLKyUWmQLab1f293svA8/ac28VAG+4=
