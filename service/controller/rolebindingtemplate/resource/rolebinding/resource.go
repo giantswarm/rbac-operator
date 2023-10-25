@@ -69,7 +69,7 @@ func getLabelSelectorFromScopes(scopes v1alpha1.RoleBindingTemplateScopes) (labe
 	})
 }
 
-func (r *Resource) getOrganizationsFromLabelSelector(ctx context.Context, labelSelector labels.Selector) (*security.OrganizationList, error) {
+func (r *Resource) getOrganizationsForLabelSelector(ctx context.Context, labelSelector labels.Selector) (*security.OrganizationList, error) {
 	organizations := &security.OrganizationList{}
 
 	if err := r.k8sClient.CtrlClient().List(ctx, organizations, &client.ListOptions{LabelSelector: labelSelector}); err != nil {
@@ -116,7 +116,7 @@ func (r *Resource) getNamespacesFromScope(ctx context.Context, scopes v1alpha1.R
 		return nil, microerror.Mask(err)
 	}
 
-	organizations, err := r.getOrganizationsFromLabelSelector(ctx, labelSelector)
+	organizations, err := r.getOrganizationsForLabelSelector(ctx, labelSelector)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
