@@ -15,10 +15,8 @@ spec:
       name: example-group
   scopes:
     organizationSelector:
-      matchLabels:
-        key: value
       matchExpressions:
-      - scopeName: key
+      - key: key
         operator: In
         values:
         - value
