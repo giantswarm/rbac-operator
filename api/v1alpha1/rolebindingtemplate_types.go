@@ -80,7 +80,8 @@ type RoleBindingTemplateScopes struct {
 
 // ScopeSelector wraps a k8s label selector
 type ScopeSelector struct {
-	MatchLabels map[string]string `json:"matchLabels,omitempty"`
+	MatchLabels      map[string]string                 `json:"matchLabels,omitempty"`
+	MatchExpressions []metav1.LabelSelectorRequirement `json:"matchExpressions,omitempty"`
 }
 
 func init() {
