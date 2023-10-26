@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.39.0] - 2023-10-26
+
 ### Added
 
 - Add `MatchExpressions` selector to organization scope for `RoleBindingTemplate`
@@ -495,7 +497,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.38.0...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.39.0...HEAD
+[0.39.0]: https://github.com/giantswarm/rbac-operator/compare/v0.38.0...v0.39.0
 [0.38.0]: https://github.com/giantswarm/rbac-operator/compare/v0.37.2...v0.38.0
 [0.37.2]: https://github.com/giantswarm/rbac-operator/compare/v0.37.1...v0.37.2
 [0.37.1]: https://github.com/giantswarm/rbac-operator/compare/v0.37.0...v0.37.1
