@@ -62,44 +62,70 @@ func (r *Resource) Name() string {
 	return Name
 }
 
-func (r *Resource) getNamespacesFromScope(ctx context.Context, scopes v1alpha1.RoleBindingTemplateScopes) ([]string, error) {
+func getLabelSelectorFromScopes(scopes v1alpha1.RoleBindingTemplateScopes) (labels.Selector, error) {
+	return metav1.LabelSelectorAsSelector(&metav1.LabelSelector{
+		MatchLabels:      scopes.OrganizationSelector.MatchLabels,
+		MatchExpressions: scopes.OrganizationSelector.MatchExpressions,
+	})
+}
+
+func (r *Resource) getOrganizationsForLabelSelector(ctx context.Context, labelSelector labels.Selector) (*security.OrganizationList, error) {
 	organizations := &security.OrganizationList{}
-	{
-		labelSelector := labels.SelectorFromSet(scopes.OrganizationSelector.MatchLabels)
-		if err := r.k8sClient.CtrlClient().List(ctx, organizations, &client.ListOptions{LabelSelector: labelSelector}); err != nil {
-			if apierrors.IsNotFound(err) {
-				r.logger.Debugf(ctx, "No namespaces in organization scope %s", labelSelector.String())
-				return []string{}, nil
-			}
+
+	if err := r.k8sClient.CtrlClient().List(ctx, organizations, &client.ListOptions{LabelSelector: labelSelector}); err != nil {
+		if apierrors.IsNotFound(err) {
+			r.logger.Debugf(ctx, "No organizations in organization scope %s", labelSelector.String())
+			return organizations, nil
+		}
+		return nil, microerror.Mask(err)
+	}
+	if len(organizations.Items) == 0 {
+		r.logger.Debugf(ctx, "No organizations in organization scope %s", labelSelector.String())
+	}
+	return organizations, nil
+}
+
+func (r *Resource) getNamespacesFromOrganizations(ctx context.Context, organizations *security.OrganizationList) ([]string, error) {
+	namespaces := []string{}
+
+	for _, o := range organizations.Items {
+		// get the org namespace
+		namespaces = append(namespaces, o.Status.Namespace)
+
+		// get the cluster namespaces that belong to the org namespace
+		labelSelector, err := labels.Parse(fmt.Sprintf("%s=%s,%s", label.Organization, o.Name, label.Cluster))
+		if err != nil {
 			return nil, microerror.Mask(err)
 		}
-		if len(organizations.Items) == 0 {
-			r.logger.Debugf(ctx, "No namespaces in organization scope %s", labelSelector.String())
-			return []string{}, nil
-		}
-	}
-	namespaces := []string{}
-	{
-		for _, o := range organizations.Items {
-			// get the org namespace
-			namespaces = append(namespaces, o.Status.Namespace)
-
-			// get the cluster namespaces that belong to the org namespace
-			labelSelector, err := labels.Parse(fmt.Sprintf("%s=%s,%s", label.Organization, o.Name, label.Cluster))
-			if err != nil {
+		clusterNamespaces, err := r.k8sClient.K8sClient().CoreV1().Namespaces().List(ctx, metav1.ListOptions{LabelSelector: labelSelector.String()})
+		if err != nil {
+			if !apierrors.IsNotFound(err) {
 				return nil, microerror.Mask(err)
 			}
-			clusterNamespaces, err := r.k8sClient.K8sClient().CoreV1().Namespaces().List(ctx, metav1.ListOptions{LabelSelector: labelSelector.String()})
-			if err != nil {
-				if !apierrors.IsNotFound(err) {
-					return nil, microerror.Mask(err)
-				}
-			}
-			for _, cns := range clusterNamespaces.Items {
-				namespaces = append(namespaces, cns.Name)
-			}
+		}
+		for _, cns := range clusterNamespaces.Items {
+			namespaces = append(namespaces, cns.Name)
 		}
 	}
+	return namespaces, nil
+}
+
+func (r *Resource) getNamespacesFromScope(ctx context.Context, scopes v1alpha1.RoleBindingTemplateScopes) ([]string, error) {
+	labelSelector, err := getLabelSelectorFromScopes(scopes)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	organizations, err := r.getOrganizationsForLabelSelector(ctx, labelSelector)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	namespaces, err := r.getNamespacesFromOrganizations(ctx, organizations)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	scope := []string{}
 	for _, ns := range namespaces {
 		namespace, err := r.k8sClient.K8sClient().CoreV1().Namespaces().Get(ctx, ns, metav1.GetOptions{})

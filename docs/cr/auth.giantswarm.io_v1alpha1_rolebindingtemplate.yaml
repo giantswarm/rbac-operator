@@ -17,3 +17,8 @@ spec:
     organizationSelector:
       matchLabels:
         key: value
+      matchExpressions:
+      - key: key
+        operator: In
+        values:
+        - value

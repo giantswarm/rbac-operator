@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `MatchExpressions` selector to organization scope for `RoleBindingTemplate`
+
 ## [0.38.0] - 2023-10-02
 
 ### Fixed

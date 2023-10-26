@@ -26,6 +26,7 @@ func TestGetNamespacesFromScope(t *testing.T) {
 	testCases := []struct {
 		Name                 string
 		MatchLabels          map[string]string
+		MatchExpressions     []metav1.LabelSelectorRequirement
 		ExistingOrgStructure []int // each number represents number of cluster ns in an org
 
 		expectedNamespaces []string
@@ -60,9 +61,63 @@ func TestGetNamespacesFromScope(t *testing.T) {
 			expectedNamespaces:   []string{},
 		},
 		{
-			Name:                 "case4: no orgs",
+			Name:                 "case5: no orgs",
 			ExistingOrgStructure: []int{},
 			expectedNamespaces:   []string{},
+		},
+		{
+			Name: "case6: matcher for uneven orgs, no cluster namespaces using matchExpressions",
+			MatchExpressions: []metav1.LabelSelectorRequirement{
+				{
+					Key:      "key",
+					Operator: metav1.LabelSelectorOpIn,
+					Values:   []string{"value-1"},
+				},
+			},
+			ExistingOrgStructure: []int{0, 0, 0},
+			expectedNamespaces:   []string{"org-organization-1"},
+		},
+		{
+			Name: "case7: matcher for uneven orgs, cluster namespaces using matchExpressions",
+			MatchExpressions: []metav1.LabelSelectorRequirement{
+				{
+					Key:      "key",
+					Operator: metav1.LabelSelectorOpNotIn,
+					Values:   []string{"value-0"},
+				},
+			},
+			ExistingOrgStructure: []int{1, 2, 3},
+			expectedNamespaces:   []string{"org-organization-1", "cluster-0-org-1", "cluster-1-org-1"},
+		},
+		{
+			Name: "case8: using matchExpressions with different operators",
+			MatchExpressions: []metav1.LabelSelectorRequirement{
+				{
+					Key:      "key",
+					Operator: metav1.LabelSelectorOpNotIn,
+					Values:   []string{"value-0"},
+				},
+				{
+					Key:      "key2",
+					Operator: metav1.LabelSelectorOpIn,
+					Values:   []string{"value-1"},
+				},
+			},
+			ExistingOrgStructure: []int{1, 2, 3},
+			expectedNamespaces:   []string{},
+		},
+		{
+			Name:        "case9: using matchExpressions and matchLabels",
+			MatchLabels: map[string]string{"key": "value-1"},
+			MatchExpressions: []metav1.LabelSelectorRequirement{
+				{
+					Key:      "key",
+					Operator: metav1.LabelSelectorOpIn,
+					Values:   []string{"value-1", "value-0"},
+				},
+			},
+			ExistingOrgStructure: []int{1, 2, 3},
+			expectedNamespaces:   []string{"org-organization-1", "cluster-0-org-1", "cluster-1-org-1"},
 		},
 	}
 
@@ -71,7 +126,8 @@ func TestGetNamespacesFromScope(t *testing.T) {
 
 			scopes := v1alpha1.RoleBindingTemplateScopes{
 				OrganizationSelector: v1alpha1.ScopeSelector{
-					MatchLabels: tc.MatchLabels,
+					MatchLabels:      tc.MatchLabels,
+					MatchExpressions: tc.MatchExpressions,
 				},
 			}
 
@@ -94,6 +150,92 @@ func TestGetNamespacesFromScope(t *testing.T) {
 
 			if !reflect.DeepEqual(result, tc.expectedNamespaces) {
 				t.Fatalf("Expected %v to be equal to %v", result, tc.expectedNamespaces)
+			}
+		})
+	}
+}
+
+func TestGetLabelSelectorFromScopes(t *testing.T) {
+	testCases := []struct {
+		Name             string
+		Scopes           v1alpha1.RoleBindingTemplateScopes
+		ExpectedSelector string
+	}{
+		{
+			Name:             "case0: no matchers",
+			Scopes:           v1alpha1.RoleBindingTemplateScopes{},
+			ExpectedSelector: "",
+		},
+		{
+			Name: "case1: matchLabels",
+			Scopes: v1alpha1.RoleBindingTemplateScopes{
+				OrganizationSelector: v1alpha1.ScopeSelector{
+					MatchLabels: map[string]string{"key": "value"},
+				},
+			},
+			ExpectedSelector: "key=value",
+		},
+		{
+			Name: "case2: matchExpressions",
+			Scopes: v1alpha1.RoleBindingTemplateScopes{
+				OrganizationSelector: v1alpha1.ScopeSelector{
+					MatchExpressions: []metav1.LabelSelectorRequirement{
+						{
+							Key:      "key",
+							Operator: metav1.LabelSelectorOpIn,
+							Values:   []string{"value1", "value2"},
+						},
+					},
+				},
+			},
+			ExpectedSelector: "key in (value1,value2)",
+		},
+		{
+			Name: "case3: matchLabels and matchExpressions",
+			Scopes: v1alpha1.RoleBindingTemplateScopes{
+				OrganizationSelector: v1alpha1.ScopeSelector{
+					MatchLabels: map[string]string{"key": "value"},
+					MatchExpressions: []metav1.LabelSelectorRequirement{
+						{
+							Key:      "key",
+							Operator: metav1.LabelSelectorOpIn,
+							Values:   []string{"value1", "value2"},
+						},
+					},
+				},
+			},
+			ExpectedSelector: "key=value,key in (value1,value2)",
+		},
+		{
+			Name: "case4: matchLabels and matchExpressions with different operators",
+			Scopes: v1alpha1.RoleBindingTemplateScopes{
+				OrganizationSelector: v1alpha1.ScopeSelector{
+					MatchLabels: map[string]string{"key": "value"},
+					MatchExpressions: []metav1.LabelSelectorRequirement{
+						{
+							Key:      "key",
+							Operator: metav1.LabelSelectorOpIn,
+							Values:   []string{"value1", "value2"},
+						},
+						{
+							Key:      "key2",
+							Operator: metav1.LabelSelectorOpNotIn,
+							Values:   []string{"value3", "value4"},
+						},
+					},
+				},
+			},
+			ExpectedSelector: "key=value,key in (value1,value2),key2 notin (value3,value4)",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			result, err := getLabelSelectorFromScopes(tc.Scopes)
+			if err != nil {
+				t.Fatalf("Expected success, got error %v", err)
+			}
+			if result.String() != tc.ExpectedSelector {
+				t.Fatalf("Expected %v to be equal to %v", result, tc.ExpectedSelector)
 			}
 		})
 	}
