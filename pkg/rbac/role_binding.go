@@ -31,7 +31,7 @@ func RoleBindingNeedsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.Role
 func CreateOrUpdateRoleBinding(c base.K8sClientWithLogging, ctx context.Context, namespace string, roleBinding *rbacv1.RoleBinding) error {
 	existingRoleBinding, err := c.K8sClient().RbacV1().RoleBindings(namespace).Get(ctx, roleBinding.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		c.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Creating RoleBinding %#q in namespce %s.", roleBinding.Name, namespace))
+		c.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Creating RoleBinding %#q in namespace %s.", roleBinding.Name, namespace))
 
 		_, err := c.K8sClient().RbacV1().RoleBindings(namespace).Create(ctx, roleBinding, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {

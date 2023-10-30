@@ -11,6 +11,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/rbac-operator/api/v1alpha1"
+	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/pkg/rbac"
 	"github.com/giantswarm/rbac-operator/service/controller/rolebindingtemplate/key"
@@ -34,11 +35,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		if err = rbac.CreateOrUpdateRoleBinding(r, ctx, ns, roleBinding); err != nil {
-			r.logger.Debugf(ctx, "Could not apply roleBinding %s to namespace %s due to error %v", roleBinding.Name, ns, err)
-			continue
+		if !isForbidden(roleBinding, ns) {
+			if err = rbac.CreateOrUpdateRoleBinding(r, ctx, ns, roleBinding); err != nil {
+				r.logger.Debugf(ctx, "Could not apply roleBinding %s to namespace %s due to error %v", roleBinding.Name, ns, err)
+				continue
+			}
+			status = append(status, ns)
 		}
-		status = append(status, ns)
 	}
 
 	// go through old list of namespaces and compare for scope changes
@@ -113,6 +116,22 @@ func getRoleBindingFromTemplate(template v1alpha1.RoleBindingTemplate, namespace
 		RoleRef:    roleRef,
 		Subjects:   subjects,
 	}, nil
+}
+
+func isForbidden(roleBinding *rbacv1.RoleBinding, namespace string) bool {
+	// the roleBinding is forbidden if its in a protected namespace and contains Subjects other than serviceAccounts in flux namespaces
+	if !pkgkey.IsProtectedNamespace(namespace) {
+		return false
+	}
+	for _, subject := range roleBinding.Subjects {
+		if subject.Kind != rbacv1.ServiceAccountKind {
+			return true
+		}
+		if subject.Namespace != pkgkey.FluxNamespaceName {
+			return true
+		}
+	}
+	return false
 }
 
 func incompleteRoleRef(roleRef rbacv1.RoleRef) bool {
