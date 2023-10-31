@@ -100,19 +100,27 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		roleBinding := writeAllRoleBindingToCustomerGroup
 		existingRoleBinding, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Get(ctx, roleBinding.Name, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating rolebinding %#q in namespace %s", roleBinding.Name, ns.Name))
+			if !pkgkey.IsProtectedNamespace(ns.Name) {
+				r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating rolebinding %#q in namespace %s", roleBinding.Name, ns.Name))
 
-			_, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Create(ctx, roleBinding, metav1.CreateOptions{})
-			if apierrors.IsAlreadyExists(err) {
-				// do nothing
-			} else if err != nil {
-				return microerror.Mask(err)
+				_, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Create(ctx, roleBinding, metav1.CreateOptions{})
+				if apierrors.IsAlreadyExists(err) {
+					// do nothing
+				} else if err != nil {
+					return microerror.Mask(err)
+				}
+
+				r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been created", roleBinding.Name, ns.Name))
 			}
-
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been created", roleBinding.Name, ns.Name))
-
 		} else if err != nil {
 			return microerror.Mask(err)
+		} else if pkgkey.IsProtectedNamespace(ns.Name) {
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("deleting rolebinding %#q in namespace %s", roleBinding.Name, ns.Name))
+			err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Delete(ctx, roleBinding.Name, metav1.DeleteOptions{})
+			if err != nil {
+				return microerror.Mask(err)
+			}
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been deleted", roleBinding.Name, ns.Name))
 		} else if needsUpdate(roleBinding, existingRoleBinding) {
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating rolebinding %#q in namespace %s", roleBinding.Name, ns.Name))
 			_, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Update(ctx, roleBinding, metav1.UpdateOptions{})
@@ -120,54 +128,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			}
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been updated", roleBinding.Name, ns.Name))
-		}
-	}
-
-	// Bind ClusterRole 'cluster-admin' to the 'automation' SA in the 'default' namespace.
-	{
-		roleBindingToAutomationSAName := pkgkey.WriteAllAutomationSARoleBindingName()
-
-		writeAllRoleBindingToAutomationSA := &rbacv1.RoleBinding{
-			TypeMeta: metav1.TypeMeta{
-				Kind:       "RoleBinding",
-				APIVersion: "rbac.authorization.k8s.io/v1",
-			},
-			ObjectMeta: metav1.ObjectMeta{
-				Name: roleBindingToAutomationSAName,
-				Labels: map[string]string{
-					k8smetadata.ManagedBy: project.Name(),
-				},
-			},
-			Subjects: []rbacv1.Subject{
-				{
-					Kind:      "ServiceAccount",
-					Name:      pkgkey.AutomationServiceAccountName,
-					Namespace: pkgkey.DefaultNamespaceName,
-				},
-			},
-			RoleRef: rbacv1.RoleRef{
-				APIGroup: "rbac.authorization.k8s.io",
-				Kind:     "ClusterRole",
-				Name:     pkgkey.ClusterAdminClusterRoleName,
-			},
-		}
-
-		roleBinding := writeAllRoleBindingToAutomationSA
-		_, err = r.k8sClient.RbacV1().RoleBindings(ns.Name).Get(ctx, roleBinding.Name, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating rolebinding %#q in namespace %s", roleBinding.Name, ns.Name))
-
-			_, err := r.k8sClient.RbacV1().RoleBindings(ns.Name).Create(ctx, roleBinding, metav1.CreateOptions{})
-			if apierrors.IsAlreadyExists(err) {
-				// do nothing
-			} else if err != nil {
-				return microerror.Mask(err)
-			}
-
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been created", roleBinding.Name, ns.Name))
-
-		} else if err != nil {
-			return microerror.Mask(err)
 		}
 	}
 

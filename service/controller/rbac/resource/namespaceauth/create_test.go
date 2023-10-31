@@ -34,11 +34,11 @@ func Test_EnsureCreated(t *testing.T) {
 	}{
 		{
 			name:         "case 0: Create a new role binding in case it does not exist",
-			orgNamespace: test.NewOrgNamespace("giantswarm"),
+			orgNamespace: test.NewOrgNamespace("customer"),
 			customerAdminGroups: []accessgroup.AccessGroup{
 				{Name: "customer:giantswarm:Employees"},
 			},
-			expectedRoleBinding: test.NewRoleBinding("write-all-customer-group", "org-giantswarm", map[string]string{
+			expectedRoleBinding: test.NewRoleBinding("write-all-customer-group", "org-customer", map[string]string{
 				"kind": "ClusterRole",
 				"name": "cluster-admin",
 			}, []rbacv1.Subject{
@@ -47,9 +47,9 @@ func Test_EnsureCreated(t *testing.T) {
 		},
 		{
 			name:         "case 1: Replace subjects in an existing role binding",
-			orgNamespace: test.NewOrgNamespace("giantswarm"),
+			orgNamespace: test.NewOrgNamespace("customer"),
 			existingResources: []runtime.Object{
-				test.NewRoleBinding("write-all-customer-group", "org-giantswarm", map[string]string{
+				test.NewRoleBinding("write-all-customer-group", "org-customer", map[string]string{
 					"kind": "ClusterRole",
 					"name": "cluster-admin",
 				}, []rbacv1.Subject{
@@ -59,7 +59,7 @@ func Test_EnsureCreated(t *testing.T) {
 			customerAdminGroups: []accessgroup.AccessGroup{
 				{Name: "customer:giantswarm:Employees"},
 			},
-			expectedRoleBinding: test.NewRoleBinding("write-all-customer-group", "org-giantswarm", map[string]string{
+			expectedRoleBinding: test.NewRoleBinding("write-all-customer-group", "org-customer", map[string]string{
 				"kind": "ClusterRole",
 				"name": "cluster-admin",
 			}, []rbacv1.Subject{
@@ -68,9 +68,9 @@ func Test_EnsureCreated(t *testing.T) {
 		},
 		{
 			name:         "case 2: Add subjects to an existing role binding",
-			orgNamespace: test.NewOrgNamespace("giantswarm"),
+			orgNamespace: test.NewOrgNamespace("customer"),
 			existingResources: []runtime.Object{
-				test.NewRoleBinding("write-all-customer-group", "org-giantswarm", map[string]string{
+				test.NewRoleBinding("write-all-customer-group", "org-customer", map[string]string{
 					"kind": "ClusterRole",
 					"name": "cluster-admin",
 				}, []rbacv1.Subject{
@@ -81,7 +81,7 @@ func Test_EnsureCreated(t *testing.T) {
 				{Name: "customer:acme:Employees"},
 				{Name: "customer:giantswarm:Employees"},
 			},
-			expectedRoleBinding: test.NewRoleBinding("write-all-customer-group", "org-giantswarm", map[string]string{
+			expectedRoleBinding: test.NewRoleBinding("write-all-customer-group", "org-customer", map[string]string{
 				"kind": "ClusterRole",
 				"name": "cluster-admin",
 			}, []rbacv1.Subject{
@@ -91,9 +91,9 @@ func Test_EnsureCreated(t *testing.T) {
 		},
 		{
 			name:         "case 3: Remove subjects from an existing role binding",
-			orgNamespace: test.NewOrgNamespace("giantswarm"),
+			orgNamespace: test.NewOrgNamespace("customer"),
 			existingResources: []runtime.Object{
-				test.NewRoleBinding("write-all-customer-group", "org-giantswarm", map[string]string{
+				test.NewRoleBinding("write-all-customer-group", "org-customer", map[string]string{
 					"kind": "ClusterRole",
 					"name": "cluster-admin",
 				}, []rbacv1.Subject{
@@ -104,7 +104,7 @@ func Test_EnsureCreated(t *testing.T) {
 			customerAdminGroups: []accessgroup.AccessGroup{
 				{Name: "customer:giantswarm:Employees"},
 			},
-			expectedRoleBinding: test.NewRoleBinding("write-all-customer-group", "org-giantswarm", map[string]string{
+			expectedRoleBinding: test.NewRoleBinding("write-all-customer-group", "org-customer", map[string]string{
 				"kind": "ClusterRole",
 				"name": "cluster-admin",
 			}, []rbacv1.Subject{
@@ -113,9 +113,9 @@ func Test_EnsureCreated(t *testing.T) {
 		},
 		{
 			name:         "case 4: Do not overwrite the role binding in case there are no changes",
-			orgNamespace: test.NewOrgNamespace("giantswarm"),
+			orgNamespace: test.NewOrgNamespace("customer"),
 			existingResources: []runtime.Object{
-				test.NewRoleBinding("write-all-customer-group", "org-giantswarm", map[string]string{
+				test.NewRoleBinding("write-all-customer-group", "org-customer", map[string]string{
 					"kind": "ClusterRole",
 					"name": "cluster-admin",
 				}, []rbacv1.Subject{
@@ -127,7 +127,7 @@ func Test_EnsureCreated(t *testing.T) {
 				{Name: "customer:acme:Employees"},
 				{Name: "customer:giantswarm:Employees"},
 			},
-			expectedRoleBinding: test.NewRoleBinding("write-all-customer-group", "org-giantswarm", map[string]string{
+			expectedRoleBinding: test.NewRoleBinding("write-all-customer-group", "org-customer", map[string]string{
 				"kind": "ClusterRole",
 				"name": "cluster-admin",
 			}, []rbacv1.Subject{
@@ -137,10 +137,32 @@ func Test_EnsureCreated(t *testing.T) {
 		},
 		{
 			name:         "case 5: Create cluster role",
-			orgNamespace: test.NewOrgNamespace("giantswarm"),
+			orgNamespace: test.NewOrgNamespace("customer"),
 			expectedClusterRole: test.NewClusterRole(
-				"organization-giantswarm-read",
-				*test.NewPolicyRule([]string{"get"}, []string{"organizations"}, []string{"giantswarm"}, []string{"security.giantswarm.io"})),
+				"organization-customer-read",
+				*test.NewPolicyRule([]string{"get"}, []string{"organizations"}, []string{"customer"}, []string{"security.giantswarm.io"})),
+		},
+		{
+			name:         "case 6: Do not create rolebinding in protected namespace",
+			orgNamespace: test.NewOrgNamespace("giantswarm"),
+			customerAdminGroups: []accessgroup.AccessGroup{
+				{Name: "customer:giantswarm:Employees"},
+			},
+		},
+		{
+			name:         "case 7: Delete rolebinding in protected namespace",
+			orgNamespace: test.NewOrgNamespace("giantswarm"),
+			existingResources: []runtime.Object{
+				test.NewRoleBinding("write-all-customer-group", "org-giantswarm", map[string]string{
+					"kind": "ClusterRole",
+					"name": "cluster-admin",
+				}, []rbacv1.Subject{
+					{Kind: "Group", Name: "customer:giantswarm:Employees"},
+				}),
+			},
+			customerAdminGroups: []accessgroup.AccessGroup{
+				{Name: "customer:giantswarm:Employees"},
+			},
 		},
 	}
 

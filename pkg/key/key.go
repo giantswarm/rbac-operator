@@ -62,6 +62,10 @@ func IsOrgNamespace(ns string) bool {
 	return strings.HasPrefix(ns, "org-")
 }
 
+func IsProtectedNamespace(ns string) bool {
+	return ns == "org-giantswarm"
+}
+
 func Organization(getter rbacLabel.LabelsGetter) string {
 	return getter.GetLabels()[label.Organization]
 }
