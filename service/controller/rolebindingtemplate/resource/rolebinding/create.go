@@ -35,7 +35,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		if !isForbidden(roleBinding, ns) {
+		roleBinding = cleanSubjects(roleBinding, ns)
+		if len(roleBinding.Subjects) > 0 {
 			if err = rbac.CreateOrUpdateRoleBinding(r, ctx, ns, roleBinding); err != nil {
 				r.logger.Debugf(ctx, "Could not apply roleBinding %s to namespace %s due to error %v", roleBinding.Name, ns, err)
 				continue
@@ -118,20 +119,23 @@ func getRoleBindingFromTemplate(template v1alpha1.RoleBindingTemplate, namespace
 	}, nil
 }
 
-func isForbidden(roleBinding *rbacv1.RoleBinding, namespace string) bool {
-	// the roleBinding is forbidden if its in a protected namespace and contains Subjects other than serviceAccounts in flux namespaces
+func cleanSubjects(roleBinding *rbacv1.RoleBinding, namespace string) *rbacv1.RoleBinding {
+	// if the rolebinding is in a protected namespace, subjects can only be serviceAccounts in flux namespace or the same namespace
 	if !pkgkey.IsProtectedNamespace(namespace) {
-		return false
+		return roleBinding
 	}
+	var validSubjects []rbacv1.Subject
 	for _, subject := range roleBinding.Subjects {
 		if subject.Kind != rbacv1.ServiceAccountKind {
-			return true
+			continue
 		}
-		if subject.Namespace != pkgkey.FluxNamespaceName {
-			return true
+		if subject.Namespace != pkgkey.FluxNamespaceName && subject.Namespace != namespace {
+			continue
 		}
+		validSubjects = append(validSubjects, subject)
 	}
-	return false
+	roleBinding.Subjects = validSubjects
+	return roleBinding
 }
 
 func incompleteRoleRef(roleRef rbacv1.RoleRef) bool {

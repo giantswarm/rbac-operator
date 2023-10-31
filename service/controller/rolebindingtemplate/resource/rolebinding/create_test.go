@@ -401,13 +401,37 @@ func TestEnsureCreated(t *testing.T) {
 						},
 						Subjects: []rbacv1.Subject{
 							{Kind: "Group", Name: "test-group"},
-							{Kind: "ServiceAccount", Name: "test-SA"},
 						},
 					},
 				},
 			},
-			Organizations:        []string{"example", "example-2", "giantswarm"},
-			expectedRoleBindings: []*rbacv1.RoleBinding{getTestRoleBinding(), getTestRoleBindingInNS("org-example-2")},
+			Organizations: []string{"example", "giantswarm"},
+			expectedRoleBindings: []*rbacv1.RoleBinding{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "something",
+						Namespace: "org-example",
+						Labels: map[string]string{
+							label.ManagedBy: project.Name(),
+						},
+						Annotations: map[string]string{
+							annotation.Notes: "Generated based on RoleBindingTemplate something",
+						},
+					},
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "RoleBinding",
+						APIVersion: "rbac.authorization.k8s.io/v1",
+					},
+					RoleRef: rbacv1.RoleRef{
+						Name:     "example",
+						Kind:     "ClusterRole",
+						APIGroup: "rbac.authorization.k8s.io",
+					},
+					Subjects: []rbacv1.Subject{
+						{Kind: "Group", Name: "test-group"},
+					},
+				},
+			},
 		},
 		{
 			Name: "case5: create rolebinding in org-giantswarm namespace",
@@ -478,6 +502,89 @@ func TestEnsureCreated(t *testing.T) {
 					},
 					Subjects: []rbacv1.Subject{
 						{Kind: "ServiceAccount", Name: "test-SA", Namespace: pkgkey.FluxNamespaceName},
+					},
+				},
+			},
+		},
+		{
+			Name: "case6: create rolebinding in org-giantswarm namespace and remove invalid subjects",
+			Template: &v1alpha1.RoleBindingTemplate{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "something",
+				},
+				Spec: v1alpha1.RoleBindingTemplateSpec{
+					Template: v1alpha1.RoleBindingTemplateResource{
+						ObjectMeta: metav1.ObjectMeta{
+							Name: "something",
+						},
+						RoleRef: rbacv1.RoleRef{
+							Name: "example",
+							Kind: "ClusterRole",
+						},
+						Subjects: []rbacv1.Subject{
+							{Kind: "ServiceAccount", Name: "test-SA-1", Namespace: pkgkey.FluxNamespaceName},
+							{Kind: "ServiceAccount", Name: "test-SA-2", Namespace: "org-example"},
+							{Kind: "ServiceAccount", Name: "test-SA-3", Namespace: "org-giantswarm"},
+							{Kind: "ServiceAccount", Name: "test-SA-4"},
+							{Kind: "Group", Name: "test-group"},
+						},
+					},
+				},
+			},
+			Organizations: []string{"example", "giantswarm"},
+			expectedRoleBindings: []*rbacv1.RoleBinding{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "something",
+						Namespace: "org-example",
+						Labels: map[string]string{
+							label.ManagedBy: project.Name(),
+						},
+						Annotations: map[string]string{
+							annotation.Notes: "Generated based on RoleBindingTemplate something",
+						},
+					},
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "RoleBinding",
+						APIVersion: "rbac.authorization.k8s.io/v1",
+					},
+					RoleRef: rbacv1.RoleRef{
+						Name:     "example",
+						Kind:     "ClusterRole",
+						APIGroup: "rbac.authorization.k8s.io",
+					},
+					Subjects: []rbacv1.Subject{
+						{Kind: "ServiceAccount", Name: "test-SA-1", Namespace: pkgkey.FluxNamespaceName},
+						{Kind: "ServiceAccount", Name: "test-SA-2", Namespace: "org-example"},
+						{Kind: "ServiceAccount", Name: "test-SA-3", Namespace: "org-giantswarm"},
+						{Kind: "ServiceAccount", Name: "test-SA-4", Namespace: "org-example"},
+						{Kind: "Group", Name: "test-group"},
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "something",
+						Namespace: "org-giantswarm",
+						Labels: map[string]string{
+							label.ManagedBy: project.Name(),
+						},
+						Annotations: map[string]string{
+							annotation.Notes: "Generated based on RoleBindingTemplate something",
+						},
+					},
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "RoleBinding",
+						APIVersion: "rbac.authorization.k8s.io/v1",
+					},
+					RoleRef: rbacv1.RoleRef{
+						Name:     "example",
+						Kind:     "ClusterRole",
+						APIGroup: "rbac.authorization.k8s.io",
+					},
+					Subjects: []rbacv1.Subject{
+						{Kind: "ServiceAccount", Name: "test-SA-1", Namespace: pkgkey.FluxNamespaceName},
+						{Kind: "ServiceAccount", Name: "test-SA-3", Namespace: "org-giantswarm"},
+						{Kind: "ServiceAccount", Name: "test-SA-4", Namespace: "org-giantswarm"},
 					},
 				},
 			},

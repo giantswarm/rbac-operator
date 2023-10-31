@@ -75,7 +75,7 @@ func RoleBindingsShouldEqual(t *testing.T, expected []*rbacv1.RoleBinding, actua
 	for _, expectedItem := range expected {
 		hasItem := false
 		for _, actualItem := range actual {
-			if expectedItem.ObjectMeta.Name == actualItem.ObjectMeta.Name {
+			if expectedItem.ObjectMeta.Name == actualItem.ObjectMeta.Name && expectedItem.ObjectMeta.Namespace == actualItem.ObjectMeta.Namespace {
 				hasItem = true
 				SubjectsShouldEqual(t, actualItem.Kind, actualItem.Name, expectedItem.Subjects, actualItem.Subjects)
 				break
