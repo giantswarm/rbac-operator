@@ -4,7 +4,7 @@ description: rbac-operator manages authorization for OIDC enabled control-plane 
 icon: https://s.giantswarm.io/app-icons/rbac-bootstrap/1/light.svg
 home: https://github.com/giantswarm/rbac-operator
 name: rbac-operator
-version: "0.39.0"
+version: "0.40.0"
 annotations:
   application.giantswarm.io/team: bigmac
   config.giantswarm.io/version: 1.x.x
