@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- github.com/emicklei/go-restful updated to v3.11.0
+- gomodules.xyz/jsonpatch/v2 updated to v2.4.0
+- go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc updated to v0.46.1
+- Solve vulnerability error.
+
 ## [0.40.0] - 2023-10-31
 
 ### Changed
