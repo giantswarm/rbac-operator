@@ -115,7 +115,7 @@ replace (
 	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.10.5
 	github.com/nats-io/nkeys => github.com/nats-io/nkeys v0.4.6
-	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.50.0
+	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.51.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc => go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.46.1
 	golang.org/x/text => golang.org/x/text v0.14.0
 )
