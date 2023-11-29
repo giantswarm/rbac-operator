@@ -1,6 +1,6 @@
 module github.com/giantswarm/rbac-operator
 
-go 1.19
+go 1.20
 
 require (
 	github.com/giantswarm/exporterkit v1.1.0
@@ -19,7 +19,7 @@ require (
 	k8s.io/apimachinery v0.28.3
 	k8s.io/client-go v0.28.3
 	k8s.io/utils v0.0.0-20231121161247-cf03d44ff3cf
-	sigs.k8s.io/controller-runtime v0.16.3
+	sigs.k8s.io/controller-runtime v0.13.1
 )
 
 require (
