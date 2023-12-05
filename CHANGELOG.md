@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - gomodules.xyz/jsonpatch/v2 updated to v2.4.0
 - go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc updated to v0.46.1
 - Solve vulnerability error.
+### Changed
+
+- Configure `gsoci.azurecr.io` as the default container image registry.
 
 ## [0.40.0] - 2023-10-31
 
@@ -124,7 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added the use of the runtime/default seccomp profile.
-- Added reconciliation of static resources like e.g. ClusterRoles, ClusterRoleBindings, ServiceAccounts in the default namespace, etc.  
+- Added reconciliation of static resources like e.g. ClusterRoles, ClusterRoleBindings, ServiceAccounts in the default namespace, etc.
 
 ## [0.32.0] - 2023-01-17
 
@@ -211,6 +214,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Remove `orgpermissions` controller as it is deprecated and all its resources have been cleaned up.
+
 ## [0.25.0] - 2022-03-31
 
 ### Changed
@@ -480,13 +484,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reconcile `rolebinding` subject group changes properly.
 - Fix bug with binding role to the `view-all` read role instead of `tenant-admin` write role.
 
-
 ## [0.3.2]- 2020-04-23
 
 ### Changed
 
 - Use Release.Revision in annotation for Helm 3 compatibility.
-
 
 ## [0.3.0]- 2020-04-06
 
@@ -500,7 +502,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Make rbac-operator optional for installation without OIDC.
-
 
 ## [0.1.0]- 2020-03-13
 
