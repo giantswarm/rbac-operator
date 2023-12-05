@@ -623,6 +623,7 @@ func TestEnsureCreated(t *testing.T) {
 					CtrlClient: clientfake.NewClientBuilder().
 						WithScheme(scheme.Scheme).
 						WithRuntimeObjects(objects...).
+						WithStatusSubresource(&v1alpha1.RoleBindingTemplate{}).
 						Build(),
 					K8sClient: clientgofake.NewSimpleClientset(namespaces...),
 				})
