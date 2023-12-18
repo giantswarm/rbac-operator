@@ -11,7 +11,7 @@ pod:
     id: 1000
 
 registry:
-  domain: docker.io
+  domain: gsoci.azurecr.io
 
 oidc:
   customer:
