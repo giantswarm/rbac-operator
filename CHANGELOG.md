@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.41.0] - 2024-01-25
+
 ### Added
 
 - Update CiliumNetworkPolicy and enable by default.
@@ -516,7 +518,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.40.0...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.41.0...HEAD
+[0.41.0]: https://github.com/giantswarm/rbac-operator/compare/v0.40.0...v0.41.0
 [0.40.0]: https://github.com/giantswarm/rbac-operator/compare/v0.39.0...v0.40.0
 [0.39.0]: https://github.com/giantswarm/rbac-operator/compare/v0.38.0...v0.39.0
 [0.38.0]: https://github.com/giantswarm/rbac-operator/compare/v0.37.2...v0.38.0
