@@ -7,10 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Update CiliumNetworkPolicy and enable by default.
+
+### Changed
+
 - github.com/emicklei/go-restful updated to v3.11.0
 - gomodules.xyz/jsonpatch/v2 updated to v2.4.0
 - go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc updated to v0.46.1
 - Solve vulnerability error.
+
 ### Changed
 
 - Configure `gsoci.azurecr.io` as the default container image registry.

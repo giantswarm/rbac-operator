@@ -1,5 +1,5 @@
 ciliumNetworkPolicy:
-  enabled: false
+  enabled: true
 
 image:
   name: "giantswarm/rbac-operator"
