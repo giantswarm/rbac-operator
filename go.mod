@@ -111,7 +111,7 @@ replace (
 	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.28.2
 	github.com/hashicorp/consul/sdk => github.com/hashicorp/consul/sdk v0.16.0
 	github.com/kataras/iris/v12 => github.com/kataras/iris/v12 v12.2.10
-	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.11.4
+	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.12.0
 	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.10.14
 	github.com/nats-io/nkeys => github.com/nats-io/nkeys v0.4.7
