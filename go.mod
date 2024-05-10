@@ -107,7 +107,7 @@ require (
 replace (
 	github.com/coreos/etcd => go.etcd.io/etcd/v3 v3.5.13
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v5 v5.2.0
-	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
+	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.10.0
 	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.28.2
 	github.com/hashicorp/consul/sdk => github.com/hashicorp/consul/sdk v0.16.0
 	github.com/kataras/iris/v12 => github.com/kataras/iris/v12 v12.2.10
