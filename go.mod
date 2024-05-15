@@ -117,7 +117,7 @@ replace (
 	github.com/nats-io/nkeys => github.com/nats-io/nkeys v0.4.7
 	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.53.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc => go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.51.0
-	golang.org/x/text => golang.org/x/text v0.14.0
+	golang.org/x/text => golang.org/x/text v0.15.0
 	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.15.3
 )
 
