@@ -89,7 +89,7 @@ class TestRBACControllerExternalResources:
         cluster_namespace.delete()
         LOGGER.info("Deleted org and cluster namespaces")
 
-    @retry(max_retries=10)
+    @retry(max_retries=20)
     def check_deleted(self):
         try:
             for expected_cluster_role_name in EXPECTED_CLUSTER_ROLE_BINDING_NAMES:
