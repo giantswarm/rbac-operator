@@ -100,6 +100,7 @@ class TestRBACControllerExternalResources:
                 pykube.ClusterRole.objects(self.kube_client).get(
                     name=expected_cluster_role_name
                 )
+            time.sleep(5)
             raise Exception("Cluster role bindings and roles still exist")
         except pykube.exceptions.ObjectDoesNotExist:
             LOGGER.info("Cluster role bindings and roles deleted")
