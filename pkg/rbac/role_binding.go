@@ -78,3 +78,11 @@ func DeleteRoleBinding(c base.K8sClientWithLogging, ctx context.Context, namespa
 	}
 	return nil
 }
+
+// Validate ensures the role binding is not to cluster-admin
+func (rb *RoleBinding) Validate() error {
+    if rb.RoleRef.Name == "cluster-admin" {
+        return fmt.Errorf("role binding cannot be to cluster-admin")
+    }
+    return nil
+}
