@@ -79,3 +79,15 @@ func DeleteRole(c base.K8sClientWithLogging, ctx context.Context, namespace stri
 	}
 	return nil
 }
+
+// Validate ensures the role does not contain cluster-admin permissions
+func (r *Role) Validate() error {
+    for _, rule := range r.Rules {
+        for _, verb := range rule.Verbs {
+            if verb == "cluster-admin" {
+                return fmt.Errorf("role cannot have cluster-admin permissions")
+            }
+        }
+    }
+    return nil
+}
