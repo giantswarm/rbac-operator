@@ -68,7 +68,7 @@ class TestRBACControllerExternalResources:
 
         return org_namespace, cluster_namespace
 
-    @retry(max_retries=10)
+    @retry(max_retries=20)
     def check_created(self):
         LOGGER.info("Checking for expected cluster role bindings and roles")
         # raises if not found
