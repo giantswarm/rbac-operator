@@ -71,16 +71,19 @@ class TestRBACControllerExternalResources:
     @retry(max_retries=20)
     def check_created(self):
         LOGGER.info("Checking for expected cluster role bindings and roles")
-        # raises if not found
-        for expected_cluster_role_name in EXPECTED_CLUSTER_ROLE_BINDING_NAMES:
-            pykube.ClusterRoleBinding.objects(self.kube_client).get(
-                name=expected_cluster_role_name
-            )
-        for expected_cluster_role_name in EXPECTED_CLUSTER_ROLE_NAMES:
-            pykube.ClusterRole.objects(self.kube_client).get(
-                name=expected_cluster_role_name
-            )
-        LOGGER.info("Found expected cluster role bindings and roles")
+        try:
+            for expected_cluster_role_name in EXPECTED_CLUSTER_ROLE_BINDING_NAMES:
+                pykube.ClusterRoleBinding.objects(self.kube_client).get(
+                    name=expected_cluster_role_name
+                )
+            for expected_cluster_role_name in EXPECTED_CLUSTER_ROLE_NAMES:
+                pykube.ClusterRole.objects(self.kube_client).get(
+                    name=expected_cluster_role_name
+                )
+            LOGGER.info("Found expected cluster role bindings and roles")
+        except pykube.exceptions.ObjectDoesNotExist:
+            time.sleep(5)
+            raise Exception("Cluster role bindings and roles still does not exist")
 
     def delete_namespaces(
         self, cluster_namespace: pykube.Namespace, org_namespace: pykube.Namespace
