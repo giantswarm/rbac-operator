@@ -38,7 +38,7 @@ class TestRBACControllerExternalResources:
         self.init(kube_cluster)
 
         org_namespace, cluster_namespace = self.create_namespaces()
-        
+
         try:
             self.check_created()
         except Exception as e:
@@ -47,7 +47,7 @@ class TestRBACControllerExternalResources:
             raise
 
         self.delete_namespaces(cluster_namespace, org_namespace)
-        
+
         try:
             self.check_deleted()
         except Exception as e:
