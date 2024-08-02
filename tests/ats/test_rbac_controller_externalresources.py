@@ -24,7 +24,6 @@ EXPECTED_CLUSTER_ROLE_NAMES = [
     f"organization-{ORG_NAME}-read",
 ]
 
-
 @pytest.mark.smoke
 class TestRBACControllerExternalResources:
     kube_client: pykube.HTTPClient
@@ -39,10 +38,22 @@ class TestRBACControllerExternalResources:
         self.init(kube_cluster)
 
         org_namespace, cluster_namespace = self.create_namespaces()
-        self.check_created()
+        
+        try:
+            self.check_created()
+        except Exception as e:
+            LOGGER.error(f"Failed to create resources: {str(e)}")
+            self.log_existing_resources()
+            raise
 
         self.delete_namespaces(cluster_namespace, org_namespace)
-        self.check_deleted()
+        
+        try:
+            self.check_deleted()
+        except Exception as e:
+            LOGGER.error(f"Failed to delete resources: {str(e)}")
+            self.log_existing_resources()
+            raise
 
     def create_namespaces(self) -> Tuple[pykube.Namespace, pykube.Namespace]:
         LOGGER.info("Creating org and cluster namespaces")
@@ -65,22 +76,31 @@ class TestRBACControllerExternalResources:
             },
         )
         LOGGER.info("Created org and cluster namespaces")
-
         return org_namespace, cluster_namespace
 
-    @retry(max_retries=10)
+    @retry(max_retries=10, delay=5)
     def check_created(self):
         LOGGER.info("Checking for expected cluster role bindings and roles")
-        # raises if not found
-        for expected_cluster_role_name in EXPECTED_CLUSTER_ROLE_BINDING_NAMES:
-            pykube.ClusterRoleBinding.objects(self.kube_client).get(
-                name=expected_cluster_role_name
-            )
-        for expected_cluster_role_name in EXPECTED_CLUSTER_ROLE_NAMES:
-            pykube.ClusterRole.objects(self.kube_client).get(
-                name=expected_cluster_role_name
-            )
-        LOGGER.info("Found expected cluster role bindings and roles")
+        missing_resources = []
+
+        for expected_name in EXPECTED_CLUSTER_ROLE_BINDING_NAMES:
+            try:
+                pykube.ClusterRoleBinding.objects(self.kube_client).get(name=expected_name)
+                LOGGER.info(f"Found ClusterRoleBinding: {expected_name}")
+            except pykube.exceptions.ObjectDoesNotExist:
+                missing_resources.append(f"ClusterRoleBinding: {expected_name}")
+
+        for expected_name in EXPECTED_CLUSTER_ROLE_NAMES:
+            try:
+                pykube.ClusterRole.objects(self.kube_client).get(name=expected_name)
+                LOGGER.info(f"Found ClusterRole: {expected_name}")
+            except pykube.exceptions.ObjectDoesNotExist:
+                missing_resources.append(f"ClusterRole: {expected_name}")
+
+        if missing_resources:
+            raise Exception(f"The following resources are missing: {', '.join(missing_resources)}")
+
+        LOGGER.info("Found all expected cluster role bindings and roles")
 
     def delete_namespaces(
         self, cluster_namespace: pykube.Namespace, org_namespace: pykube.Namespace
@@ -90,18 +110,40 @@ class TestRBACControllerExternalResources:
         cluster_namespace.delete()
         LOGGER.info("Deleted org and cluster namespaces")
 
-    @retry(max_retries=20)
+    @retry(max_retries=20, delay=5)
     def check_deleted(self):
+        LOGGER.info("Checking if resources have been deleted")
+        existing_resources = []
+
+        for expected_name in EXPECTED_CLUSTER_ROLE_BINDING_NAMES:
+            try:
+                pykube.ClusterRoleBinding.objects(self.kube_client).get(name=expected_name)
+                existing_resources.append(f"ClusterRoleBinding: {expected_name}")
+            except pykube.exceptions.ObjectDoesNotExist:
+                LOGGER.info(f"ClusterRoleBinding deleted: {expected_name}")
+
+        for expected_name in EXPECTED_CLUSTER_ROLE_NAMES:
+            try:
+                pykube.ClusterRole.objects(self.kube_client).get(name=expected_name)
+                existing_resources.append(f"ClusterRole: {expected_name}")
+            except pykube.exceptions.ObjectDoesNotExist:
+                LOGGER.info(f"ClusterRole deleted: {expected_name}")
+
+        if existing_resources:
+            raise Exception(f"The following resources still exist: {', '.join(existing_resources)}")
+
+        LOGGER.info("All expected cluster role bindings and roles have been deleted")
+
+    def log_existing_resources(self):
+        LOGGER.info("Logging existing ClusterRoleBindings and ClusterRoles")
         try:
-            for expected_cluster_role_name in EXPECTED_CLUSTER_ROLE_BINDING_NAMES:
-                pykube.ClusterRoleBinding.objects(self.kube_client).get(
-                    name=expected_cluster_role_name
-                )
-            for expected_cluster_role_name in EXPECTED_CLUSTER_ROLE_NAMES:
-                pykube.ClusterRole.objects(self.kube_client).get(
-                    name=expected_cluster_role_name
-                )
-            time.sleep(5)
-            raise Exception("Cluster role bindings and roles still exist")
-        except pykube.exceptions.ObjectDoesNotExist:
-            LOGGER.info("Cluster role bindings and roles deleted")
+            crbs = pykube.ClusterRoleBinding.objects(self.kube_client)
+            LOGGER.info(f"Existing ClusterRoleBindings: {[crb.name for crb in crbs]}")
+        except Exception as e:
+            LOGGER.error(f"Error listing ClusterRoleBindings: {str(e)}")
+
+        try:
+            crs = pykube.ClusterRole.objects(self.kube_client)
+            LOGGER.info(f"Existing ClusterRoles: {[cr.name for cr in crs]}")
+        except Exception as e:
+            LOGGER.error(f"Error listing ClusterRoles: {str(e)}")
