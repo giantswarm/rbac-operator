@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  architect: giantswarm/architect@5.2.1
+  architect: giantswarm/architect@5.3.1
 
 workflows:
   build:
@@ -131,8 +131,8 @@ workflows:
 
       - architect/run-tests-with-ats:
           name: execute chart tests
-          app-test-suite_version: v0.4.1
-          app-test-suite_container_tag: 0.4.1
+          app-test-suite_version: v0.6.1
+          app-test-suite_container_tag: 0.6.1
           filters:
             branches:
               ignore:

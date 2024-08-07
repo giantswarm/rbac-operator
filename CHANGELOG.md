@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Improvements on chart-tests
+- Bump architect-orb@5.3.1 to fix CVE-2024-24790.
 
 ## [0.41.0] - 2024-01-25
 
