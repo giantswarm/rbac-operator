@@ -6,5 +6,5 @@ home: https://github.com/giantswarm/rbac-operator
 name: rbac-operator
 version: "0.41.1"
 annotations:
-  application.giantswarm.io/team: bigmac
+  application.giantswarm.io/team: shield
   config.giantswarm.io/version: 1.x.x
