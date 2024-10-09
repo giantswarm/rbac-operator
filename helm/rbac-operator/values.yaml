@@ -1,5 +1,5 @@
 ciliumNetworkPolicy:
-  enabled: true
+  enabled: false
 
 image:
   name: "giantswarm/rbac-operator"
@@ -40,4 +40,4 @@ serviceMonitor:
 
 global:
   podSecurityStandards:
-    enforced: false
+    enforced: true
