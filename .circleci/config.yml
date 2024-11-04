@@ -21,11 +21,11 @@ workflows:
         filters:
           tags:
             only: /^v.*/
-
           branches:
             ignore:
             - main
             - master
+
     - architect/push-to-app-catalog:
         name: push-rbac-operator-to-control-plane-app-catalog
         executor: app-build-suite
@@ -39,12 +39,12 @@ workflows:
         filters:
           tags:
             only: /^v.*/
-
-      # deploy to aws installations (only tags)
           branches:
             ignore:
             - main
             - master
+
+      # deploy to aws installations (only tags)
     - architect/push-to-app-collection:
         name: push-rbac-operator-to-aws-app-collection
         context: architect
@@ -71,8 +71,8 @@ workflows:
             ignore: /.*/
           tags:
             only: /^v.*/
-      # deploy to vsphere installations (only tags)
 
+      # deploy to vsphere installations (only tags)
     - architect/push-to-app-collection:
         name: push-rbac-operator-to-vsphere-app-collection
         context: architect
