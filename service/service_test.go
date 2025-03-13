@@ -22,8 +22,9 @@ func Test_Service(t *testing.T) {
 		ExpectedError                 error
 	}{
 		{
-			Name:                     "case 0: Instantiate Service with defined access group lists",
-			WriteAllCustomerGroups:   []map[string]string{{"name": "customer:acme:Employees"}},
+			Name:                   "case 0: Instantiate Service with defined access group lists",
+			WriteAllCustomerGroups: []map[string]string{{"name": "customer:acme:Employees"}},
+			// ReadAllCustomerGroups:    []map[string]string{{"name": "customer:acme:Observers"}},
 			WriteAllGiantswarmGroups: []map[string]string{{"name": "giantswarm:giantswarm:giantswarm-admins"}},
 		},
 		{

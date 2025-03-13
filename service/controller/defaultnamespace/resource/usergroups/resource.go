@@ -17,16 +17,18 @@ type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	CustomerAdminGroups []accessgroup.AccessGroup
-	GSAdminGroups       []accessgroup.AccessGroup
+	CustomerAdminGroups  []accessgroup.AccessGroup
+	CustomerReaderGroups []accessgroup.AccessGroup
+	GSAdminGroups        []accessgroup.AccessGroup
 }
 
 type Resource struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
-	customerAdminGroups []accessgroup.AccessGroup
-	gsAdminGroups       []accessgroup.AccessGroup
+	customerAdminGroups  []accessgroup.AccessGroup
+	customerReaderGroups []accessgroup.AccessGroup
+	gsAdminGroups        []accessgroup.AccessGroup
 }
 
 func (r Resource) K8sClient() kubernetes.Interface {
@@ -52,8 +54,9 @@ func New(config Config) (*Resource, error) {
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
-		customerAdminGroups: config.CustomerAdminGroups,
-		gsAdminGroups:       config.GSAdminGroups,
+		customerAdminGroups:  config.CustomerAdminGroups,
+		customerReaderGroups: config.CustomerReaderGroups,
+		gsAdminGroups:        config.GSAdminGroups,
 	}
 
 	return r, nil

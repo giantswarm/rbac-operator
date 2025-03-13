@@ -134,10 +134,11 @@ func New(config Config) (*Service, error) {
 	var clusterController *defaultnamespace.DefaultNamespace
 	{
 		c := defaultnamespace.DefaultNamespaceConfig{
-			K8sClient:           k8sClient,
-			Logger:              config.Logger,
-			CustomerAdminGroups: accessGroups.WriteAllCustomerGroups,
-			GSAdminGroups:       accessGroups.WriteAllGiantswarmGroups,
+			K8sClient:            k8sClient,
+			Logger:               config.Logger,
+			CustomerAdminGroups:  accessGroups.WriteAllCustomerGroups,
+			CustomerReaderGroups: accessGroups.ReadAllCustomerGroups,
+			GSAdminGroups:        accessGroups.WriteAllGiantswarmGroups,
 		}
 
 		clusterController, err = defaultnamespace.NewDefaultNamespace(c)
@@ -168,6 +169,7 @@ func New(config Config) (*Service, error) {
 			Logger:    config.Logger,
 
 			WriteAllCustomerGroups: accessGroups.WriteAllCustomerGroups,
+			ReadAllCustomerGroups:  accessGroups.ReadAllCustomerGroups,
 		}
 
 		rbacController, err = rbac.NewRBAC(c)
@@ -183,6 +185,7 @@ func New(config Config) (*Service, error) {
 			Logger:    config.Logger,
 
 			CustomerAdminGroups:                 accessGroups.WriteAllCustomerGroups,
+			CustomerReaderGroups:                accessGroups.ReadAllCustomerGroups,
 			CrossplaneBindTriggeringClusterRole: config.Viper.GetString(config.Flag.Service.CrossplaneBindTriggeringClusterRoleName),
 		}
 

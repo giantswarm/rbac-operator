@@ -8,6 +8,7 @@ type AccessGroup struct {
 
 type AccessGroups struct {
 	WriteAllCustomerGroups   []AccessGroup
+	ReadAllCustomerGroups    []AccessGroup
 	WriteAllGiantswarmGroups []AccessGroup
 }
 

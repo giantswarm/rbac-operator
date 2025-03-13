@@ -23,8 +23,9 @@ type DefaultNamespaceConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	CustomerAdminGroups []accessgroup.AccessGroup
-	GSAdminGroups       []accessgroup.AccessGroup
+	CustomerAdminGroups  []accessgroup.AccessGroup
+	CustomerReaderGroups []accessgroup.AccessGroup
+	GSAdminGroups        []accessgroup.AccessGroup
 }
 type DefaultNamespace struct {
 	Controller *controller.Controller

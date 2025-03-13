@@ -19,6 +19,7 @@ type Config struct {
 	Logger    micrologger.Logger
 
 	WriteAllCustomerGroups []accessgroup.AccessGroup
+	ReadAllCustomerGroups  []accessgroup.AccessGroup
 }
 
 type Resource struct {
@@ -26,6 +27,7 @@ type Resource struct {
 	logger    micrologger.Logger
 
 	writeAllCustomerGroups []accessgroup.AccessGroup
+	ReadAllCustomerGroups  []accessgroup.AccessGroup
 }
 
 func New(config Config) (*Resource, error) {
@@ -41,6 +43,7 @@ func New(config Config) (*Resource, error) {
 		logger:    config.Logger,
 
 		writeAllCustomerGroups: config.WriteAllCustomerGroups,
+		ReadAllCustomerGroups:  config.ReadAllCustomerGroups,
 	}
 
 	return r, nil
