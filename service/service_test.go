@@ -16,15 +16,16 @@ func Test_Service(t *testing.T) {
 	testCases := []struct {
 		Name                          string
 		WriteAllCustomerGroups        []map[string]string
+		ReadAllCustomerGroups         []map[string]string
 		WriteAllGiantswarmGroups      []map[string]string
 		LegacyWriteAllCustomerGroup   string
 		LegacyWriteAllGiantswarmGroup string
 		ExpectedError                 error
 	}{
 		{
-			Name:                   "case 0: Instantiate Service with defined access group lists",
-			WriteAllCustomerGroups: []map[string]string{{"name": "customer:acme:Employees"}},
-			// ReadAllCustomerGroups:    []map[string]string{{"name": "customer:acme:Observers"}},
+			Name:                     "case 0: Instantiate Service with defined access group lists",
+			WriteAllCustomerGroups:   []map[string]string{{"name": "customer:acme:Employees"}},
+			ReadAllCustomerGroups:    []map[string]string{{"name": "customer:acme:Observers"}},
 			WriteAllGiantswarmGroups: []map[string]string{{"name": "giantswarm:giantswarm:giantswarm-admins"}},
 		},
 		{
@@ -58,6 +59,9 @@ func Test_Service(t *testing.T) {
 			}
 			if len(tc.WriteAllGiantswarmGroups) > 0 {
 				v.Set("service.accessGroups.writeAllGiantswarmGroups", tc.WriteAllGiantswarmGroups)
+			}
+			if len(tc.ReadAllCustomerGroups) > 0 {
+				v.Set("service.accessGroups.readAllCustomerGroups", tc.ReadAllCustomerGroups)
 			}
 			if tc.LegacyWriteAllCustomerGroup != "" {
 				v.Set("service.writeAllCustomerGroup", tc.LegacyWriteAllCustomerGroup)
