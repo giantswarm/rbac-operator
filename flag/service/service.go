@@ -11,8 +11,6 @@ type Service struct {
 	WriteAllCustomerGroup   string
 	WriteAllGiantswarmGroup string
 
-	ReadAllCustomerGroup string
-
 	AccessGroups string
 
 	CrossplaneBindTriggeringClusterRoleName string
