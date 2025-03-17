@@ -40,3 +40,9 @@ data:
         - name: {{ . }}
         {{- end }}
         {{- end }}
+        readAllCustomerGroups:
+        {{- if .Values.oidc.customer.read_all_groups }}
+        {{- range .Values.oidc.customer.read_all_groups }}
+        - name: {{ . }}
+        {{- end }}
+        {{- end }}        

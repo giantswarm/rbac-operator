@@ -20,6 +20,7 @@ type rbacResourcesConfig struct {
 	Logger    micrologger.Logger
 
 	WriteAllCustomerGroups []accessgroup.AccessGroup
+	ReadAllCustomerGroups  []accessgroup.AccessGroup
 }
 
 func newRBACResources(config rbacResourcesConfig) ([]resource.Interface, error) {
@@ -58,6 +59,7 @@ func newRBACResources(config rbacResourcesConfig) ([]resource.Interface, error) 
 			Logger:    config.Logger,
 
 			WriteAllCustomerGroups: config.WriteAllCustomerGroups,
+			ReadAllCustomerGroups:  config.ReadAllCustomerGroups,
 		}
 
 		namespaceAuthResource, err = namespaceauth.New(c)

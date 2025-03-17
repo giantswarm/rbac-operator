@@ -18,6 +18,7 @@ type CrossplaneConfig struct {
 	Logger    micrologger.Logger
 
 	CustomerAdminGroups                 []accessgroup.AccessGroup
+	CustomerReaderGroups                []accessgroup.AccessGroup
 	CrossplaneBindTriggeringClusterRole string
 }
 
