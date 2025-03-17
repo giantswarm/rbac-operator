@@ -30,6 +30,19 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	// Validate that cluster-admin role is not assigned to non-admin groups
+	roleBindingName := "cluster-admin"
+	existingRoleBinding, err := r.k8sClient.RbacV1().ClusterRoleBindings().Get(ctx, roleBindingName, metav1.GetOptions{})
+	if err == nil {
+		for _, subject := range existingRoleBinding.Subjects {
+			if subject.Kind == "Group" && !isAuthorizedAdminGroup(subject.Name) {
+				return microerror.Mask(fmt.Errorf("unauthorized group %s assigned to cluster-admin role", subject.Name))
+			}
+		}
+	} else if !apierrors.IsNotFound(err) {
+		return microerror.Mask(err)
+	}
+
 	// Create ClusterRole allowing 'get' access to Organization CR
 	{
 		orgReadClusterRoleName := pkgkey.OrganizationReadClusterRoleName(ns.Name)
@@ -144,4 +157,14 @@ func needsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.RoleBinding) bo
 	}
 
 	return !reflect.DeepEqual(existingRoleBinding.Subjects, desiredRoleBinding.Subjects)
+}
+
+func isAuthorizedAdminGroup(groupName string) bool {
+	authorizedAdminGroups := []string{"actual-admin-group1", "actual-admin-group2"}
+	for _, authorizedGroup := range authorizedAdminGroups {
+		if groupName == authorizedGroup {
+			return true
+		}
+	}
+	return false
 }
