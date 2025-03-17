@@ -75,10 +75,11 @@ func Test_DefaultNamespaceController(t *testing.T) {
 			}
 
 			defaultNamespaceController, err := NewDefaultNamespace(DefaultNamespaceConfig{
-				K8sClient:           k8sClientFake,
-				Logger:              microloggertest.New(),
-				CustomerAdminGroups: tc.CustomerAdminGroups,
-				GSAdminGroups:       tc.GSAdminGroup,
+				K8sClient:            k8sClientFake,
+				Logger:               microloggertest.New(),
+				CustomerAdminGroups:  tc.CustomerAdminGroups,
+				CustomerReaderGroups: tc.CustomerAdminGroups,
+				GSAdminGroups:        tc.GSAdminGroup,
 			})
 
 			if err != nil {

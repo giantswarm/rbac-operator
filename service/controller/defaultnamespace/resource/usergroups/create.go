@@ -48,6 +48,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		if err != nil {
 			return microerror.Mask(err)
 		}
+	} else if len(r.customerReaderGroups) > 0 {
+		err = r.createReadAllClusterRoleBindingToCustomerGroup(ctx)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 	}
 
 	return nil
@@ -89,6 +94,10 @@ func (r *Resource) createWriteOrganizationsClusterRoleBindingToCustomerGroup(ctx
 // ClusterRole 'read-all' and the customer admin group.
 func (r *Resource) createReadAllClusterRoleBindingToCustomerGroup(ctx context.Context) error {
 	subjects := accessgroup.GroupsToSubjects(r.customerAdminGroups)
+	if len(r.customerReaderGroups) > 0 {
+		subjects = append(subjects, accessgroup.GroupsToSubjects(r.customerReaderGroups)...)
+	}
+
 	if len(subjects) == 0 {
 		return microerror.Maskf(invalidConfigError, "empty customer admin group name given")
 	}

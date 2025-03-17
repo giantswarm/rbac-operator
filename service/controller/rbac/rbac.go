@@ -19,6 +19,7 @@ type RBACConfig struct {
 	Logger    micrologger.Logger
 
 	WriteAllCustomerGroups []accessgroup.AccessGroup
+	ReadAllCustomerGroups  []accessgroup.AccessGroup
 }
 
 type RBAC struct {

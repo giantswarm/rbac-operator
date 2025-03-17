@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added support for `read-all-customer-groups` bindings.
+
 ### Changed
 
 - Change ownership to Team Shield
