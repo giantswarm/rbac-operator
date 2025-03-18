@@ -37,6 +37,9 @@
                 "customer": {
                     "type": "object",
                     "properties": {
+                        "read_all_groups": {
+                            "type": "array"
+                        },
                         "write_all_group": {
                             "type": "string"
                         },
@@ -110,6 +113,20 @@
                             "type": "string"
                         }
                     }
+                }
+            }
+        },
+        "serviceMonitor": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "interval": {
+                    "type": "string"
+                },
+                "scrapeTimeout": {
+                    "type": "string"
                 }
             }
         }
