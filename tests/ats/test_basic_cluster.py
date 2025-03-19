@@ -27,7 +27,7 @@ def app_deployments(kube_cluster: Cluster) -> List[pykube.Deployment]:
         raise Exception("kube_client is None")
     LOGGER.info("Installing crd")
     kube_cluster.kubectl("apply", filename="https://raw.githubusercontent.com/giantswarm/rbac-operator/main/config/crd/auth.giantswarm.io_rolebindingtemplates.yaml", output_format="json")
-    kube_cluster.kubectl("apply", filename="https://raw.githubusercontent.com/giantswarm/organization-operator/main/config/crd/security.giantswarm.io_organizations.yaml", output_format="json")
+    kube_cluster.kubectl("apply", filename="https://raw.githubusercontent.com/giantswarm/organization-operator/refs/heads/main/config/crd/bases/security.giantswarm.io_organizations.yaml", output_format="json")
     LOGGER.info("Installed crd")
     deployments = wait_for_deployments_to_run(
         kube_cluster.kube_client,

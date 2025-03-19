@@ -22,56 +22,60 @@ spec:
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-          - podAffinityTerm:
-              labelSelector:
-                matchLabels:
-                  {{- include "labels.common" . | nindent 18 }}
-              topologyKey: kubernetes.io/hostname
-            weight: 100
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    {{- include "labels.common" . | nindent 18 }}
+                topologyKey: kubernetes.io/hostname
+              weight: 100
       volumes:
-      - name: {{ include "name" . }}-configmap
-        configMap:
-          name: {{ include "resource.default.name"  . }}
-          items:
-          - key: config.yml
-            path: config.yml
-      serviceAccountName: {{ include "resource.default.name"  . }}
+        - name: {{ include "name" . }}-configmap
+          configMap:
+            name: {{ include "resource.default.name" . }}
+            items:
+              - key: config.yml
+                path: config.yml
+      serviceAccountName: {{ include "resource.default.name" . }}
       securityContext:
         runAsUser: {{ .Values.pod.user.id }}
         runAsGroup: {{ .Values.pod.group.id }}
         {{- with .Values.podSecurityContext }}
-          {{- . | toYaml | nindent 8 }}
+        {{- . | toYaml | nindent 8 }}
         {{- end }}
       containers:
-      - name: {{ include "name" . }}
-        securityContext:
-          readOnlyRootFilesystem: true
-          allowPrivilegeEscalation: false
-          runAsNonRoot: true
-          capabilities:
-            drop:
-              - ALL
-          {{- with .Values.securityContext }}
+        - name: {{ include "name" . }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+            {{- with .Values.securityContext }}
             {{- . | toYaml | nindent 10 }}
-          {{- end }}
-        image: "{{ .Values.registry.domain }}/{{ .Values.image.name }}:{{ .Chart.AppVersion }}"
-        args:
-        - daemon
-        - --config.dirs=/var/run/{{ include "name" . }}/configmap/
-        - --config.files=config
-        volumeMounts:
-        - name: {{ include "name" . }}-configmap
-          mountPath: /var/run/{{ include "name" . }}/configmap/
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 8000
-          initialDelaySeconds: 30
-          timeoutSeconds: 1
-        resources:
-          requests:
-            cpu: 100m
-            memory: 220Mi
-          limits:
-            cpu: 100m
-            memory: 220Mi
+            {{- end }}
+          image: "{{ .Values.registry.domain }}/{{ .Values.image.name }}:{{ .Chart.AppVersion }}"
+          args:
+            - daemon
+            - --config.dirs=/var/run/{{ include "name" . }}/configmap/
+            - --config.files=config
+          volumeMounts:
+            - name: {{ include "name" . }}-configmap
+              mountPath: /var/run/{{ include "name" . }}/configmap/
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 30
+            timeoutSeconds: 1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 220Mi
+            limits:
+              cpu: 100m
+              memory: 220Mi

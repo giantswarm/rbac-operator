@@ -1,5 +1,5 @@
 ciliumNetworkPolicy:
-  enabled: true
+  enabled: false
 
 image:
   name: "giantswarm/rbac-operator"
@@ -17,6 +17,7 @@ oidc:
   customer:
     write_all_group: ""
     write_all_groups: []
+    read_all_groups: []
   giantswarm:
     write_all_group: ""
     write_all_groups: []
@@ -40,4 +41,4 @@ serviceMonitor:
 
 global:
   podSecurityStandards:
-    enforced: false
+    enforced: true

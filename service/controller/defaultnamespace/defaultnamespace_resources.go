@@ -22,8 +22,9 @@ type defaultNamespaceBootstrapResourcesConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	CustomerAdminGroups []accessgroup.AccessGroup
-	GSAdminGroups       []accessgroup.AccessGroup
+	CustomerAdminGroups  []accessgroup.AccessGroup
+	CustomerReaderGroups []accessgroup.AccessGroup
+	GSAdminGroups        []accessgroup.AccessGroup
 }
 
 func newDefaultNamespaceResources(config defaultNamespaceBootstrapResourcesConfig) ([]resource.Interface, error) {
@@ -61,8 +62,9 @@ func newDefaultNamespaceResources(config defaultNamespaceBootstrapResourcesConfi
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			CustomerAdminGroups: config.CustomerAdminGroups,
-			GSAdminGroups:       config.GSAdminGroups,
+			CustomerAdminGroups:  config.CustomerAdminGroups,
+			CustomerReaderGroups: config.CustomerReaderGroups,
+			GSAdminGroups:        config.GSAdminGroups,
 		}
 
 		userGroupsResource, err = usergroups.New(c)
