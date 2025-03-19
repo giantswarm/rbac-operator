@@ -17,6 +17,7 @@ oidc:
   customer:
     write_all_group: ""
     write_all_groups: []
+    read_all_groups: []
   giantswarm:
     write_all_group: ""
     write_all_groups: []

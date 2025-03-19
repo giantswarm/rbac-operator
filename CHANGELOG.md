@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add empty values placeholder for customer `read-all` groups.
+
+## [0.42.0] - 2025-03-17
+
+### Added
+
 - Added support for `read-all-customer-groups` bindings.
 
 ### Changed
@@ -532,7 +538,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.41.1...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.42.0...HEAD
+[0.42.0]: https://github.com/giantswarm/rbac-operator/compare/v0.41.1...v0.42.0
 [0.41.1]: https://github.com/giantswarm/rbac-operator/compare/v0.41.0...v0.41.1
 [0.41.0]: https://github.com/giantswarm/rbac-operator/compare/v0.40.0...v0.41.0
 [0.40.0]: https://github.com/giantswarm/rbac-operator/compare/v0.39.0...v0.40.0
