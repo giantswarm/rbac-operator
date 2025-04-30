@@ -62,16 +62,13 @@ The rbac-operator can be configured using the following settings:
 ```yaml
 oidc:
   customer:
-    write_all_group: "customer:giantswarm:Employees"  # Group with admin access
-    write_all_groups:                                 # Multiple admin groups
-      - "customer:giantswarm:Admins"
-    read_all_groups:                                  # Read-only access groups
-      - "customer:giantswarm:Readers"
+    write_all_groups:                                           # Customer groups with admin access
+      - "customer-idp:giantswarm:Admins"
+    read_all_groups:                                            # Customer groups with read-only access
+      - "customer-idp:giantswarm:Readers"
   giantswarm:
-    write_all_group: "giantswarm:giantswarm:giantswarm-admins"  # GS admin group
-    write_all_groups:                                           # Multiple GS admin groups
+    write_all_groups:                                           # Giant Swarm admin groups
       - "giantswarm-ad:giantswarm-admins"
-```
 
 ## Custom Resources
 
