@@ -35,7 +35,9 @@ func ServiceAccountsShouldEqualDeep(t *testing.T, expected []*corev1.ServiceAcco
 			if expectedItem.Name != actualItem.Name || expectedItem.Namespace != actualItem.Namespace {
 				t.Fatalf("expected service accounts %v do not equal actual service accounts %v\n", expected, actual)
 			}
-			if !((expectedItem.AutomountServiceAccountToken == nil && actualItem.AutomountServiceAccountToken == nil) || (expectedItem.AutomountServiceAccountToken != nil && actualItem.AutomountServiceAccountToken != nil && *expectedItem.AutomountServiceAccountToken == *actualItem.AutomountServiceAccountToken)) {
+			if (expectedItem.AutomountServiceAccountToken == nil && actualItem.AutomountServiceAccountToken != nil) ||
+				(expectedItem.AutomountServiceAccountToken != nil && actualItem.AutomountServiceAccountToken == nil) ||
+				(expectedItem.AutomountServiceAccountToken != nil && actualItem.AutomountServiceAccountToken != nil && *expectedItem.AutomountServiceAccountToken != *actualItem.AutomountServiceAccountToken) {
 				t.Fatalf("expected service accounts %v do not equal actual service accounts %v\n", expected, actual)
 			}
 			if !reflect.DeepEqual(expectedItem.ImagePullSecrets, actualItem.ImagePullSecrets) {
@@ -56,7 +58,7 @@ func ClusterRoleBindingsShouldEqual(t *testing.T, expected []*rbacv1.ClusterRole
 	for _, expectedItem := range expected {
 		hasItem := false
 		for _, actualItem := range actual {
-			if expectedItem.ObjectMeta.Name == actualItem.ObjectMeta.Name {
+			if expectedItem.Name == actualItem.Name {
 				hasItem = true
 				SubjectsShouldEqual(t, actualItem.Kind, actualItem.Name, expectedItem.Subjects, actualItem.Subjects)
 				break
@@ -75,7 +77,7 @@ func RoleBindingsShouldEqual(t *testing.T, expected []*rbacv1.RoleBinding, actua
 	for _, expectedItem := range expected {
 		hasItem := false
 		for _, actualItem := range actual {
-			if expectedItem.ObjectMeta.Name == actualItem.ObjectMeta.Name && expectedItem.ObjectMeta.Namespace == actualItem.ObjectMeta.Namespace {
+			if expectedItem.Name == actualItem.Name && expectedItem.Namespace == actualItem.Namespace {
 				hasItem = true
 				SubjectsShouldEqual(t, actualItem.Kind, actualItem.Name, expectedItem.Subjects, actualItem.Subjects)
 				break
@@ -112,7 +114,7 @@ func RolesShouldEqual(t *testing.T, expected []*rbacv1.Role, actual []rbacv1.Rol
 	for _, expectedItem := range expected {
 		hasItem := false
 		for _, actualItem := range actual {
-			if expectedItem.ObjectMeta.Name == actualItem.ObjectMeta.Name && expectedItem.ObjectMeta.Namespace == actualItem.ObjectMeta.Namespace {
+			if expectedItem.Name == actualItem.Name && expectedItem.Namespace == actualItem.Namespace {
 				hasItem = true
 				RulesShouldEqual(t, actualItem.Kind, actualItem.Name, expectedItem.Rules, actualItem.Rules)
 				break
@@ -131,7 +133,7 @@ func ClusterRolesShouldEqual(t *testing.T, expected []*rbacv1.ClusterRole, actua
 	for _, expectedItem := range expected {
 		hasItem := false
 		for _, actualItem := range actual {
-			if expectedItem.ObjectMeta.Name == actualItem.ObjectMeta.Name {
+			if expectedItem.Name == actualItem.Name {
 				hasItem = true
 				RulesShouldEqual(t, actualItem.Kind, actualItem.Name, expectedItem.Rules, actualItem.Rules)
 				break

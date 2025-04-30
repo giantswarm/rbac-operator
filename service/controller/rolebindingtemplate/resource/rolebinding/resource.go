@@ -141,7 +141,7 @@ func (r *Resource) getNamespacesFromScope(ctx context.Context, scopes v1alpha1.R
 }
 
 func getRoleBindingNameFromTemplate(template v1alpha1.RoleBindingTemplate) string {
-	roleBindingName := template.Spec.Template.ObjectMeta.Name
+	roleBindingName := template.Spec.Template.Name
 	if roleBindingName == "" {
 		roleBindingName = template.Name
 	}
