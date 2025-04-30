@@ -8,9 +8,7 @@ import (
 	"github.com/giantswarm/microerror"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/rbac-operator/pkg/base"
 )
@@ -30,11 +28,11 @@ func RoleBindingNeedsUpdate(desiredRoleBinding, existingRoleBinding *rbacv1.Role
 
 func CreateOrUpdateRoleBinding(c base.K8sClientWithLogging, ctx context.Context, namespace string, roleBinding *rbacv1.RoleBinding) error {
 	existingRoleBinding, err := c.K8sClient().RbacV1().RoleBindings(namespace).Get(ctx, roleBinding.Name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
+	if errors.IsNotFound(err) {
 		c.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Creating RoleBinding %#q in namespace %s.", roleBinding.Name, namespace))
 
 		_, err := c.K8sClient().RbacV1().RoleBindings(namespace).Create(ctx, roleBinding, metav1.CreateOptions{})
-		if apierrors.IsAlreadyExists(err) {
+		if errors.IsAlreadyExists(err) {
 			// do nothing
 		} else if err != nil {
 			return microerror.Mask(err)
@@ -60,7 +58,7 @@ func CreateOrUpdateRoleBinding(c base.K8sClientWithLogging, ctx context.Context,
 func DeleteRoleBinding(c base.K8sClientWithLogging, ctx context.Context, namespace string, roleBinding string) error {
 	var err error
 
-	_, err = c.K8sClient().RbacV1().RoleBindings(namespace).Get(ctx, roleBinding, v1.GetOptions{})
+	_, err = c.K8sClient().RbacV1().RoleBindings(namespace).Get(ctx, roleBinding, metav1.GetOptions{})
 	if errors.IsNotFound(err) {
 		// nothing to be done
 	} else if err != nil {
@@ -68,7 +66,7 @@ func DeleteRoleBinding(c base.K8sClientWithLogging, ctx context.Context, namespa
 	} else {
 		c.Logger().LogCtx(ctx, "level", "info", "message", fmt.Sprintf("Deleting RoleBinding %#q in namespace %s.", roleBinding, namespace))
 
-		err = c.K8sClient().RbacV1().RoleBindings(namespace).Delete(ctx, roleBinding, v1.DeleteOptions{})
+		err = c.K8sClient().RbacV1().RoleBindings(namespace).Delete(ctx, roleBinding, metav1.DeleteOptions{})
 		if errors.IsNotFound(err) {
 			// nothing to be done
 		} else if err != nil {

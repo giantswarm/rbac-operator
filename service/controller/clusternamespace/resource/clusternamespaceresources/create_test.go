@@ -143,8 +143,8 @@ func Test_EnsureCreated(t *testing.T) {
 			for _, rb := range tc.expectedRoleBindings {
 				r, err := k8sClientFake.K8sClient().
 					RbacV1().
-					RoleBindings(rb.ObjectMeta.Namespace).
-					Get(context.TODO(), rb.ObjectMeta.Name, metav1.GetOptions{})
+					RoleBindings(rb.Namespace).
+					Get(context.TODO(), rb.Name, metav1.GetOptions{})
 
 				if err != nil {
 					t.Fatalf("error == %#v, want nil", err)
