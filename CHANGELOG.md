@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Resolve updated code linter findings.
+
 ### Added
 
 - Add empty values placeholder for customer `read-all` groups.
