@@ -5,6 +5,8 @@
 
 The rbac-operator is a Kubernetes operator that manages RBAC-related resources in Giant Swarm management clusters. It automates the creation and maintenance of roles, role bindings, and service accounts to ensure proper access control across the platform.
 
+**Note**: Customers use this operator to simplify access management across their Kubernetes environment, reduce administrative overhead, and maintain consistent security policies while integrating with their existing identity providers.
+
 ## Overview
 
 The rbac-operator handles several key aspects of RBAC management:
