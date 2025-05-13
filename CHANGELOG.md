@@ -13,7 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add documentation on README
 - Add empty values placeholder for customer `read-all` groups.
 
 ## [0.42.0] - 2025-03-17
