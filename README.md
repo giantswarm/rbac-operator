@@ -38,7 +38,7 @@ The operator manages access for different user groups:
 - Customer reader groups (read-only access to resources)
 - Giant Swarm admin groups (platform-wide administrative access)
 
-### Permission Scopes
+### Permission scopes
 
 The operator manages permissions at different scopes:
 
