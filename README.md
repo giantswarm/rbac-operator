@@ -47,19 +47,11 @@ The operator manages permissions at different scopes:
 - Cluster namespace permissions
 - Default namespace permissions
 
-### Automation support
-
-The operator creates and maintains ServiceAccounts for automation purposes:
-
-- `automation` ServiceAccount with appropriate permissions
-- Integration with FluxCD for GitOps workflows
-- Support for Crossplane resources
-
 ## Configuration
 
 The rbac-operator can be configured using the following settings:
 
-### Helm Values
+### Helm values
 
 ```yaml
 oidc:
@@ -71,8 +63,9 @@ oidc:
   giantswarm:
     write_all_groups:                                           # Giant Swarm admin groups
       - "giantswarm-ad:giantswarm-admins"
+```
 
-## Custom Resources
+## Custom resources
 
 The rbac-operator supports custom RoleBindingTemplate resources:
 
@@ -100,7 +93,7 @@ spec:
 
 ## Development
 
-### Building the Operator
+### Building the operator
 
 Build it using the standard `go build` command.
 
