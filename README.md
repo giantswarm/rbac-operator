@@ -30,7 +30,7 @@ The rbac-operator consists of multiple controllers, each responsible for managin
 
 ## Features
 
-### Customer and Admin Access Groups
+### Customer and admin access groups
 
 The operator manages access for different user groups:
 
