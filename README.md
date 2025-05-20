@@ -47,7 +47,7 @@ The operator manages permissions at different scopes:
 - Cluster namespace permissions
 - Default namespace permissions
 
-### Automation Support
+### Automation support
 
 The operator creates and maintains ServiceAccounts for automation purposes:
 
