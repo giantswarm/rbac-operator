@@ -91,6 +91,19 @@ spec:
         key: value
 ```
 
+### RoleBindingTemplate
+
+The RoleBindingTemplate is a powerful feature that enables dynamic management of RoleBindings across multiple namespaces. It's particularly useful in multi-tenant environments where consistent access control policies need to be maintained across multiple organization namespaces.
+
+#### Use Cases
+
+- **Automate Access Management**: Define RBAC policies once and have them automatically applied across all relevant namespaces
+- **Simplify Operations**: Reduce the manual work required to manage permissions across multiple namespaces
+- **Scale Access Control**: Easily manage permissions as the organization grows and new namespaces are created
+- **Service Account Management**: Grant consistent permissions to service accounts across multiple namespaces
+- **Organization-wide Policies**: Set up and maintain access policies across all organization namespaces
+- **Dynamic RBAC Setup**: Automate RBAC configuration for new organizations or clusters
+
 ## Development
 
 ### Building the operator
