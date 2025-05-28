@@ -38,9 +38,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		roleBinding = cleanSubjects(roleBinding, ns)
 		if len(roleBinding.Subjects) > 0 {
 			if err = rbac.CreateOrUpdateRoleBinding(r, ctx, ns, roleBinding); err != nil {
-				r.logger.Debugf(ctx, "Could not apply roleBinding %s to namespace %s due to error %v", roleBinding.Name, ns, err)
-				continue
+				r.logger.Errorf(ctx, err, "Failed to apply roleBinding %s to namespace %s", roleBinding.Name, ns)
+				return microerror.Maskf(roleBindingCreationFailedError, "failed to apply role binding to namespace %s: %v", ns, err)
 			}
+			r.logger.Debugf(ctx, "Successfully applied roleBinding %s to namespace %s", roleBinding.Name, ns)
 			status = append(status, ns)
 		}
 	}
@@ -49,13 +50,16 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	for _, ns := range template.Status.Namespaces {
 		if !contains(status, ns) {
 			if err = rbac.DeleteRoleBinding(r, ctx, ns, getRoleBindingNameFromTemplate(template)); err != nil {
+				r.logger.Errorf(ctx, err, "Failed to delete roleBinding from namespace %s", ns)
 				return microerror.Mask(err)
 			}
+			r.logger.Debugf(ctx, "Successfully deleted roleBinding from namespace %s", ns)
 		}
 	}
 
 	template.Status.Namespaces = status
 	if err := r.k8sClient.CtrlClient().Status().Update(ctx, &template); err != nil {
+		r.logger.Errorf(ctx, err, "Failed to update template status")
 		return microerror.Mask(err)
 	}
 
@@ -108,7 +112,6 @@ func getRoleBindingFromTemplate(template v1alpha1.RoleBindingTemplate, namespace
 	}
 
 	return &rbacv1.RoleBinding{
-
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "RoleBinding",
 			APIVersion: "rbac.authorization.k8s.io/v1",
