@@ -3,6 +3,8 @@ package rolebinding
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
@@ -29,35 +31,76 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	status := []string{}
+	var failedNamespaces []string
+
+	// Process all namespaces, recording failures but not stopping
 	for _, ns := range namespaces {
 		roleBinding, err := getRoleBindingFromTemplate(template, ns)
 		if err != nil {
-			return microerror.Mask(err)
+			r.logger.Errorf(ctx, err, "Failed to create role binding from template for namespace %s", ns)
+			failedNamespaces = append(failedNamespaces, ns)
+			continue
 		}
 
 		roleBinding = cleanSubjects(roleBinding, ns)
 		if len(roleBinding.Subjects) > 0 {
 			if err = rbac.CreateOrUpdateRoleBinding(r, ctx, ns, roleBinding); err != nil {
 				r.logger.Errorf(ctx, err, "Failed to apply roleBinding %s to namespace %s", roleBinding.Name, ns)
-				return microerror.Maskf(roleBindingCreationFailedError, "failed to apply role binding to namespace %s: %v", ns, err)
+				failedNamespaces = append(failedNamespaces, ns)
+				continue
 			}
 			r.logger.Debugf(ctx, "Successfully applied roleBinding %s to namespace %s", roleBinding.Name, ns)
 			status = append(status, ns)
 		}
 	}
 
-	// go through old list of namespaces and compare for scope changes
+	// Delete role bindings from namespaces no longer in scope
 	for _, ns := range template.Status.Namespaces {
 		if !contains(status, ns) {
 			if err = rbac.DeleteRoleBinding(r, ctx, ns, getRoleBindingNameFromTemplate(template)); err != nil {
 				r.logger.Errorf(ctx, err, "Failed to delete roleBinding from namespace %s", ns)
-				return microerror.Mask(err)
+				// Continue processing other namespaces even if this one fails
+				continue
 			}
 			r.logger.Debugf(ctx, "Successfully deleted roleBinding from namespace %s", ns)
 		}
 	}
 
+	// Update the status with successfully processed namespaces
 	template.Status.Namespaces = status
+
+	// Add annotations to track reconciliation status
+	if template.Annotations == nil {
+		template.Annotations = make(map[string]string)
+	}
+
+	if len(failedNamespaces) > 0 {
+		template.Annotations["rbac-operator.giantswarm.io/reconciliation-status"] = "PartiallyFailed"
+		template.Annotations["rbac-operator.giantswarm.io/failed-namespaces"] = strings.Join(failedNamespaces, ",")
+		template.Annotations["rbac-operator.giantswarm.io/last-error-time"] = time.Now().UTC().Format(time.RFC3339)
+
+		// Log the failures for operator visibility
+		r.logger.Errorf(
+			ctx,
+			nil,
+			"Reconciliation partially failed: unable to process %d out of %d namespaces. Failed namespaces: %s",
+			len(failedNamespaces),
+			len(namespaces),
+			strings.Join(failedNamespaces, ", "),
+		)
+	} else {
+		template.Annotations["rbac-operator.giantswarm.io/reconciliation-status"] = "Succeeded"
+		delete(template.Annotations, "rbac-operator.giantswarm.io/failed-namespaces")
+		delete(template.Annotations, "rbac-operator.giantswarm.io/last-error-time")
+	}
+
+	// Update the resource with new annotations
+	if err := r.k8sClient.CtrlClient().Update(ctx, &template); err != nil {
+		r.logger.Errorf(ctx, err, "Failed to update template annotations")
+		return microerror.Mask(err)
+	}
+
+	// Then update the status
 	if err := r.k8sClient.CtrlClient().Status().Update(ctx, &template); err != nil {
 		r.logger.Errorf(ctx, err, "Failed to update template status")
 		return microerror.Mask(err)
