@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Improve error handling in role binding template controller.
 - Resolve updated code linter findings.
 
 ### Added
