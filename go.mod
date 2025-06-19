@@ -17,10 +17,10 @@ require (
 	github.com/google/go-cmp v0.6.0
 	github.com/prometheus/client_golang v1.19.1
 	github.com/spf13/viper v1.18.2
-	k8s.io/api v0.28.3
-	k8s.io/apimachinery v0.28.3
-	k8s.io/client-go v0.28.3
-	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0
+	k8s.io/api v0.33.2
+	k8s.io/apimachinery v0.33.2
+	k8s.io/client-go v0.33.2
+	k8s.io/utils 4c0f3b243397
 )
 
 require (
