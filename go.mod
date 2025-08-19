@@ -116,4 +116,4 @@ replace (
 	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.15.3
 )
 
-replace golang.org/x/net => golang.org/x/net v0.29.0
+replace golang.org/x/net => golang.org/x/net v0.38.0
