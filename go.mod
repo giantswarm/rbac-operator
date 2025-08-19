@@ -8,14 +8,14 @@ require (
 	github.com/giantswarm/exporterkit v1.2.0
 	github.com/giantswarm/k8sclient/v7 v7.2.0
 	github.com/giantswarm/k8smetadata v0.25.0
-	github.com/giantswarm/microendpoint v1.1.0
+	github.com/giantswarm/microendpoint v1.1.2
 	github.com/giantswarm/microerror v0.4.1
 	github.com/giantswarm/microkit v1.0.1
 	github.com/giantswarm/micrologger v1.1.2
 	github.com/giantswarm/operatorkit/v8 v8.0.0
 	github.com/giantswarm/organization-operator v1.6.3
 	github.com/google/go-cmp v0.6.0
-	github.com/prometheus/client_golang v1.19.1
+	github.com/prometheus/client_golang v1.21.0
 	github.com/spf13/viper v1.20.1
 	k8s.io/api v0.28.3
 	k8s.io/apimachinery v0.28.3
@@ -23,7 +23,10 @@ require (
 	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0
 )
 
-require github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
+require (
+	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
+	github.com/klauspost/compress v1.17.11 // indirect
+)
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -65,9 +68,9 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/prometheus/client_model v0.5.0 // indirect
-	github.com/prometheus/common v0.48.0 // indirect
-	github.com/prometheus/procfs v0.12.0 // indirect
+	github.com/prometheus/client_model v0.6.1 // indirect
+	github.com/prometheus/common v0.62.0 // indirect
+	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.12.0 // indirect
@@ -78,8 +81,8 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/oauth2 v0.25.0 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
+	golang.org/x/sync v0.11.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/term v0.24.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.8.0 // indirect
