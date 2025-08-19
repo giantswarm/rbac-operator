@@ -1,8 +1,6 @@
 module github.com/giantswarm/rbac-operator
 
-go 1.21.0
-
-toolchain go1.22.6
+go 1.24.6
 
 require (
 	github.com/giantswarm/exporterkit v1.2.0
@@ -21,11 +19,6 @@ require (
 	k8s.io/apimachinery v0.28.3
 	k8s.io/client-go v0.28.3
 	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0
-)
-
-require (
-	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
-	github.com/klauspost/compress v1.17.11 // indirect
 )
 
 require (
@@ -50,6 +43,7 @@ require (
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
 	github.com/go-openapi/swag v0.22.3 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
+	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
@@ -61,6 +55,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
@@ -83,7 +78,7 @@ require (
 	golang.org/x/oauth2 v0.25.0 // indirect
 	golang.org/x/sync v0.11.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/term v0.24.0 // indirect
+	golang.org/x/term v0.27.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
 	golang.org/x/time v0.8.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
@@ -102,21 +97,4 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace (
-	github.com/coreos/etcd => go.etcd.io/etcd/v3 v3.5.14
-	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v5 v5.2.1
-	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.10.0
-	github.com/hashicorp/consul/api => github.com/hashicorp/consul/api v1.29.1
-	github.com/hashicorp/consul/sdk => github.com/hashicorp/consul/sdk v0.16.1
-	github.com/kataras/iris/v12 => github.com/kataras/iris/v12 v12.2.11
-	github.com/labstack/echo/v4 => github.com/labstack/echo/v4 v4.12.0
-	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.26
-	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.11.8
-	github.com/nats-io/nkeys => github.com/nats-io/nkeys v0.4.11
-	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.54.0
-	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc => go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.53.0
-	golang.org/x/text => golang.org/x/text v0.16.0
-	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.15.3
-)
-
-replace golang.org/x/net => golang.org/x/net v0.29.0
+replace sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.15.3
