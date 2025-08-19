@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-
-- Resolve updated code linter findings.
-
 ### Added
 
 - Add empty values placeholder for customer `read-all` groups.
+
+### Changed
+
+- Resolve updated code linter findings.
+- Update dependencies and clean up go.mod.
+- Update to go 1.24.
 
 ## [0.42.0] - 2025-03-17
 
