@@ -10,7 +10,7 @@ require (
 	github.com/giantswarm/microerror v0.4.1
 	github.com/giantswarm/microkit v1.0.3
 	github.com/giantswarm/micrologger v1.1.2
-	github.com/giantswarm/operatorkit/v7 v7.3.0
+	github.com/giantswarm/operatorkit/v8 v8.0.0
 	github.com/giantswarm/organization-operator v1.6.4
 	github.com/google/go-cmp v0.7.0
 	github.com/prometheus/client_golang v1.23.0
