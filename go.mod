@@ -4,7 +4,7 @@ go 1.24.6
 
 require (
 	github.com/giantswarm/exporterkit v1.2.0
-	github.com/giantswarm/k8sclient/v7 v7.2.0
+	github.com/giantswarm/k8sclient/v8 v8.0.0
 	github.com/giantswarm/k8smetadata v0.25.0
 	github.com/giantswarm/microendpoint v1.1.2
 	github.com/giantswarm/microerror v0.4.1
@@ -20,6 +20,8 @@ require (
 	k8s.io/client-go v0.33.4
 	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397
 )
+
+require github.com/giantswarm/k8sclient/v7 v7.2.0 // indirect
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect

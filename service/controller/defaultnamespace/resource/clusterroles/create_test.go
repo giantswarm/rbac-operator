@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
+	"github.com/giantswarm/k8sclient/v8/pkg/k8sclienttest"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/micrologger/microloggertest"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"

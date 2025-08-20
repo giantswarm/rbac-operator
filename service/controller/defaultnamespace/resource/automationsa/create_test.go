@@ -6,7 +6,7 @@ import (
 
 	"k8s.io/utils/ptr"
 
-	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
+	"github.com/giantswarm/k8sclient/v8/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
