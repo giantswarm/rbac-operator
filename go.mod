@@ -21,9 +21,8 @@ require (
 	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397
 )
 
-require github.com/giantswarm/k8sclient/v7 v7.2.0 // indirect
-
 require (
+	github.com/giantswarm/k8sclient/v7 v7.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
