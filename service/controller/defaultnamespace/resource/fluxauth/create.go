@@ -157,6 +157,42 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	// Create a RoleBindingTemplate to grant crossplane-edit permissions to automation SAs in org namespaces
+	crossplaneRoleBindingTemplate := &v1alpha1.RoleBindingTemplate{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "RoleBindingTemplate",
+			APIVersion: "auth.giantswarm.io/v1alpha1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: pkgkey.CrossplaneEditAutomationSARoleBindingName(),
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+		},
+		Spec: v1alpha1.RoleBindingTemplateSpec{
+			Template: v1alpha1.RoleBindingTemplateResource{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: pkgkey.CrossplaneEditAutomationSARoleBindingName(),
+				},
+				Subjects: []rbacv1.Subject{
+					{
+						Kind: "ServiceAccount",
+						Name: pkgkey.AutomationServiceAccountName,
+					},
+				},
+				RoleRef: rbacv1.RoleRef{
+					APIGroup: "rbac.authorization.k8s.io",
+					Kind:     "ClusterRole",
+					Name:     "crossplane-edit",
+				},
+			},
+		},
+	}
+
+	if err := r.createOrUpdateRoleBindingTemplate(ctx, crossplaneRoleBindingTemplate); err != nil {
+		return microerror.Mask(err)
+	}
+
 	return nil
 }
 

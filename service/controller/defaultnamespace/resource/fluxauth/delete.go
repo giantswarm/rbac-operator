@@ -27,6 +27,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		pkgkey.FluxCRDRoleBindingName,
 		pkgkey.FluxReconcilerRoleBindingName,
 		pkgkey.WriteAllAutomationSARoleBindingName(),
+		pkgkey.CrossplaneEditAutomationSARoleBindingName(),
 	}
 
 	for _, name := range roleBindingTemplates {
