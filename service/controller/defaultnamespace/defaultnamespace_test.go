@@ -37,7 +37,7 @@ func Test_DefaultNamespaceController(t *testing.T) {
 			ExpectedClusterRoleBindings:  7,
 			ExpectedRoles:                1,
 			ExpectedRoleBindings:         2,
-			ExpectedRoleBindingTemplates: 3,
+			ExpectedRoleBindingTemplates: 4,
 		},
 	}
 
