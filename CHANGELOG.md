@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `crossplane-edit` ClusterRole permissions for automation ServiceAccounts in organization namespaces via RoleBindingTemplate.
+
 ## [0.42.1] - 2025-08-21
 
 ### Added
