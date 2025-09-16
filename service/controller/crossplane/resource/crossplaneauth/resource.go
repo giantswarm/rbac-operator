@@ -27,7 +27,7 @@ type Config struct {
 }
 
 type Resource struct {
-	k8sClient                           kubernetes.Interface
+	k8sClient                           k8sclient.Interface  
 	logger                              micrologger.Logger
 	customerAdminGroups                 []accessgroup.AccessGroup
 	crossplaneBindTriggeringClusterRole string
@@ -42,7 +42,7 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		k8sClient:                           config.K8sClient.K8sClient(),
+		k8sClient:                           config.K8sClient,
 		logger:                              config.Logger,
 		customerAdminGroups:                 config.CustomerAdminGroups,
 		crossplaneBindTriggeringClusterRole: config.CrossplaneBindTriggeringClusterRole,
@@ -52,7 +52,7 @@ func New(config Config) (*Resource, error) {
 }
 
 func (r Resource) K8sClient() kubernetes.Interface {
-	return r.k8sClient
+	return r.k8sClient.K8sClient()
 }
 
 func (r Resource) Logger() micrologger.Logger {
