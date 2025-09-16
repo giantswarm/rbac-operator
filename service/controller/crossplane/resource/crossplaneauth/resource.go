@@ -27,7 +27,7 @@ type Config struct {
 }
 
 type Resource struct {
-	k8sClient                           k8sclient.Interface  
+	k8sClient                           k8sclient.Interface
 	logger                              micrologger.Logger
 	customerAdminGroups                 []accessgroup.AccessGroup
 	crossplaneBindTriggeringClusterRole string

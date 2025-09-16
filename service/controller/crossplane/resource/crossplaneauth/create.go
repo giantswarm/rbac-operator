@@ -34,14 +34,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			Namespace: pkgkey.DefaultNamespaceName,
 		},
 	}
-	
+
 	// Add automation ServiceAccounts from all org namespaces
 	orgAutomationSAs, err := r.getOrgAutomationServiceAccounts(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 	subjects = append(subjects, orgAutomationSAs...)
-	
+
 	for _, group := range r.customerAdminGroups {
 		subjects = append(subjects, rbacv1.Subject{
 			APIGroup:  "rbac.authorization.k8s.io",
@@ -89,22 +89,22 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 func (r *Resource) getOrgAutomationServiceAccounts(ctx context.Context) ([]rbacv1.Subject, error) {
 	var subjects []rbacv1.Subject
-	
+
 	// Get all namespaces that start with "org-" pattern
 	namespaces := &corev1.NamespaceList{}
 	if err := r.k8sClient.CtrlClient().List(ctx, namespaces); err != nil {
 		return nil, microerror.Mask(err)
 	}
-	
+
 	for _, ns := range namespaces.Items {
 		if pkgkey.IsOrgNamespace(ns.Name) {
 			subjects = append(subjects, rbacv1.Subject{
-				Kind:      "ServiceAccount", 
+				Kind:      "ServiceAccount",
 				Name:      pkgkey.AutomationServiceAccountName,
 				Namespace: ns.Name,
 			})
 		}
 	}
-	
+
 	return subjects, nil
 }
