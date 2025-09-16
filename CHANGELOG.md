@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added `crossplane-edit` ClusterRole permissions for automation ServiceAccounts in organization namespaces via RoleBindingTemplate.
+- Extended `crossplane-edit` ClusterRoleBinding to include automation ServiceAccounts from all organization namespaces, enabling App-to-HelmRelease migration for crossplane-resources apps. Also added dynamic namespace watching to handle new/deleted org namespaces automatically.
 
 ## [0.42.1] - 2025-08-21
 

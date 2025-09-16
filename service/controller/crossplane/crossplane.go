@@ -1,6 +1,8 @@
 package crossplane
 
 import (
+	"context"
+	
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -23,7 +25,8 @@ type CrossplaneConfig struct {
 }
 
 type Crossplane struct {
-	*controller.Controller
+	ClusterRoleController *controller.Controller
+	NamespaceController   *controller.Controller
 }
 
 func NewCrossplane(config CrossplaneConfig) (*Crossplane, error) {
@@ -49,8 +52,6 @@ func NewCrossplane(config CrossplaneConfig) (*Crossplane, error) {
 			},
 			Resources: resources,
 
-			// Name is used to compute finalizer names. This here results in something
-			// like operatorkit.giantswarm.io/rbac-operator-rbac-controller.
 			Name: project.Name() + "-crossplane-controller",
 		}
 
@@ -60,9 +61,30 @@ func NewCrossplane(config CrossplaneConfig) (*Crossplane, error) {
 		}
 	}
 
+	var namespaceController *controller.Controller
+	{
+		crossplaneNamespace, err := NewCrossplaneNamespace(CrossplaneNamespaceConfig{
+			K8sClient:                           config.K8sClient,
+			Logger:                              config.Logger,
+			CustomerAdminGroups:                 config.CustomerAdminGroups,
+			CrossplaneBindTriggeringClusterRole: config.CrossplaneBindTriggeringClusterRole,
+		})
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+		namespaceController = crossplaneNamespace.Controller
+	}
+
 	c := &Crossplane{
-		Controller: clusterRoleAuthController,
+		ClusterRoleController: clusterRoleAuthController,
+		NamespaceController:   namespaceController,
 	}
 
 	return c, nil
+}
+
+func (c *Crossplane) Boot(ctx context.Context) error {
+	go c.ClusterRoleController.Boot(ctx)
+	go c.NamespaceController.Boot(ctx)
+	return nil
 }
