@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.42.2] - 2025-09-17
+
 ### Added
 
 - Extended `crossplane-edit` ClusterRoleBinding to include automation ServiceAccounts from all organization namespaces.
@@ -551,7 +553,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.42.1...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.42.2...HEAD
+[0.42.2]: https://github.com/giantswarm/rbac-operator/compare/v0.42.1...v0.42.2
 [0.42.1]: https://github.com/giantswarm/rbac-operator/compare/v0.42.0...v0.42.1
 [0.42.0]: https://github.com/giantswarm/rbac-operator/compare/v0.41.1...v0.42.0
 [0.41.1]: https://github.com/giantswarm/rbac-operator/compare/v0.41.0...v0.41.1
