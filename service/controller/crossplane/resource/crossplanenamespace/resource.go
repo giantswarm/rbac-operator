@@ -1,8 +1,7 @@
-// crossplane package is responsible for setting up RBAC required by
-// crossplane's rbac-manager. The rbac-manager creates all the necessary
-// (Cluster)Roles for crossplane resources, but doesn't bind them to Users
-// or Groups. This controller is responsible for that.
-package crossplaneauth
+// crossplanenamespace package handles updating the crossplane-edit ClusterRoleBinding
+// when new org namespaces are created or deleted, ensuring their automation
+// ServiceAccounts have the necessary crossplane permissions.
+package crossplanenamespace
 
 import (
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
@@ -15,7 +14,7 @@ import (
 )
 
 const (
-	Name = "crossplaneauth"
+	Name = "crossplanenamespace"
 )
 
 type Config struct {
@@ -31,6 +30,10 @@ type Resource struct {
 	logger                              micrologger.Logger
 	customerAdminGroups                 []accessgroup.AccessGroup
 	crossplaneBindTriggeringClusterRole string
+}
+
+var invalidConfigError = &microerror.Error{
+	Kind: "invalidConfigError",
 }
 
 func New(config Config) (*Resource, error) {

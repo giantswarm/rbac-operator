@@ -11,11 +11,13 @@ import (
 	"github.com/giantswarm/rbac-operator/service/controller/crossplane/key"
 	"github.com/giantswarm/rbac-operator/service/controller/crossplane/resource/crossplaneauth"
 
+	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
+	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
 
 func Test_EnsureCreated(t *testing.T) {
@@ -44,8 +46,11 @@ func Test_EnsureCreated(t *testing.T) {
 
 			var k8sClientFake *k8sclienttest.Clients
 			{
+				testScheme := runtime.NewScheme()
+				corev1.AddToScheme(testScheme)
 				k8sClientFake = k8sclienttest.NewClients(k8sclienttest.ClientsConfig{
-					K8sClient: clientgofake.NewSimpleClientset(k8sObj...),
+					CtrlClient: clientfake.NewClientBuilder().WithScheme(testScheme).WithRuntimeObjects().Build(),
+					K8sClient:  clientgofake.NewSimpleClientset(k8sObj...),
 				})
 			}
 

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Extended `crossplane-edit` ClusterRoleBinding to include automation ServiceAccounts from all organization namespaces.
+- Added dynamic namespace watching to automatically add/remove org automation ServiceAccounts from the `crossplane-edit` ClusterRoleBinding when org namespaces are created or deleted.
+
 ## [0.42.1] - 2025-08-21
 
 ### Added
