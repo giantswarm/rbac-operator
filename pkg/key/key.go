@@ -120,6 +120,10 @@ func WriteAllCustomerGroupRoleBindingName() string {
 	return fmt.Sprintf("%s-customer-group", DefaultWriteAllPermissionsName)
 }
 
+func WriteAllCustomerGroupClusterRoleBindingName() string {
+	return fmt.Sprintf("%s-customer-group", DefaultWriteAllPermissionsName)
+}
+
 func WriteAllAutomationSARoleBindingName() string {
 	return fmt.Sprintf("%s-customer-sa", DefaultWriteAllPermissionsName)
 }
