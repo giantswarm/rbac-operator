@@ -34,7 +34,7 @@ func Test_DefaultNamespaceController(t *testing.T) {
 			CustomerAdminGroups:          []accessgroup.AccessGroup{{Name: "customer"}},
 			GSAdminGroup:                 []accessgroup.AccessGroup{{Name: "giantswarm"}},
 			ExpectedClusterRoles:         9,
-			ExpectedClusterRoleBindings:  7,
+			ExpectedClusterRoleBindings:  8,
 			ExpectedRoles:                1,
 			ExpectedRoleBindings:         2,
 			ExpectedRoleBindingTemplates: 3,

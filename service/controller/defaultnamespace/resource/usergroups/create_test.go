@@ -52,6 +52,10 @@ func Test_UserGroups(t *testing.T) {
 					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
 				),
 				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.WriteAllCustomerGroupClusterRoleBindingName(),
+					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
+				),
+				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.WriteAllGSGroupClusterRoleBindingName(),
 					defaultnamespacetest.NewGroupSubjects("giantswarm1", "giantswarm2"),
 				),
@@ -94,6 +98,10 @@ func Test_UserGroups(t *testing.T) {
 				),
 				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.ReadAllCustomerGroupClusterRoleBindingName(),
+					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
+				),
+				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.WriteAllCustomerGroupClusterRoleBindingName(),
 					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
 				),
 				defaultnamespacetest.NewClusterRoleBinding(
