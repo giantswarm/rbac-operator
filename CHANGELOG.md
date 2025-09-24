@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix missing cluster-wide write permissions for customer admin groups by adding the missing `write-all-customer-group` ClusterRoleBinding.
+
 ## [0.42.2] - 2025-09-17
 
 ### Added
