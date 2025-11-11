@@ -8,6 +8,19 @@ TODO
 *.key
 *.config
 
-
 # ats
 /tests/ats/test_results*.xml
+
+# OS X
+.history
+.DS_Store
+
+# devenv
+.devenv*
+devenv.local.nix
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
