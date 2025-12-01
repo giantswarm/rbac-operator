@@ -52,6 +52,12 @@ var _ = Describe("Manager", Ordered, func() {
 	// enforce the restricted security policy to the namespace, installing CRDs,
 	// and deploying the controller.
 	BeforeAll(func() {
+		By("installing prometheus operator")
+		Expect(utils.InstallPrometheusOperator()).To(Succeed())
+
+		By("installing the organization-operator")
+		Expect(utils.InstallOrganizationOperator()).To(Succeed())
+
 		By("creating manager namespace")
 		cmd := exec.Command("kubectl", "create", "ns", namespace)
 		_, err := utils.Run(cmd)
@@ -77,6 +83,12 @@ var _ = Describe("Manager", Ordered, func() {
 	// After all tests have been executed, clean up by undeploying the controller, uninstalling CRDs,
 	// and deleting the namespace.
 	AfterAll(func() {
+		By("uninstalling the organization-operator")
+		utils.UninstallOrganizationOperator()
+
+		By("uninstalling the Prometheus manager bundle")
+		utils.UninstallPrometheusOperator()
+
 		By("cleaning up the curl pod for metrics")
 		cmd := exec.Command("kubectl", "delete", "pod", "curl-metrics", "-n", namespace)
 		_, _ = utils.Run(cmd)

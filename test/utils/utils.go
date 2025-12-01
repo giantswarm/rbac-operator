@@ -28,6 +28,12 @@ import (
 )
 
 const (
+	organizationOperatorVersion     = "2.1.2"
+	organizationOperatorHelmURLTmpl = "https://giantswarm.github.io/control-plane-catalog/organization-operator-%s.tgz"
+
+	prometheusOperatorVersion = "v0.86.2"
+	prometheusOperatorURL     = "https://github.com/prometheus-operator/prometheus-operator/releases/download/%s/bundle.yaml"
+
 	certmanagerVersion = "v1.18.2"
 	certmanagerURLTmpl = "https://github.com/cert-manager/cert-manager/releases/download/%s/cert-manager.yaml"
 
@@ -57,6 +63,44 @@ func Run(cmd *exec.Cmd) (string, error) {
 	}
 
 	return string(output), nil
+}
+
+// UninstallPrometheusOperator uninstalls the prometheus
+func UninstallPrometheusOperator() {
+	url := fmt.Sprintf(prometheusOperatorURL, prometheusOperatorVersion)
+	cmd := exec.Command("kubectl", "delete", "-f", url)
+	if _, err := Run(cmd); err != nil {
+		warnError(err)
+	}
+}
+
+// InstallPrometheusOperator installs the prometheus Operator to be used to export the enabled metrics.
+func InstallPrometheusOperator() error {
+	url := fmt.Sprintf(prometheusOperatorURL, prometheusOperatorVersion)
+	cmd := exec.Command("kubectl", "apply", "-f", url, "--server-side")
+	_, err := Run(cmd)
+	return err
+}
+
+// UninstallOrganizationOperator uninstalls the organization operator helm chart.
+func UninstallOrganizationOperator() {
+	cmd := exec.Command("helm", "uninstall", "organization-operator",
+		"--namespace", "giantswarm",
+	)
+	if _, err := Run(cmd); err != nil {
+		warnError(err)
+	}
+}
+
+// InstallOrganizationOperator installs the organization operator helm chart.
+func InstallOrganizationOperator() error {
+	url := fmt.Sprintf(organizationOperatorHelmURLTmpl, organizationOperatorVersion)
+	cmd := exec.Command("helm", "install", "organization-operator", url,
+		"--namespace", "giantswarm",
+		"--create-namespace",
+	)
+	_, err := Run(cmd)
+	return err
 }
 
 // UninstallCertManager uninstalls the cert manager
