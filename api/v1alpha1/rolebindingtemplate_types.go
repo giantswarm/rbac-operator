@@ -55,23 +55,37 @@ type RoleBindingTemplateScopes struct {
 	OrganizationSelector metav1.LabelSelector `json:"organizationSelector"`
 }
 
+// RoleBindingTemplateStatus Status.Conditions types
+const (
+	ReadyCondition string = "Ready"
+)
+
+// RoleBindingTemplateStatus Status.Conditions reasons
+const (
+	ProgressingReason string = "Progressing"
+	FailedReason      string = "Failed"
+	SucceededReason   string = "Succeeded"
+)
+
+// RoleBindingTemplateNamespaceFailure represents a failed namespace deployment and it's reason.
+type RoleBindingTemplateNamespaceFailure struct {
+	// Namespace is the namespace that failed when trying to apply the RoleBindingTemplate
+	Namespace string `json:"namespace"`
+
+	// Reason is why the RoleBindingTemplate failed to apply to the namespace
+	Reason string `json:"reason,omitempty"`
+}
+
 // RoleBindingTemplateStatus defines the observed state of RoleBindingTemplate.
 type RoleBindingTemplateStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// Failed namespaces are the namespaces that failed
+	// +optional
+	FailedNamespaces []RoleBindingTemplateNamespaceFailure `json:"failedNamespaces,omitempty"`
 
-	// For Kubernetes API conventions, see:
-	// https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#typical-status-properties
+	// ProvisionedNamespaces are the namespaces where the RoleBindingTemplate has created rolebindings
+	// +optional
+	ProvisionedNamespaces []string `json:"provisionedNamespaces,omitempty"`
 
-	// conditions represent the current state of the RoleBindingTemplate resource.
-	// Each condition has a unique type and reflects the status of a specific aspect of the resource.
-	//
-	// Standard condition types include:
-	// - "Available": the resource is fully functional
-	// - "Progressing": the resource is being created or updated
-	// - "Degraded": the resource failed to reach or maintain its desired state
-	//
-	// The status of each condition is one of True, False, or Unknown.
 	// +listType=map
 	// +listMapKey=type
 	// +optional
