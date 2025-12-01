@@ -5,6 +5,14 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - auth.giantswarm.io
   resources:
   - rolebindingtemplates
@@ -30,3 +38,17 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  verbs:
+  - '*'
+- apiGroups:
+  - security.giantswarm.io
+  resources:
+  - organizations
+  verbs:
+  - get
+  - list
+  - watch
