@@ -20,11 +20,16 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"os/exec"
 	"strings"
 
 	. "github.com/onsi/ginkgo/v2" // nolint:revive,staticcheck
+
+	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
 )
 
 const (
@@ -63,6 +68,36 @@ func Run(cmd *exec.Cmd) (string, error) {
 	}
 
 	return string(output), nil
+}
+
+func FetchCRDsFromURL(url string) ([]*v1.CustomResourceDefinition, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader(body), 4096)
+	var crds []*v1.CustomResourceDefinition
+
+	for {
+		crd := &v1.CustomResourceDefinition{}
+		err = decoder.Decode(crd)
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return nil, err
+		}
+		crds = append(crds, crd)
+	}
+
+	return crds, nil
 }
 
 // UninstallPrometheusOperator uninstalls the prometheus
