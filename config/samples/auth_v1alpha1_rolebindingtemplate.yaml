@@ -1,0 +1,9 @@
+apiVersion: auth.giantswarm.io/v1alpha1
+kind: RoleBindingTemplate
+metadata:
+  labels:
+    app.kubernetes.io/name: rbac-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: rolebindingtemplate-sample
+spec:
+  # TODO(user): Add fields here

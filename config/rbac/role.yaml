@@ -1,0 +1,54 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: manager-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - auth.giantswarm.io
+  resources:
+  - rolebindingtemplates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - auth.giantswarm.io
+  resources:
+  - rolebindingtemplates/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - auth.giantswarm.io
+  resources:
+  - rolebindingtemplates/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  verbs:
+  - '*'
+- apiGroups:
+  - security.giantswarm.io
+  resources:
+  - organizations
+  verbs:
+  - get
+  - list
+  - watch
