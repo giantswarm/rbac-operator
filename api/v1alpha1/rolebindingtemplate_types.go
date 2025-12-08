@@ -1,5 +1,5 @@
 /*
-Copyright 2023.
+Copyright 2025.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,26 +30,28 @@ type RoleBindingTemplateSpec struct {
 	Scopes   RoleBindingTemplateScopes   `json:"scopes"`
 }
 
-// RoleBindingTemplateStatus defines the observed state of RoleBindingTemplate
-type RoleBindingTemplateStatus struct {
-	// Namespaces contains a list of namespaces the RoleBinding is currently applied to
-	Namespaces []string `json:"namespaces,omitempty"`
-}
-
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
-//+kubebuilder:resource:scope=Cluster
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:resource:scope=Cluster
 
 // RoleBindingTemplate is the Schema for the rolebindingtemplates API
 type RoleBindingTemplate struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+	metav1.TypeMeta `json:",inline"`
 
-	Spec   RoleBindingTemplateSpec   `json:"spec,omitempty"`
-	Status RoleBindingTemplateStatus `json:"status,omitempty"`
+	// metadata is a standard object metadata
+	// +optional
+	metav1.ObjectMeta `json:"metadata,omitempty,omitzero"`
+
+	// spec defines the desired state of RoleBindingTemplate
+	// +required
+	Spec RoleBindingTemplateSpec `json:"spec"`
+
+	// status defines the observed state of RoleBindingTemplate
+	// +optional
+	Status RoleBindingTemplateStatus `json:"status,omitempty,omitzero"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // RoleBindingTemplateList contains a list of RoleBindingTemplate
 type RoleBindingTemplateList struct {
@@ -75,13 +77,44 @@ type RoleBindingTemplateResource struct {
 
 // RoleBindingTemplateScopes describes the scopes the RoleBindingTemplate should be applied to
 type RoleBindingTemplateScopes struct {
-	OrganizationSelector ScopeSelector `json:"organizationSelector"`
+	OrganizationSelector metav1.LabelSelector `json:"organizationSelector"`
 }
 
-// ScopeSelector wraps a k8s label selector
-type ScopeSelector struct {
-	MatchLabels      map[string]string                 `json:"matchLabels,omitempty"`
-	MatchExpressions []metav1.LabelSelectorRequirement `json:"matchExpressions,omitempty"`
+// RoleBindingTemplateStatus Status.Conditions types
+const (
+	ReadyCondition string = "Ready"
+)
+
+// RoleBindingTemplateStatus Status.Conditions reasons
+const (
+	ProgressingReason string = "Progressing"
+	FailedReason      string = "Failed"
+	SucceededReason   string = "Succeeded"
+)
+
+// RoleBindingTemplateNamespaceFailure represents a failed namespace deployment and it's reason.
+type RoleBindingTemplateNamespaceFailure struct {
+	// Namespace is the namespace that failed when trying to apply the RoleBindingTemplate
+	Namespace string `json:"namespace"`
+
+	// Reason is why the RoleBindingTemplate failed to apply to the namespace
+	Reason string `json:"reason,omitempty"`
+}
+
+// RoleBindingTemplateStatus defines the observed state of RoleBindingTemplate.
+type RoleBindingTemplateStatus struct {
+	// Failed namespaces are the namespaces that failed
+	// +optional
+	FailedNamespaces []RoleBindingTemplateNamespaceFailure `json:"failedNamespaces"`
+
+	// ProvisionedNamespaces are the namespaces where the RoleBindingTemplate has created rolebindings
+	// +optional
+	ProvisionedNamespaces []string `json:"provisionedNamespaces"`
+
+	// +listType=map
+	// +listMapKey=type
+	// +optional
+	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 
 func init() {
