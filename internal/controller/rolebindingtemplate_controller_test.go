@@ -1,4 +1,4 @@
-package rolebinding
+package controller
 
 import (
 	"context"
@@ -8,15 +8,16 @@ import (
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
-	"github.com/giantswarm/micrologger/microloggertest"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/kubernetes/scheme"
 	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/giantswarm/rbac-operator/api/v1alpha1"
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
@@ -134,10 +135,6 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 							annotation.Notes: "There is already a note here",
 						},
 					},
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "RoleBinding",
-						APIVersion: "rbac.authorization.k8s.io/v1",
-					},
 					RoleRef: rbacv1.RoleRef{
 						Name:     "example",
 						Kind:     "ClusterRole",
@@ -192,10 +189,6 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 							annotation.Notes: "There is already a note here",
 						},
 					},
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "RoleBinding",
-						APIVersion: "rbac.authorization.k8s.io/v1",
-					},
 					RoleRef: rbacv1.RoleRef{
 						Name:     "example",
 						Kind:     "ClusterRole",
@@ -218,10 +211,6 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 						Annotations: map[string]string{
 							annotation.Notes: "There is already a note here",
 						},
-					},
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "RoleBinding",
-						APIVersion: "rbac.authorization.k8s.io/v1",
 					},
 					RoleRef: rbacv1.RoleRef{
 						Name:     "example",
@@ -257,13 +246,7 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 			var results []*rbacv1.RoleBinding
 
 			for _, namespace := range tc.Namespaces {
-				result, err := getRoleBindingFromTemplate(template, namespace)
-				if !tc.expectError && err != nil {
-					t.Fatalf("Expected success, got error %v", err)
-				}
-				if tc.expectError && err == nil {
-					t.Fatalf("Expected error, got success")
-				}
+				result := getRoleBindingFromTemplate(&template, namespace)
 
 				results = append(results, result)
 			}
@@ -345,7 +328,7 @@ func TestEnsureCreated(t *testing.T) {
 						},
 					},
 					Scopes: v1alpha1.RoleBindingTemplateScopes{
-						OrganizationSelector: v1alpha1.ScopeSelector{
+						OrganizationSelector: metav1.LabelSelector{
 							MatchLabels: map[string]string{"name": "example"},
 						},
 					},
@@ -375,7 +358,7 @@ func TestEnsureCreated(t *testing.T) {
 						},
 					},
 					Scopes: v1alpha1.RoleBindingTemplateScopes{
-						OrganizationSelector: v1alpha1.ScopeSelector{
+						OrganizationSelector: metav1.LabelSelector{
 							MatchLabels: map[string]string{"name": "example-3"},
 						},
 					},
@@ -629,23 +612,23 @@ func TestEnsureCreated(t *testing.T) {
 				})
 			}
 
-			r, err := New(Config{
-				K8sClient: k8sClientFake,
-				Logger:    microloggertest.New(),
-			})
-			if err != nil {
-				t.Fatal(err)
+			r := &RoleBindingTemplateReconciler{
+				Client: k8sClientFake.CtrlClient(),
+				Scheme: k8sClientFake.CtrlClient().Scheme(),
 			}
+
 			ctx := context.Background()
-			err = r.EnsureCreated(ctx, tc.Template)
+			_, err := r.Reconcile(ctx, reconcile.Request{
+				NamespacedName: types.NamespacedName{Name: tc.Template.Name},
+			})
 			if !tc.expectError && err != nil {
 				t.Fatalf("Expected success, got error %v", err)
 			}
 			if tc.expectError && err == nil {
 				t.Fatalf("Expected error, got success")
 			}
-			roleBindingList, err := k8sClientFake.K8sClient().RbacV1().RoleBindings("").List(ctx, metav1.ListOptions{})
-			if err != nil {
+			roleBindingList := &rbacv1.RoleBindingList{}
+			if err := k8sClientFake.CtrlClient().List(ctx, roleBindingList); err != nil {
 				t.Fatalf("failed to get role bindings: %s", err)
 			}
 			defaultnamespacetest.RoleBindingsShouldEqual(t, tc.expectedRoleBindings, roleBindingList.Items)
@@ -678,10 +661,6 @@ func getTestRoleBinding() *rbacv1.RoleBinding {
 			Annotations: map[string]string{
 				annotation.Notes: "Generated based on RoleBindingTemplate something",
 			},
-		},
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "RoleBinding",
-			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		RoleRef: rbacv1.RoleRef{
 			Name:     "example",
