@@ -22,14 +22,9 @@ import (
 	"fmt"
 	"slices"
 
-	v1alpha1 "github.com/giantswarm/rbac-operator/api/v1alpha1"
-	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
-	"github.com/giantswarm/rbac-operator/pkg/project"
-
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
-
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -40,6 +35,10 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
+
+	"github.com/giantswarm/rbac-operator/api/v1alpha1"
+	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
+	"github.com/giantswarm/rbac-operator/pkg/project"
 )
 
 // RoleBindingTemplateReconciler reconciles a RoleBindingTemplate object
