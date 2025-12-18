@@ -6,12 +6,6 @@ import (
 	"context"
 	"sync"
 
-	"github.com/giantswarm/rbac-operator/api/v1alpha1"
-	"github.com/giantswarm/rbac-operator/internal/controller"
-	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace"
-
-	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
-
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
@@ -19,19 +13,22 @@ import (
 	"github.com/giantswarm/micrologger"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
 	"github.com/spf13/viper"
+	"k8s.io/apimachinery/pkg/runtime"
+	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	"github.com/giantswarm/rbac-operator/api/v1alpha1"
 	"github.com/giantswarm/rbac-operator/flag"
+	"github.com/giantswarm/rbac-operator/internal/controller"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/collector"
 	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace"
 	"github.com/giantswarm/rbac-operator/service/controller/crossplane"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac"
-
-	"k8s.io/apimachinery/pkg/runtime"
-	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 )
 
 // Config represents the configuration used to create a new service.
