@@ -254,7 +254,7 @@ func (r *RoleBindingTemplateReconciler) getNamespacesFromOrganizations(ctx conte
 }
 
 func getRoleBindingNameFromTemplate(template *v1alpha1.RoleBindingTemplate) string {
-	roleBindingName := template.Spec.Template.Name
+	roleBindingName := template.Spec.Template.Metadata.Name
 	if roleBindingName == "" {
 		roleBindingName = template.Name
 	}
@@ -263,8 +263,12 @@ func getRoleBindingNameFromTemplate(template *v1alpha1.RoleBindingTemplate) stri
 
 func getRoleBindingFromTemplate(template *v1alpha1.RoleBindingTemplate, namespace string) *rbacv1.RoleBinding {
 	roleBinding := rbacv1.RoleBinding{
-		ObjectMeta: template.Spec.Template.ObjectMeta,
-		RoleRef:    template.Spec.Template.RoleRef,
+		ObjectMeta: metav1.ObjectMeta{
+			Labels:      template.Spec.Template.Metadata.Labels,
+			Annotations: template.Spec.Template.Metadata.Annotations,
+			Finalizers:  template.Spec.Template.Metadata.Finalizers,
+		},
+		RoleRef: template.Spec.Template.RoleRef,
 	}
 	roleBinding.Name = getRoleBindingNameFromTemplate(template)
 	roleBinding.Namespace = namespace

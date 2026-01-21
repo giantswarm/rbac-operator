@@ -101,7 +101,27 @@ spec:
                   to create a rolebinding from a template.
                 properties:
                   metadata:
-                    description: Standard object's metadata.
+                    description: Metadata holds metadata that should be added to created
+                      RoleBindings
+                    properties:
+                      annotations:
+                        additionalProperties:
+                          type: string
+                        description: Annotations to be added to created RoleBindings
+                        type: object
+                      finalizers:
+                        description: Finalizers to be added to created RoleBindings
+                        items:
+                          type: string
+                        type: array
+                      labels:
+                        additionalProperties:
+                          type: string
+                        description: Labels to be added to created RoleBindings
+                        type: object
+                      name:
+                        description: Name of the RoleBinding
+                        type: string
                     type: object
                   roleRef:
                     description: |-

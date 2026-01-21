@@ -236,9 +236,14 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 				},
 				Spec: v1alpha1.RoleBindingTemplateSpec{
 					Template: v1alpha1.RoleBindingTemplateResource{
-						ObjectMeta: tc.Template.ObjectMeta,
-						RoleRef:    tc.Template.RoleRef,
-						Subjects:   tc.Template.Subjects,
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{
+							Name:        tc.Template.ObjectMeta.Name,
+							Labels:      tc.Template.ObjectMeta.Labels,
+							Annotations: tc.Template.ObjectMeta.Annotations,
+							Finalizers:  tc.Template.ObjectMeta.Finalizers,
+						},
+						RoleRef:  tc.Template.RoleRef,
+						Subjects: tc.Template.Subjects,
 					},
 				},
 			}
@@ -290,7 +295,7 @@ func TestEnsureCreated(t *testing.T) {
 				},
 				Spec: v1alpha1.RoleBindingTemplateSpec{
 					Template: v1alpha1.RoleBindingTemplateResource{
-						ObjectMeta: metav1.ObjectMeta{
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{
 							Name: "something",
 						},
 						RoleRef: rbacv1.RoleRef{
@@ -315,7 +320,7 @@ func TestEnsureCreated(t *testing.T) {
 				},
 				Spec: v1alpha1.RoleBindingTemplateSpec{
 					Template: v1alpha1.RoleBindingTemplateResource{
-						ObjectMeta: metav1.ObjectMeta{
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{
 							Name: "something",
 						},
 						RoleRef: rbacv1.RoleRef{
@@ -345,7 +350,7 @@ func TestEnsureCreated(t *testing.T) {
 				},
 				Spec: v1alpha1.RoleBindingTemplateSpec{
 					Template: v1alpha1.RoleBindingTemplateResource{
-						ObjectMeta: metav1.ObjectMeta{
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{
 							Name: "something",
 						},
 						RoleRef: rbacv1.RoleRef{
@@ -375,7 +380,7 @@ func TestEnsureCreated(t *testing.T) {
 				},
 				Spec: v1alpha1.RoleBindingTemplateSpec{
 					Template: v1alpha1.RoleBindingTemplateResource{
-						ObjectMeta: metav1.ObjectMeta{
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{
 							Name: "something",
 						},
 						RoleRef: rbacv1.RoleRef{
@@ -424,7 +429,7 @@ func TestEnsureCreated(t *testing.T) {
 				},
 				Spec: v1alpha1.RoleBindingTemplateSpec{
 					Template: v1alpha1.RoleBindingTemplateResource{
-						ObjectMeta: metav1.ObjectMeta{
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{
 							Name: "something",
 						},
 						RoleRef: rbacv1.RoleRef{
@@ -497,7 +502,7 @@ func TestEnsureCreated(t *testing.T) {
 				},
 				Spec: v1alpha1.RoleBindingTemplateSpec{
 					Template: v1alpha1.RoleBindingTemplateResource{
-						ObjectMeta: metav1.ObjectMeta{
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{
 							Name: "something",
 						},
 						RoleRef: rbacv1.RoleRef{
