@@ -6,12 +6,6 @@ import (
 	"context"
 	"sync"
 
-	"github.com/giantswarm/rbac-operator/api/v1alpha1"
-	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace"
-	"github.com/giantswarm/rbac-operator/service/controller/rolebindingtemplate"
-
-	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
-
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
@@ -19,14 +13,22 @@ import (
 	"github.com/giantswarm/micrologger"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
 	"github.com/spf13/viper"
+	"k8s.io/apimachinery/pkg/runtime"
+	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	"github.com/giantswarm/rbac-operator/api/v1alpha1"
 	"github.com/giantswarm/rbac-operator/flag"
+	"github.com/giantswarm/rbac-operator/internal/controller"
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/collector"
 	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace"
 	"github.com/giantswarm/rbac-operator/service/controller/crossplane"
+	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac"
+	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 )
 
 // Config represents the configuration used to create a new service.
@@ -40,13 +42,14 @@ type Config struct {
 type Service struct {
 	Version *version.Service
 
-	bootOnce                      sync.Once
-	clusterController             *defaultnamespace.DefaultNamespace
-	rbacController                *rbac.RBAC
-	clusterNamespaceController    *clusternamespace.ClusterNamespace
-	crossplaneController          *crossplane.Crossplane
-	roleBindingTemplateController *rolebindingtemplate.RoleBindingTemplate
-	operatorCollector             *collector.Set
+	bootOnce                   sync.Once
+	clusterController          *defaultnamespace.DefaultNamespace
+	rbacController             *rbac.RBAC
+	clusterNamespaceController *clusternamespace.ClusterNamespace
+	crossplaneController       *crossplane.Crossplane
+	operatorCollector          *collector.Set
+
+	kubebuilderManager ctrl.Manager
 }
 
 // New creates a new configured service object.
@@ -195,19 +198,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var roleBindingTemplateController *rolebindingtemplate.RoleBindingTemplate
-	{
-		c := rolebindingtemplate.RoleBindingTemplateConfig{
-			K8sClient: k8sClient,
-			Logger:    config.Logger,
-		}
-
-		roleBindingTemplateController, err = rolebindingtemplate.NewRoleBindingTemplate(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var operatorCollector *collector.Set
 	{
 		c := collector.SetConfig{
@@ -237,16 +227,38 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var kubebuilderManager ctrl.Manager
+	{
+		ctrl.SetLogger(zap.New())
+		scheme := runtime.NewScheme()
+		if err = clientgoscheme.AddToScheme(scheme); err != nil {
+			return nil, microerror.Mask(err)
+		}
+		if err = security.AddToScheme(scheme); err != nil {
+			return nil, microerror.Mask(err)
+		}
+		if err = v1alpha1.AddToScheme(scheme); err != nil {
+			return nil, microerror.Mask(err)
+		}
+		kubebuilderManager, err = ctrl.NewManager(restConfig, ctrl.Options{
+			Scheme: scheme,
+		})
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	s := &Service{
 		Version: versionService,
 
-		bootOnce:                      sync.Once{},
-		clusterController:             clusterController,
-		rbacController:                rbacController,
-		clusterNamespaceController:    clusterNamespaceController,
-		operatorCollector:             operatorCollector,
-		crossplaneController:          crossplaneController,
-		roleBindingTemplateController: roleBindingTemplateController,
+		bootOnce:                   sync.Once{},
+		clusterController:          clusterController,
+		rbacController:             rbacController,
+		clusterNamespaceController: clusterNamespaceController,
+		operatorCollector:          operatorCollector,
+		crossplaneController:       crossplaneController,
+
+		kubebuilderManager: kubebuilderManager,
 	}
 
 	return s, nil
@@ -274,6 +286,17 @@ func (s *Service) Boot(ctx context.Context) {
 
 		go s.crossplaneController.Boot(ctx)
 
-		go s.roleBindingTemplateController.Boot(ctx)
+		go func() {
+			if err := (&controller.RoleBindingTemplateReconciler{
+				Client: s.kubebuilderManager.GetClient(),
+				Scheme: s.kubebuilderManager.GetScheme(),
+			}).SetupWithManager(s.kubebuilderManager); err != nil {
+				panic(microerror.JSON(microerror.Mask(err)))
+			}
+			err := s.kubebuilderManager.Start(ctx)
+			if err != nil {
+				panic(microerror.JSON(microerror.Mask(err)))
+			}
+		}()
 	})
 }
