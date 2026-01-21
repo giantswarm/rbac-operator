@@ -60,11 +60,30 @@ type RoleBindingTemplateList struct {
 	Items           []RoleBindingTemplate `json:"items"`
 }
 
+// RoleBindingTemplateMetadata holds metadata that should be added to created RoleBindings
+type RoleBindingTemplateMetadata struct {
+	// Name of the RoleBinding
+	// +optional
+	Name string `json:"name,omitempty"`
+
+	// Labels to be added to created RoleBindings
+	// +optional
+	Labels map[string]string `json:"labels,omitempty"`
+
+	// Annotations to be added to created RoleBindings
+	// +optional
+	Annotations map[string]string `json:"annotations,omitempty"`
+
+	// Finalizers to be added to created RoleBindings
+	// +optional
+	Finalizers []string `json:"finalizers,omitempty"`
+}
+
 // RoleBindingTemplateResource describes the data needed to create a rolebinding from a template.
 type RoleBindingTemplateResource struct {
-	// Standard object's metadata.
+	// Metadata holds metadata that should be added to created RoleBindings
 	// +optional
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+	Metadata RoleBindingTemplateMetadata `json:"metadata,omitempty"`
 
 	// Subjects holds references to the objects the role applies to.
 	// +optional
