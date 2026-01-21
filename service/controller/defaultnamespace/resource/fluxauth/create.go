@@ -46,7 +46,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		},
 		Spec: v1alpha1.RoleBindingTemplateSpec{
 			Template: v1alpha1.RoleBindingTemplateResource{
-				ObjectMeta: metav1.ObjectMeta{
+				Metadata: v1alpha1.RoleBindingTemplateMetadata{
 					Name: pkgkey.WriteAllAutomationSARoleBindingName(),
 				},
 				Subjects: []rbacv1.Subject{
@@ -88,7 +88,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		},
 		Spec: v1alpha1.RoleBindingTemplateSpec{
 			Template: v1alpha1.RoleBindingTemplateResource{
-				ObjectMeta: metav1.ObjectMeta{
+				Metadata: v1alpha1.RoleBindingTemplateMetadata{
 					Name: pkgkey.FluxCRDRoleBindingName,
 				},
 				Subjects: []rbacv1.Subject{},
@@ -130,7 +130,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		},
 		Spec: v1alpha1.RoleBindingTemplateSpec{
 			Template: v1alpha1.RoleBindingTemplateResource{
-				ObjectMeta: metav1.ObjectMeta{
+				Metadata: v1alpha1.RoleBindingTemplateMetadata{
 					Name: pkgkey.FluxReconcilerRoleBindingName,
 				},
 				Subjects: []rbacv1.Subject{},
