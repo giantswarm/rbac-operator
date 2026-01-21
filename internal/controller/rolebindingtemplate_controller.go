@@ -86,13 +86,6 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 		return ctrl.Result{}, err
 	}
 
-	// Ensure status is updated at the end of reconciliation
-	defer func() {
-		if updateErr := r.Status().Update(ctx, template); updateErr != nil {
-			log.Error(updateErr, errUpdateStatus)
-		}
-	}()
-
 	// Initialize status conditions if not already set
 	if len(template.Status.Conditions) == 0 {
 		meta.SetStatusCondition(&template.Status.Conditions, metav1.Condition{
@@ -118,6 +111,9 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 			Reason:  v1alpha1.FailedReason,
 			Message: errGetNamespaces,
 		})
+		if updateErr := r.Status().Update(ctx, template); updateErr != nil {
+			log.Error(updateErr, errUpdateStatus)
+		}
 		return ctrl.Result{}, err
 	}
 
@@ -193,6 +189,9 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 			Reason:  v1alpha1.FailedReason,
 			Message: errNamespacesFailed,
 		})
+		if updateErr := r.Status().Update(ctx, template); updateErr != nil {
+			log.Error(updateErr, errUpdateStatus)
+		}
 		return ctrl.Result{}, err
 	}
 
@@ -203,6 +202,9 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 		Reason:  v1alpha1.SucceededReason,
 		Message: msgReconcileSucceeded,
 	})
+	if updateErr := r.Status().Update(ctx, template); updateErr != nil {
+		log.Error(updateErr, errUpdateStatus)
+	}
 	return ctrl.Result{}, nil
 }
 
