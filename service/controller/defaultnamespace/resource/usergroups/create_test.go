@@ -48,6 +48,10 @@ func Test_UserGroups(t *testing.T) {
 					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
 				),
 				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.WriteAWSClusterRoleIdentityCustomerGroupClusterRoleBindingName(),
+					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
+				),
+				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.ReadAllCustomerGroupClusterRoleBindingName(),
 					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
 				),
@@ -94,6 +98,10 @@ func Test_UserGroups(t *testing.T) {
 			ExpectedClusterRoleBindings: []*rbacv1.ClusterRoleBinding{
 				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.WriteOrganizationsCustomerGroupClusterRoleBindingName(),
+					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
+				),
+				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.WriteAWSClusterRoleIdentityCustomerGroupClusterRoleBindingName(),
 					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
 				),
 				defaultnamespacetest.NewClusterRoleBinding(

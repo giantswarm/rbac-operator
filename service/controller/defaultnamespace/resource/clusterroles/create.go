@@ -56,6 +56,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	err = r.createWriteAWSClusterRoleIdentityClusterRole(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	err = r.labelDefaultClusterRoles(ctx)
 	if err != nil {
 		return microerror.Mask(err)
@@ -265,6 +270,34 @@ func (r *Resource) createWriteSilencesClusterRole(ctx context.Context) error {
 			},
 			Annotations: map[string]string{
 				annotation.Notes: "Grants full permissions for silences.monitoring.giantswarm.io resources.",
+			},
+		},
+		Rules: []rbacv1.PolicyRule{policyRule},
+	}
+
+	return rbac.CreateOrUpdateClusterRole(r, ctx, clusterRole)
+}
+
+// Ensures the ClusterRole 'write-aws-cluster-role-identity'.
+//
+// Purpose of this role is to grant all permissions needed for
+// handling awsclusterroleidentities.infrastructure.cluster.x-k8s.io resources.
+func (r *Resource) createWriteAWSClusterRoleIdentityClusterRole(ctx context.Context) error {
+	policyRule := rbacv1.PolicyRule{
+		APIGroups: []string{"infrastructure.cluster.x-k8s.io"},
+		Resources: []string{"awsclusterroleidentities"},
+		Verbs:     []string{"*"},
+	}
+
+	clusterRole := &rbacv1.ClusterRole{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: pkgkey.WriteAWSClusterRoleIdentityPermissionsName,
+			Labels: map[string]string{
+				label.ManagedBy:              project.Name(),
+				label.DisplayInUserInterface: "true",
+			},
+			Annotations: map[string]string{
+				annotation.Notes: "Grants full permissions for awsclusterroleidentities.infrastructure.cluster.x-k8s.io resources.",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{policyRule},
