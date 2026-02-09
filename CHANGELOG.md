@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add AWS Cluster Role Identity resource with cluster roles, automation service accounts, and user groups for default namespace management.
+
 ## [0.42.3] - 2025-09-24
 
 ### Fixed
