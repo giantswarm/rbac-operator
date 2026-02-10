@@ -21,6 +21,7 @@ import (
 func Test_DefaultNamespaceController(t *testing.T) {
 	testCases := []struct {
 		Name                         string
+		Provider                     string
 		CustomerAdminGroups          []accessgroup.AccessGroup
 		GSAdminGroup                 []accessgroup.AccessGroup
 		ExpectedClusterRoles         int
@@ -30,11 +31,23 @@ func Test_DefaultNamespaceController(t *testing.T) {
 		ExpectedRoleBindingTemplates int
 	}{
 		{
-			Name:                         "case0: Check that all resources are ensured created",
+			Name:                         "case0: Check that all resources are ensured created on AWS",
+			Provider:                     "aws",
 			CustomerAdminGroups:          []accessgroup.AccessGroup{{Name: "customer"}},
 			GSAdminGroup:                 []accessgroup.AccessGroup{{Name: "giantswarm"}},
 			ExpectedClusterRoles:         10,
 			ExpectedClusterRoleBindings:  10,
+			ExpectedRoles:                1,
+			ExpectedRoleBindings:         2,
+			ExpectedRoleBindingTemplates: 3,
+		},
+		{
+			Name:                         "case1: Check that AWS resources are not created on non-AWS provider",
+			Provider:                     "azure",
+			CustomerAdminGroups:          []accessgroup.AccessGroup{{Name: "customer"}},
+			GSAdminGroup:                 []accessgroup.AccessGroup{{Name: "giantswarm"}},
+			ExpectedClusterRoles:         9,
+			ExpectedClusterRoleBindings:  8,
 			ExpectedRoles:                1,
 			ExpectedRoleBindings:         2,
 			ExpectedRoleBindingTemplates: 3,
@@ -80,6 +93,7 @@ func Test_DefaultNamespaceController(t *testing.T) {
 				CustomerAdminGroups:  tc.CustomerAdminGroups,
 				CustomerReaderGroups: tc.CustomerAdminGroups,
 				GSAdminGroups:        tc.GSAdminGroup,
+				Provider:             tc.Provider,
 			})
 
 			if err != nil {

@@ -24,6 +24,7 @@ import (
 func Test_UserGroups(t *testing.T) {
 	testCases := []struct {
 		Name                        string
+		Provider                    string
 		InitialObjects              []runtime.Object
 		CustomerAdminGroups         []accessgroup.AccessGroup
 		GSAdminGroups               []accessgroup.AccessGroup
@@ -32,7 +33,8 @@ func Test_UserGroups(t *testing.T) {
 		ExpectedError               error
 	}{
 		{
-			Name:                "case 0: Add new bindings with multiple subjects",
+			Name:                "case 0: Add new bindings with multiple subjects on AWS",
+			Provider:            "aws",
 			CustomerAdminGroups: []accessgroup.AccessGroup{{Name: "customers1"}, {Name: "customers2"}},
 			GSAdminGroups:       []accessgroup.AccessGroup{{Name: "giantswarm1"}, {Name: "giantswarm2"}},
 			ExpectedRoleBindings: []*rbacv1.RoleBinding{
@@ -66,7 +68,8 @@ func Test_UserGroups(t *testing.T) {
 			},
 		},
 		{
-			Name: "case 1: Add multiple subjects to existing bindings",
+			Name:     "case 1: Add multiple subjects to existing bindings on AWS",
+			Provider: "aws",
 			InitialObjects: []runtime.Object{
 				defaultnamespacetest.NewRoleBinding(
 					pkgkey.WriteAllCustomerGroupRoleBindingName(),
@@ -122,6 +125,37 @@ func Test_UserGroups(t *testing.T) {
 			Name:          "case 2: Fail in attempt to create/update bindings with empty subjects",
 			ExpectedError: invalidConfigError,
 		},
+		{
+			Name:                "case 3: Add new bindings without AWS CRB on non-AWS provider",
+			Provider:            "azure",
+			CustomerAdminGroups: []accessgroup.AccessGroup{{Name: "customers1"}, {Name: "customers2"}},
+			GSAdminGroups:       []accessgroup.AccessGroup{{Name: "giantswarm1"}, {Name: "giantswarm2"}},
+			ExpectedRoleBindings: []*rbacv1.RoleBinding{
+				defaultnamespacetest.NewRoleBinding(
+					pkgkey.WriteAllCustomerGroupRoleBindingName(),
+					pkgkey.DefaultNamespaceName,
+					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
+				),
+			},
+			ExpectedClusterRoleBindings: []*rbacv1.ClusterRoleBinding{
+				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.WriteOrganizationsCustomerGroupClusterRoleBindingName(),
+					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
+				),
+				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.ReadAllCustomerGroupClusterRoleBindingName(),
+					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
+				),
+				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.WriteAllCustomerGroupClusterRoleBindingName(),
+					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
+				),
+				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.WriteAllGSGroupClusterRoleBindingName(),
+					defaultnamespacetest.NewGroupSubjects("giantswarm1", "giantswarm2"),
+				),
+			},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -155,6 +189,7 @@ func Test_UserGroups(t *testing.T) {
 				Logger:              microloggertest.New(),
 				CustomerAdminGroups: tc.CustomerAdminGroups,
 				GSAdminGroups:       tc.GSAdminGroups,
+				Provider:            tc.Provider,
 			})
 
 			if err == nil {

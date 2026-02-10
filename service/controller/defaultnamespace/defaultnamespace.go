@@ -26,6 +26,8 @@ type DefaultNamespaceConfig struct {
 	CustomerAdminGroups  []accessgroup.AccessGroup
 	CustomerReaderGroups []accessgroup.AccessGroup
 	GSAdminGroups        []accessgroup.AccessGroup
+
+	Provider string
 }
 type DefaultNamespace struct {
 	Controller *controller.Controller

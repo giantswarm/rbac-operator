@@ -59,9 +59,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	err = r.createWriteAWSClusterRoleIdentityClusterRoleBindingToAutomationSA(ctx, namespace.Name)
-	if err != nil {
-		return microerror.Mask(err)
+	if r.provider == "aws" {
+		err = r.createWriteAWSClusterRoleIdentityClusterRoleBindingToAutomationSA(ctx, namespace.Name)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 	}
 
 	return nil

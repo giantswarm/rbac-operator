@@ -24,16 +24,19 @@ func Test_ClusterRoleCreation(t *testing.T) {
 
 	testCases := []struct {
 		Name                 string
+		Provider             string
 		InitialObjects       []runtime.Object
 		InitialResources     []metav1.APIResource
 		ExpectedClusterRoles []*rbacv1.ClusterRole
 	}{
 		{
-			Name:                 "case0: Create static cluster roles",
-			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{}),
+			Name:                 "case0: Create static cluster roles on AWS",
+			Provider:             "aws",
+			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{}, true),
 		},
 		{
-			Name: "case1: Update static cluster roles",
+			Name:     "case1: Update static cluster roles on AWS",
+			Provider: "aws",
 			InitialObjects: []runtime.Object{
 				defaultnamespacetest.NewClusterRole(pkgkey.DefaultReadAllPermissionsName, []rbacv1.PolicyRule{}),
 				defaultnamespacetest.NewClusterRole(pkgkey.WriteOrganizationsPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
@@ -42,10 +45,11 @@ func Test_ClusterRoleCreation(t *testing.T) {
 				defaultnamespacetest.NewClusterRole(pkgkey.WriteSilencesPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 				defaultnamespacetest.NewClusterRole(pkgkey.WriteAWSClusterRoleIdentityPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 			},
-			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{}),
+			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{}, true),
 		},
 		{
-			Name: "case2: Update read-all cluster role with new resources",
+			Name:     "case2: Update read-all cluster role with new resources on AWS",
+			Provider: "aws",
 			InitialObjects: []runtime.Object{
 				defaultnamespacetest.NewClusterRole(pkgkey.DefaultReadAllPermissionsName, []rbacv1.PolicyRule{
 					defaultnamespacetest.NewSingleResourceRule("security.giantswarm.io", "organizations"),
@@ -57,7 +61,12 @@ func Test_ClusterRoleCreation(t *testing.T) {
 			},
 			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{
 				defaultnamespacetest.NewSingleResourceRule("release.giantswarm.io", "releases"),
-			}),
+			}, true),
+		},
+		{
+			Name:                 "case3: Create static cluster roles on non-AWS provider",
+			Provider:             "azure",
+			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{}, false),
 		},
 	}
 
@@ -90,6 +99,7 @@ func Test_ClusterRoleCreation(t *testing.T) {
 			clusterRoles, err := New(Config{
 				K8sClient: k8sClientFake,
 				Logger:    microloggertest.New(),
+				Provider:  tc.Provider,
 			})
 
 			if err != nil {
@@ -114,11 +124,13 @@ func Test_ClusterRoleCreation(t *testing.T) {
 func Test_ClusterRoleLabeling(t *testing.T) {
 	testCases := []struct {
 		Name                        string
+		Provider                    string
 		ExpectedLabeledClusterRoles []string
 		ExpectedLabels              map[string]string
 	}{
 		{
 			Name:                        "case0: Check labeling of cluster roles visible to the UI",
+			Provider:                    "aws",
 			ExpectedLabeledClusterRoles: key.DefaultClusterRolesToDisplayInUI(),
 			ExpectedLabels: map[string]string{
 				label.DisplayInUserInterface: "true",
@@ -156,6 +168,7 @@ func Test_ClusterRoleLabeling(t *testing.T) {
 			clusterRoles, err := New(Config{
 				K8sClient: k8sClientFake,
 				Logger:    microloggertest.New(),
+				Provider:  tc.Provider,
 			})
 
 			if err != nil {
@@ -182,8 +195,8 @@ func Test_ClusterRoleLabeling(t *testing.T) {
 	}
 }
 
-func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule) []*rbacv1.ClusterRole {
-	return []*rbacv1.ClusterRole{
+func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule, includeAWS bool) []*rbacv1.ClusterRole {
+	roles := []*rbacv1.ClusterRole{
 		defaultnamespacetest.NewClusterRole(pkgkey.DefaultReadAllPermissionsName, append(readAllRules, defaultnamespacetest.NewSingleResourceRule(
 			"", "pods/log",
 		))),
@@ -222,9 +235,14 @@ func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule) []*rbacv1.Cluster
 			[]string{"monitoring.giantswarm.io"},
 			[]string{"silences"},
 		)),
-		defaultnamespacetest.NewClusterRole(pkgkey.WriteAWSClusterRoleIdentityPermissionsName, defaultnamespacetest.NewSingletonRules(
+	}
+
+	if includeAWS {
+		roles = append(roles, defaultnamespacetest.NewClusterRole(pkgkey.WriteAWSClusterRoleIdentityPermissionsName, defaultnamespacetest.NewSingletonRules(
 			[]string{"infrastructure.cluster.x-k8s.io"},
 			[]string{"awsclusterroleidentities"},
-		)),
+		)))
 	}
+
+	return roles
 }
