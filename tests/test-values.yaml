@@ -8,9 +8,7 @@ pod:
     id: 1000
 
 registry:
-  domain: quay.io
-  pullSecret:
-    dockerConfigJSON: "e30="
+  domain: gsoci.azurecr.io
 
 oidc:
   customer:
