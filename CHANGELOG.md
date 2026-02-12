@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add AWS Cluster Role Identity resource with cluster roles, automation service accounts, and user groups for default namespace management.
+- Add `io.giantswarm.application.audience` and `io.giantswarm.application.managed` chart annotations for Backstage visibility.
+
+### Changed
+
+- Migrate chart metadata annotations to OCI-compatible format.
 
 ## [0.42.3] - 2025-09-24
 
