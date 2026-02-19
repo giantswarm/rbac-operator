@@ -1,3 +1,5 @@
+provider: ""
+
 ciliumNetworkPolicy:
   enabled: false
 

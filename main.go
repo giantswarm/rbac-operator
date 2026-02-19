@@ -112,6 +112,7 @@ func mainE(ctx context.Context) error {
 	daemonCommand.PersistentFlags().String(f.Service.AccessGroups, "", "Groups to be granted access to resources in the cluster")
 	daemonCommand.PersistentFlags().String(f.Service.CrossplaneBindTriggeringClusterRoleName, "crossplane-edit",
 		"ClusterRole name created by rbac-manager from crossplane that triggers binding to customer's admin group.")
+	daemonCommand.PersistentFlags().String(f.Service.Provider, "", "Infrastructure provider (e.g. aws, azure, vsphere).")
 
 	err = newCommand.CobraCommand().Execute()
 	if err != nil {

@@ -139,6 +139,7 @@ func New(config Config) (*Service, error) {
 			CustomerAdminGroups:  accessGroups.WriteAllCustomerGroups,
 			CustomerReaderGroups: accessGroups.ReadAllCustomerGroups,
 			GSAdminGroups:        accessGroups.WriteAllGiantswarmGroups,
+			Provider:             config.Viper.GetString(config.Flag.Service.Provider),
 		}
 
 		clusterController, err = defaultnamespace.NewDefaultNamespace(c)
