@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.42.4] - 2026-02-19
+
+### Added
+
+- Add `io.giantswarm.application.audience` and `io.giantswarm.application.managed` chart annotations for Backstage visibility.
+
+### Changed
+
+- Migrate chart metadata annotations to OCI-compatible format.
+
 ## [0.42.3] - 2025-09-24
 
 ### Fixed
@@ -559,7 +569,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.42.3...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.42.4...HEAD
+[0.42.4]: https://github.com/giantswarm/rbac-operator/compare/v0.42.3...v0.42.4
 [0.42.3]: https://github.com/giantswarm/rbac-operator/compare/v0.42.2...v0.42.3
 [0.42.2]: https://github.com/giantswarm/rbac-operator/compare/v0.42.1...v0.42.2
 [0.42.1]: https://github.com/giantswarm/rbac-operator/compare/v0.42.0...v0.42.1
