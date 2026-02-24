@@ -24,13 +24,15 @@ import (
 func Test_AutomationSA(t *testing.T) {
 	testCases := []struct {
 		Name                        string
+		Provider                    string
 		InitialObjects              []runtime.Object
 		ExpectedSAs                 []*corev1.ServiceAccount
 		ExpectedRoleBindings        []*rbacv1.RoleBinding
 		ExpectedClusterRoleBindings []*rbacv1.ClusterRoleBinding
 	}{
 		{
-			Name: "case0: Create automation service account and bindings",
+			Name:     "case0: Create automation service account and bindings on AWS",
+			Provider: "aws",
 			ExpectedSAs: []*corev1.ServiceAccount{
 				defaultnamespacetest.NewServiceAccount(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
 			},
@@ -58,10 +60,15 @@ func Test_AutomationSA(t *testing.T) {
 					pkgkey.WriteSilencesAutomationSARoleBindingName(),
 					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
 				),
+				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.WriteAWSClusterRoleIdentityAutomationSARoleBindingName(),
+					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
+				),
 			},
 		},
 		{
-			Name: "case1: Update automation service account and bindings",
+			Name:     "case1: Update automation service account and bindings on AWS",
+			Provider: "aws",
 			InitialObjects: []runtime.Object{
 				defaultnamespacetest.NewServiceAccount(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
 				defaultnamespacetest.NewRoleBinding(pkgkey.WriteAllAutomationSARoleBindingName(), pkgkey.DefaultNamespaceName, []rbacv1.Subject{}),
@@ -69,7 +76,44 @@ func Test_AutomationSA(t *testing.T) {
 				defaultnamespacetest.NewClusterRoleBinding(pkgkey.WriteOrganizationsAutomationSARoleBindingName(), []rbacv1.Subject{}),
 				defaultnamespacetest.NewClusterRoleBinding(pkgkey.WriteClientCertsAutomationSARoleBindingName(), []rbacv1.Subject{}),
 				defaultnamespacetest.NewClusterRoleBinding(pkgkey.WriteSilencesAutomationSARoleBindingName(), []rbacv1.Subject{}),
+				defaultnamespacetest.NewClusterRoleBinding(pkgkey.WriteAWSClusterRoleIdentityAutomationSARoleBindingName(), []rbacv1.Subject{}),
 			},
+			ExpectedSAs: []*corev1.ServiceAccount{
+				defaultnamespacetest.NewServiceAccount(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
+			},
+			ExpectedRoleBindings: []*rbacv1.RoleBinding{
+				defaultnamespacetest.NewRoleBinding(
+					pkgkey.WriteAllAutomationSARoleBindingName(),
+					pkgkey.DefaultNamespaceName,
+					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
+				),
+			},
+			ExpectedClusterRoleBindings: []*rbacv1.ClusterRoleBinding{
+				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.ReadAllAutomationSAClusterRoleBindingName(),
+					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
+				),
+				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.WriteOrganizationsAutomationSARoleBindingName(),
+					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
+				),
+				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.WriteClientCertsAutomationSARoleBindingName(),
+					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
+				),
+				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.WriteSilencesAutomationSARoleBindingName(),
+					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
+				),
+				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.WriteAWSClusterRoleIdentityAutomationSARoleBindingName(),
+					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
+				),
+			},
+		},
+		{
+			Name:     "case2: Create automation service account and bindings on non-AWS provider",
+			Provider: "azure",
 			ExpectedSAs: []*corev1.ServiceAccount{
 				defaultnamespacetest.NewServiceAccount(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
 			},
@@ -132,6 +176,7 @@ func Test_AutomationSA(t *testing.T) {
 			automationSA, err := New(Config{
 				K8sClient: k8sClientFake,
 				Logger:    microloggertest.New(),
+				Provider:  tc.Provider,
 			})
 
 			if err == nil {
@@ -166,6 +211,7 @@ func Test_AutomationSA(t *testing.T) {
 func Test_AutomationSAUpdate(t *testing.T) {
 	testCases := []struct {
 		name           string
+		Provider       string
 		InitialObjects []runtime.Object
 		ExpectedSAs    []*corev1.ServiceAccount
 	}{
@@ -229,6 +275,7 @@ func Test_AutomationSAUpdate(t *testing.T) {
 			automationSA, err := New(Config{
 				K8sClient: k8sClientFake,
 				Logger:    microloggertest.New(),
+				Provider:  tc.Provider,
 			})
 
 			if err == nil {

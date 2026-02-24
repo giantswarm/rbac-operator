@@ -15,11 +15,13 @@ const (
 type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
+	Provider  string
 }
 
 type Resource struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
+	provider  string
 }
 
 func (r Resource) K8sClient() kubernetes.Interface {
@@ -41,6 +43,7 @@ func New(config Config) (*Resource, error) {
 	r := &Resource{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
+		provider:  config.Provider,
 	}
 
 	return r, nil

@@ -25,6 +25,8 @@ type defaultNamespaceBootstrapResourcesConfig struct {
 	CustomerAdminGroups  []accessgroup.AccessGroup
 	CustomerReaderGroups []accessgroup.AccessGroup
 	GSAdminGroups        []accessgroup.AccessGroup
+
+	Provider string
 }
 
 func newDefaultNamespaceResources(config defaultNamespaceBootstrapResourcesConfig) ([]resource.Interface, error) {
@@ -35,6 +37,7 @@ func newDefaultNamespaceResources(config defaultNamespaceBootstrapResourcesConfi
 		c := clusterroles.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+			Provider:  config.Provider,
 		}
 
 		clusterRolesResource, err = clusterroles.New(c)
@@ -48,6 +51,7 @@ func newDefaultNamespaceResources(config defaultNamespaceBootstrapResourcesConfi
 		c := automationsa.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+			Provider:  config.Provider,
 		}
 
 		automationSAResource, err = automationsa.New(c)
@@ -65,6 +69,7 @@ func newDefaultNamespaceResources(config defaultNamespaceBootstrapResourcesConfi
 			CustomerAdminGroups:  config.CustomerAdminGroups,
 			CustomerReaderGroups: config.CustomerReaderGroups,
 			GSAdminGroups:        config.GSAdminGroups,
+			Provider:             config.Provider,
 		}
 
 		userGroupsResource, err = usergroups.New(c)

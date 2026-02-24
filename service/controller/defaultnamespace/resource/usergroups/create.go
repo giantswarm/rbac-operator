@@ -53,6 +53,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		if r.provider == "aws" {
+			err = r.createWriteAWSClusterRoleIdentityClusterRoleBindingToCustomerGroup(ctx)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+		}
 	} else if len(r.customerReaderGroups) > 0 {
 		err = r.createReadAllClusterRoleBindingToCustomerGroup(ctx)
 		if err != nil {
@@ -93,6 +100,31 @@ func (r *Resource) createWriteOrganizationsClusterRoleBindingToCustomerGroup(ctx
 	}
 
 	return rbac.CreateOrUpdateClusterRoleBinding(r, ctx, writeOrganizationsClusterRoleBinding)
+}
+
+// Ensures the ClusterRoleBinding 'write-aws-cluster-role-identity-customer-group' between
+// ClusterRole 'write-aws-cluster-role-identity' and the customer admin group.
+func (r *Resource) createWriteAWSClusterRoleIdentityClusterRoleBindingToCustomerGroup(ctx context.Context) error {
+	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ClusterRoleBinding",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: pkgkey.WriteAWSClusterRoleIdentityCustomerGroupClusterRoleBindingName(),
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+		},
+		Subjects: accessgroup.GroupsToSubjects(r.customerAdminGroups),
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     pkgkey.WriteAWSClusterRoleIdentityPermissionsName,
+		},
+	}
+
+	return rbac.CreateOrUpdateClusterRoleBinding(r, ctx, clusterRoleBinding)
 }
 
 // Ensures the ClusterRoleBinding 'write-all-customer-group' between

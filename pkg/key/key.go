@@ -30,8 +30,9 @@ const (
 	WriteOrganizationsPermissionsName    = "write-organizations"
 	WriteFluxResourcesPermissionsName    = "write-flux-resources"
 	WriteClientCertsPermissionsName      = "write-client-certificates"
-	WriteSilencesPermissionsName         = "write-silences"
-	CrossplaneEditRoleBindingName        = "crossplane-edit-automation"
+	WriteSilencesPermissionsName                = "write-silences"
+	WriteAWSClusterRoleIdentityPermissionsName = "write-aws-cluster-role-identity"
+	CrossplaneEditRoleBindingName              = "crossplane-edit-automation"
 )
 
 var (
@@ -154,6 +155,14 @@ func WriteSilencesAutomationSARoleBindingName() string {
 
 func WriteSilencesAutomationSAinNSRoleBindingName(namespace string) string {
 	return fmt.Sprintf("%s-customer-sa-ns-%s", WriteSilencesPermissionsName, namespace)
+}
+
+func WriteAWSClusterRoleIdentityAutomationSARoleBindingName() string {
+	return fmt.Sprintf("%s-customer-sa", WriteAWSClusterRoleIdentityPermissionsName)
+}
+
+func WriteAWSClusterRoleIdentityCustomerGroupClusterRoleBindingName() string {
+	return fmt.Sprintf("%s-customer-group", WriteAWSClusterRoleIdentityPermissionsName)
 }
 
 func CrossplaneEditAutomationSARoleBindingName() string {
