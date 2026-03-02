@@ -32,7 +32,7 @@ func Test_DefaultNamespaceController(t *testing.T) {
 	}{
 		{
 			Name:                         "case0: Check that all resources are ensured created on CAPA",
-			Provider: "capa",
+			Provider:                     "capa",
 			CustomerAdminGroups:          []accessgroup.AccessGroup{{Name: "customer"}},
 			GSAdminGroup:                 []accessgroup.AccessGroup{{Name: "giantswarm"}},
 			ExpectedClusterRoles:         10,
@@ -43,7 +43,7 @@ func Test_DefaultNamespaceController(t *testing.T) {
 		},
 		{
 			Name:                         "case1: Check that AWS resources are not created on non-CAPA provider",
-			Provider: "capz",
+			Provider:                     "capz",
 			CustomerAdminGroups:          []accessgroup.AccessGroup{{Name: "customer"}},
 			GSAdminGroup:                 []accessgroup.AccessGroup{{Name: "giantswarm"}},
 			ExpectedClusterRoles:         9,

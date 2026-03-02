@@ -31,7 +31,7 @@ func Test_ClusterRoleCreation(t *testing.T) {
 	}{
 		{
 			Name:                 "case0: Create static cluster roles on CAPA",
-			Provider: "capa",
+			Provider:             "capa",
 			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{}, true),
 		},
 		{
@@ -65,7 +65,7 @@ func Test_ClusterRoleCreation(t *testing.T) {
 		},
 		{
 			Name:                 "case3: Create static cluster roles on non-CAPA provider",
-			Provider: "capz",
+			Provider:             "capz",
 			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{}, false),
 		},
 	}
@@ -130,7 +130,7 @@ func Test_ClusterRoleLabeling(t *testing.T) {
 	}{
 		{
 			Name:                        "case0: Check labeling of cluster roles visible to the UI",
-			Provider: "capa",
+			Provider:                    "capa",
 			ExpectedLabeledClusterRoles: key.DefaultClusterRolesToDisplayInUI(),
 			ExpectedLabels: map[string]string{
 				label.DisplayInUserInterface: "true",
