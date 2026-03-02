@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.43.0] - 2026-03-02
 
+### Added
+
+- Create AWS cluster role identity roles and bindings when the operator runs in capa.
+
 ## [0.42.4] - 2026-02-19
 
 ### Added
