@@ -131,6 +131,9 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	provider := config.Viper.GetString(config.Flag.Service.Provider)
+	config.Logger.Log("level", "info", "message", "starting with provider setting", "provider", provider)
+
 	var clusterController *defaultnamespace.DefaultNamespace
 	{
 		c := defaultnamespace.DefaultNamespaceConfig{
@@ -139,7 +142,7 @@ func New(config Config) (*Service, error) {
 			CustomerAdminGroups:  accessGroups.WriteAllCustomerGroups,
 			CustomerReaderGroups: accessGroups.ReadAllCustomerGroups,
 			GSAdminGroups:        accessGroups.WriteAllGiantswarmGroups,
-			Provider:             config.Viper.GetString(config.Flag.Service.Provider),
+			Provider:             provider,
 		}
 
 		clusterController, err = defaultnamespace.NewDefaultNamespace(c)
