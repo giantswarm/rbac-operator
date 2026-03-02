@@ -14,4 +14,6 @@ type Service struct {
 	AccessGroups string
 
 	CrossplaneBindTriggeringClusterRoleName string
+
+	Provider string
 }

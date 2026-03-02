@@ -11,27 +11,28 @@ import (
 )
 
 const (
-	AutomationServiceAccountName         = "automation"
-	ClusterAdminClusterRoleName          = "cluster-admin"
-	DefaultReadAllPermissionsName        = "read-all"
-	DefaultWriteAllPermissionsName       = "write-all"
-	DefaultNamespaceName                 = "default"
-	NameLabel                            = "kubernetes.io/metadata.name"
-	FluxCRDRoleBindingName               = "flux-crd-controller"
-	FluxNamespaceName                    = "flux-system"
-	FluxReconcilerRoleBindingName        = "flux-namespace-reconciler"
-	ReadClusterNamespaceAppsRoleBinding  = "read-in-cluster-ns"
-	ReadClusterNamespaceAppsRole         = "read-in-cluster-ns"
-	ReadDefaultCatalogsRole              = "read-default-catalogs"
-	ReadReleasesRole                     = "read-releases"
-	UpstreamFluxCRDClusterRole           = "crd-controller"
-	WriteClusterNamespaceAppsRoleBinding = "write-in-cluster-ns"
-	WriteClusterNamespaceAppsRole        = "write-in-cluster-ns"
-	WriteOrganizationsPermissionsName    = "write-organizations"
-	WriteFluxResourcesPermissionsName    = "write-flux-resources"
-	WriteClientCertsPermissionsName      = "write-client-certificates"
-	WriteSilencesPermissionsName         = "write-silences"
-	CrossplaneEditRoleBindingName        = "crossplane-edit-automation"
+	AutomationServiceAccountName               = "automation"
+	ClusterAdminClusterRoleName                = "cluster-admin"
+	DefaultReadAllPermissionsName              = "read-all"
+	DefaultWriteAllPermissionsName             = "write-all"
+	DefaultNamespaceName                       = "default"
+	NameLabel                                  = "kubernetes.io/metadata.name"
+	FluxCRDRoleBindingName                     = "flux-crd-controller"
+	FluxNamespaceName                          = "flux-system"
+	FluxReconcilerRoleBindingName              = "flux-namespace-reconciler"
+	ReadClusterNamespaceAppsRoleBinding        = "read-in-cluster-ns"
+	ReadClusterNamespaceAppsRole               = "read-in-cluster-ns"
+	ReadDefaultCatalogsRole                    = "read-default-catalogs"
+	ReadReleasesRole                           = "read-releases"
+	UpstreamFluxCRDClusterRole                 = "crd-controller"
+	WriteClusterNamespaceAppsRoleBinding       = "write-in-cluster-ns"
+	WriteClusterNamespaceAppsRole              = "write-in-cluster-ns"
+	WriteOrganizationsPermissionsName          = "write-organizations"
+	WriteFluxResourcesPermissionsName          = "write-flux-resources"
+	WriteClientCertsPermissionsName            = "write-client-certificates"
+	WriteSilencesPermissionsName               = "write-silences"
+	WriteAWSClusterRoleIdentityPermissionsName = "write-aws-cluster-role-identity"
+	CrossplaneEditRoleBindingName              = "crossplane-edit-automation"
 )
 
 var (
@@ -154,6 +155,14 @@ func WriteSilencesAutomationSARoleBindingName() string {
 
 func WriteSilencesAutomationSAinNSRoleBindingName(namespace string) string {
 	return fmt.Sprintf("%s-customer-sa-ns-%s", WriteSilencesPermissionsName, namespace)
+}
+
+func WriteAWSClusterRoleIdentityAutomationSARoleBindingName() string {
+	return fmt.Sprintf("%s-customer-sa", WriteAWSClusterRoleIdentityPermissionsName)
+}
+
+func WriteAWSClusterRoleIdentityCustomerGroupClusterRoleBindingName() string {
+	return fmt.Sprintf("%s-customer-group", WriteAWSClusterRoleIdentityPermissionsName)
 }
 
 func CrossplaneEditAutomationSARoleBindingName() string {

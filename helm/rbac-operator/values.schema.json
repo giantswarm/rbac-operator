@@ -82,6 +82,9 @@
                 }
             }
         },
+        "provider": {
+            "type": "string"
+        },
         "podSecurityContext": {
             "type": "object",
             "properties": {

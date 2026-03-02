@@ -20,6 +20,7 @@ type Config struct {
 	CustomerAdminGroups  []accessgroup.AccessGroup
 	CustomerReaderGroups []accessgroup.AccessGroup
 	GSAdminGroups        []accessgroup.AccessGroup
+	Provider             string
 }
 
 type Resource struct {
@@ -29,6 +30,7 @@ type Resource struct {
 	customerAdminGroups  []accessgroup.AccessGroup
 	customerReaderGroups []accessgroup.AccessGroup
 	gsAdminGroups        []accessgroup.AccessGroup
+	provider             string
 }
 
 func (r Resource) K8sClient() kubernetes.Interface {
@@ -57,6 +59,7 @@ func New(config Config) (*Resource, error) {
 		customerAdminGroups:  config.CustomerAdminGroups,
 		customerReaderGroups: config.CustomerReaderGroups,
 		gsAdminGroups:        config.GSAdminGroups,
+		provider:             config.Provider,
 	}
 
 	return r, nil
