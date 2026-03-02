@@ -31,8 +31,8 @@ func Test_DefaultNamespaceController(t *testing.T) {
 		ExpectedRoleBindingTemplates int
 	}{
 		{
-			Name:                         "case0: Check that all resources are ensured created on AWS",
-			Provider:                     "aws",
+			Name:                         "case0: Check that all resources are ensured created on CAPA",
+			Provider: "capa",
 			CustomerAdminGroups:          []accessgroup.AccessGroup{{Name: "customer"}},
 			GSAdminGroup:                 []accessgroup.AccessGroup{{Name: "giantswarm"}},
 			ExpectedClusterRoles:         10,
@@ -42,8 +42,8 @@ func Test_DefaultNamespaceController(t *testing.T) {
 			ExpectedRoleBindingTemplates: 3,
 		},
 		{
-			Name:                         "case1: Check that AWS resources are not created on non-AWS provider",
-			Provider:                     "azure",
+			Name:                         "case1: Check that AWS resources are not created on non-CAPA provider",
+			Provider: "capz",
 			CustomerAdminGroups:          []accessgroup.AccessGroup{{Name: "customer"}},
 			GSAdminGroup:                 []accessgroup.AccessGroup{{Name: "giantswarm"}},
 			ExpectedClusterRoles:         9,

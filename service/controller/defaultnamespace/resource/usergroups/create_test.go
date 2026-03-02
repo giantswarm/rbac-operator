@@ -33,8 +33,8 @@ func Test_UserGroups(t *testing.T) {
 		ExpectedError               error
 	}{
 		{
-			Name:                "case 0: Add new bindings with multiple subjects on AWS",
-			Provider:            "aws",
+			Name:                "case 0: Add new bindings with multiple subjects on CAPA",
+			Provider: "capa",
 			CustomerAdminGroups: []accessgroup.AccessGroup{{Name: "customers1"}, {Name: "customers2"}},
 			GSAdminGroups:       []accessgroup.AccessGroup{{Name: "giantswarm1"}, {Name: "giantswarm2"}},
 			ExpectedRoleBindings: []*rbacv1.RoleBinding{
@@ -68,8 +68,8 @@ func Test_UserGroups(t *testing.T) {
 			},
 		},
 		{
-			Name:     "case 1: Add multiple subjects to existing bindings on AWS",
-			Provider: "aws",
+			Name:     "case 1: Add multiple subjects to existing bindings on CAPA",
+			Provider: "capa",
 			InitialObjects: []runtime.Object{
 				defaultnamespacetest.NewRoleBinding(
 					pkgkey.WriteAllCustomerGroupRoleBindingName(),
@@ -126,8 +126,8 @@ func Test_UserGroups(t *testing.T) {
 			ExpectedError: invalidConfigError,
 		},
 		{
-			Name:                "case 3: Add new bindings without AWS CRB on non-AWS provider",
-			Provider:            "azure",
+			Name:                "case 3: Add new bindings without AWS CRB on non-CAPA provider",
+			Provider: "capz",
 			CustomerAdminGroups: []accessgroup.AccessGroup{{Name: "customers1"}, {Name: "customers2"}},
 			GSAdminGroups:       []accessgroup.AccessGroup{{Name: "giantswarm1"}, {Name: "giantswarm2"}},
 			ExpectedRoleBindings: []*rbacv1.RoleBinding{

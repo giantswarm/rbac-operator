@@ -54,7 +54,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		if r.provider == "aws" {
+		if r.provider == "capa" {
 			err = r.createWriteAWSClusterRoleIdentityClusterRoleBindingToCustomerGroup(ctx)
 			if err != nil {
 				return microerror.Mask(err)

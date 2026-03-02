@@ -30,13 +30,13 @@ func Test_ClusterRoleCreation(t *testing.T) {
 		ExpectedClusterRoles []*rbacv1.ClusterRole
 	}{
 		{
-			Name:                 "case0: Create static cluster roles on AWS",
-			Provider:             "aws",
+			Name:                 "case0: Create static cluster roles on CAPA",
+			Provider: "capa",
 			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{}, true),
 		},
 		{
-			Name:     "case1: Update static cluster roles on AWS",
-			Provider: "aws",
+			Name:     "case1: Update static cluster roles on CAPA",
+			Provider: "capa",
 			InitialObjects: []runtime.Object{
 				defaultnamespacetest.NewClusterRole(pkgkey.DefaultReadAllPermissionsName, []rbacv1.PolicyRule{}),
 				defaultnamespacetest.NewClusterRole(pkgkey.WriteOrganizationsPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
@@ -48,8 +48,8 @@ func Test_ClusterRoleCreation(t *testing.T) {
 			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{}, true),
 		},
 		{
-			Name:     "case2: Update read-all cluster role with new resources on AWS",
-			Provider: "aws",
+			Name:     "case2: Update read-all cluster role with new resources on CAPA",
+			Provider: "capa",
 			InitialObjects: []runtime.Object{
 				defaultnamespacetest.NewClusterRole(pkgkey.DefaultReadAllPermissionsName, []rbacv1.PolicyRule{
 					defaultnamespacetest.NewSingleResourceRule("security.giantswarm.io", "organizations"),
@@ -64,8 +64,8 @@ func Test_ClusterRoleCreation(t *testing.T) {
 			}, true),
 		},
 		{
-			Name:                 "case3: Create static cluster roles on non-AWS provider",
-			Provider:             "azure",
+			Name:                 "case3: Create static cluster roles on non-CAPA provider",
+			Provider: "capz",
 			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{}, false),
 		},
 	}
@@ -130,7 +130,7 @@ func Test_ClusterRoleLabeling(t *testing.T) {
 	}{
 		{
 			Name:                        "case0: Check labeling of cluster roles visible to the UI",
-			Provider:                    "aws",
+			Provider: "capa",
 			ExpectedLabeledClusterRoles: key.DefaultClusterRolesToDisplayInUI(),
 			ExpectedLabels: map[string]string{
 				label.DisplayInUserInterface: "true",
@@ -195,7 +195,7 @@ func Test_ClusterRoleLabeling(t *testing.T) {
 	}
 }
 
-func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule, includeAWS bool) []*rbacv1.ClusterRole {
+func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule, includeCAPAResources bool) []*rbacv1.ClusterRole {
 	roles := []*rbacv1.ClusterRole{
 		defaultnamespacetest.NewClusterRole(pkgkey.DefaultReadAllPermissionsName, append(readAllRules, defaultnamespacetest.NewSingleResourceRule(
 			"", "pods/log",
@@ -237,7 +237,7 @@ func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule, includeAWS bool) 
 		)),
 	}
 
-	if includeAWS {
+	if includeCAPAResources {
 		roles = append(roles, defaultnamespacetest.NewClusterRole(pkgkey.WriteAWSClusterRoleIdentityPermissionsName, defaultnamespacetest.NewSingletonRules(
 			[]string{"infrastructure.cluster.x-k8s.io"},
 			[]string{"awsclusterroleidentities"},

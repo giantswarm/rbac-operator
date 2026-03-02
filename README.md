@@ -49,13 +49,13 @@ The operator manages permissions at different scopes:
 
 ### Provider-specific resources
 
-The operator supports a `--provider` flag (configurable via the `provider` Helm value) to enable infrastructure-provider-specific RBAC resources. When set to `aws`, the operator additionally creates:
+The operator supports a `--provider` flag (configurable via the `provider` Helm value) to enable infrastructure-provider-specific RBAC resources. When set to `capa`, the operator additionally creates:
 
 - ClusterRole `write-aws-cluster-role-identity` — grants full permissions on `awsclusterroleidentities.infrastructure.cluster.x-k8s.io`
 - ClusterRoleBinding binding that role to the `automation` ServiceAccount
 - ClusterRoleBinding binding that role to the customer admin group
 
-If `--provider` is not set or is set to a non-`aws` value, these resources are skipped.
+If `--provider` is not set or is set to a non-`capa` value, these resources are skipped.
 
 ## Configuration
 

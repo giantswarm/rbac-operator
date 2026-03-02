@@ -31,8 +31,8 @@ func Test_AutomationSA(t *testing.T) {
 		ExpectedClusterRoleBindings []*rbacv1.ClusterRoleBinding
 	}{
 		{
-			Name:     "case0: Create automation service account and bindings on AWS",
-			Provider: "aws",
+			Name:     "case0: Create automation service account and bindings on CAPA",
+			Provider: "capa",
 			ExpectedSAs: []*corev1.ServiceAccount{
 				defaultnamespacetest.NewServiceAccount(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
 			},
@@ -67,8 +67,8 @@ func Test_AutomationSA(t *testing.T) {
 			},
 		},
 		{
-			Name:     "case1: Update automation service account and bindings on AWS",
-			Provider: "aws",
+			Name:     "case1: Update automation service account and bindings on CAPA",
+			Provider: "capa",
 			InitialObjects: []runtime.Object{
 				defaultnamespacetest.NewServiceAccount(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
 				defaultnamespacetest.NewRoleBinding(pkgkey.WriteAllAutomationSARoleBindingName(), pkgkey.DefaultNamespaceName, []rbacv1.Subject{}),
@@ -112,8 +112,8 @@ func Test_AutomationSA(t *testing.T) {
 			},
 		},
 		{
-			Name:     "case2: Create automation service account and bindings on non-AWS provider",
-			Provider: "azure",
+			Name:     "case2: Create automation service account and bindings on non-CAPA provider",
+			Provider: "capz",
 			ExpectedSAs: []*corev1.ServiceAccount{
 				defaultnamespacetest.NewServiceAccount(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
 			},
