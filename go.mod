@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/giantswarm/exporterkit v1.3.0
 	github.com/giantswarm/k8sclient/v7 v7.2.0
-	github.com/giantswarm/k8smetadata v0.25.0
+	github.com/giantswarm/k8smetadata v0.26.0
 	github.com/giantswarm/microendpoint v1.1.2
 	github.com/giantswarm/microerror v0.4.1
 	github.com/giantswarm/microkit v1.0.4
