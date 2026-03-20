@@ -235,10 +235,10 @@ func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule, includeCAPAResour
 			[]string{"monitoring.giantswarm.io"},
 			[]string{"silences"},
 		)),
-		defaultnamespacetest.NewClusterRole(pkgkey.WriteClusterRolesPermissionsName, defaultnamespacetest.NewSingletonRules(
-			[]string{"rbac.authorization.k8s.io"},
-			[]string{"clusterroles"},
-		)),
+		defaultnamespacetest.NewClusterRole(pkgkey.WriteClusterRolesPermissionsName, []rbacv1.PolicyRule{
+			defaultnamespacetest.NewRule([]string{"rbac.authorization.k8s.io"}, []string{"clusterroles"}),
+			defaultnamespacetest.NewRule([]string{"rbac.authorization.k8s.io"}, []string{"clusterrolebindings"}),
+		}),
 	}
 
 	if includeCAPAResources {

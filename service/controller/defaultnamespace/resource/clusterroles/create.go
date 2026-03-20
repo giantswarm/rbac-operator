@@ -287,13 +287,19 @@ func (r *Resource) createWriteSilencesClusterRole(ctx context.Context) error {
 
 // Ensures the ClusterRole 'write-cluster-roles'.
 //
-// Purpose of this role is to grant create, get, list, update, patch and delete
-// permissions on clusterroles at the cluster scope.
+// Purpose of this role is to grant create, get, list, update, patch, delete and escalate
+// permissions on clusterroles, and create, get, list, update, patch, delete and bind
+// permissions on clusterrolebindings, at the cluster scope.
 func (r *Resource) createWriteClusterRolesClusterRole(ctx context.Context) error {
-	policyRule := rbacv1.PolicyRule{
+	clusterRolesRule := rbacv1.PolicyRule{
 		APIGroups: []string{"rbac.authorization.k8s.io"},
 		Resources: []string{"clusterroles"},
 		Verbs:     []string{"create", "get", "list", "update", "patch", "delete", "escalate"},
+	}
+	clusterRoleBindingsRule := rbacv1.PolicyRule{
+		APIGroups: []string{"rbac.authorization.k8s.io"},
+		Resources: []string{"clusterrolebindings"},
+		Verbs:     []string{"create", "get", "list", "update", "patch", "delete", "bind"},
 	}
 
 	clusterRole := &rbacv1.ClusterRole{
@@ -304,10 +310,10 @@ func (r *Resource) createWriteClusterRolesClusterRole(ctx context.Context) error
 				label.DisplayInUserInterface: "true",
 			},
 			Annotations: map[string]string{
-				annotation.Notes: "Grants create, get, list, update, patch, delete and escalate permissions on clusterroles at the cluster scope.",
+				annotation.Notes: "Grants full permissions on clusterroles and clusterrolebindings at the cluster scope.",
 			},
 		},
-		Rules: []rbacv1.PolicyRule{policyRule},
+		Rules: []rbacv1.PolicyRule{clusterRolesRule, clusterRoleBindingsRule},
 	}
 
 	return rbac.CreateOrUpdateClusterRole(r, ctx, clusterRole)
