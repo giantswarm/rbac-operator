@@ -294,7 +294,7 @@ func (r *Resource) createWriteClusterRolesClusterRole(ctx context.Context) error
 	clusterRolesRule := rbacv1.PolicyRule{
 		APIGroups: []string{"rbac.authorization.k8s.io"},
 		Resources: []string{"clusterroles"},
-		Verbs:     []string{"create", "get", "list", "update", "patch", "delete", "escalate"},
+		Verbs:     []string{"create", "get", "list", "update", "patch", "delete", "escalate", "bind"},
 	}
 	clusterRoleBindingsRule := rbacv1.PolicyRule{
 		APIGroups: []string{"rbac.authorization.k8s.io"},
