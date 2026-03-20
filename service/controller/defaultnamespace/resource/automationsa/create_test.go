@@ -61,6 +61,10 @@ func Test_AutomationSA(t *testing.T) {
 					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
 				),
 				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.WriteClusterRolesAutomationSARoleBindingName(),
+					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
+				),
+				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.WriteAWSClusterRoleIdentityAutomationSARoleBindingName(),
 					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
 				),
@@ -106,6 +110,10 @@ func Test_AutomationSA(t *testing.T) {
 					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
 				),
 				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.WriteClusterRolesAutomationSARoleBindingName(),
+					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
+				),
+				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.WriteAWSClusterRoleIdentityAutomationSARoleBindingName(),
 					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
 				),
@@ -139,6 +147,10 @@ func Test_AutomationSA(t *testing.T) {
 				),
 				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.WriteSilencesAutomationSARoleBindingName(),
+					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
+				),
+				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.WriteClusterRolesAutomationSARoleBindingName(),
 					defaultnamespacetest.NewSingletonSASubjects(pkgkey.AutomationServiceAccountName, pkgkey.DefaultNamespaceName),
 				),
 			},
