@@ -56,6 +56,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	err = r.createWriteClusterRolesClusterRole(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	if r.provider == "capa" {
 		err = r.createWriteAWSClusterRoleIdentityClusterRole(ctx)
 		if err != nil {
@@ -272,6 +277,34 @@ func (r *Resource) createWriteSilencesClusterRole(ctx context.Context) error {
 			},
 			Annotations: map[string]string{
 				annotation.Notes: "Grants full permissions for silences.monitoring.giantswarm.io resources.",
+			},
+		},
+		Rules: []rbacv1.PolicyRule{policyRule},
+	}
+
+	return rbac.CreateOrUpdateClusterRole(r, ctx, clusterRole)
+}
+
+// Ensures the ClusterRole 'write-cluster-roles'.
+//
+// Purpose of this role is to grant create permission on clusterroles
+// at the cluster scope.
+func (r *Resource) createWriteClusterRolesClusterRole(ctx context.Context) error {
+	policyRule := rbacv1.PolicyRule{
+		APIGroups: []string{"rbac.authorization.k8s.io"},
+		Resources: []string{"clusterroles"},
+		Verbs:     []string{"create"},
+	}
+
+	clusterRole := &rbacv1.ClusterRole{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: pkgkey.WriteClusterRolesPermissionsName,
+			Labels: map[string]string{
+				label.ManagedBy:              project.Name(),
+				label.DisplayInUserInterface: "true",
+			},
+			Annotations: map[string]string{
+				annotation.Notes: "Grants create permission on clusterroles at the cluster scope.",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{policyRule},
