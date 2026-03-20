@@ -293,7 +293,7 @@ func (r *Resource) createWriteClusterRolesClusterRole(ctx context.Context) error
 	policyRule := rbacv1.PolicyRule{
 		APIGroups: []string{"rbac.authorization.k8s.io"},
 		Resources: []string{"clusterroles"},
-		Verbs:     []string{"create", "get", "list", "update", "patch", "delete"},
+		Verbs:     []string{"create", "get", "list", "update", "patch", "delete", "escalate"},
 	}
 
 	clusterRole := &rbacv1.ClusterRole{
@@ -304,7 +304,7 @@ func (r *Resource) createWriteClusterRolesClusterRole(ctx context.Context) error
 				label.DisplayInUserInterface: "true",
 			},
 			Annotations: map[string]string{
-				annotation.Notes: "Grants create, get, list, update, patch and delete permissions on clusterroles at the cluster scope.",
+				annotation.Notes: "Grants create, get, list, update, patch, delete and escalate permissions on clusterroles at the cluster scope.",
 			},
 		},
 		Rules: []rbacv1.PolicyRule{policyRule},
