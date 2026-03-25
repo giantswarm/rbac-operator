@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.44.0] - 2026-03-25
+
 ### Added
 
 - Add cluster-wide permissions for Kyverno PolicyExceptions (`policyexceptions.kyverno.io`) to the automation service account.
@@ -580,7 +582,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.43.0...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v0.44.0...HEAD
+[0.44.0]: https://github.com/giantswarm/rbac-operator/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/giantswarm/rbac-operator/compare/v0.42.4...v0.43.0
 [0.42.4]: https://github.com/giantswarm/rbac-operator/compare/v0.42.3...v0.42.4
 [0.42.3]: https://github.com/giantswarm/rbac-operator/compare/v0.42.2...v0.42.3
