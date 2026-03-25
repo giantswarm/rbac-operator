@@ -32,6 +32,7 @@ const (
 	WriteClientCertsPermissionsName            = "write-client-certificates"
 	WriteSilencesPermissionsName               = "write-silences"
 	WriteAWSClusterRoleIdentityPermissionsName = "write-aws-cluster-role-identity"
+	WritePolicyExceptionsPermissionsName       = "write-policy-exceptions"
 	CrossplaneEditRoleBindingName              = "crossplane-edit-automation"
 )
 
@@ -163,6 +164,10 @@ func WriteAWSClusterRoleIdentityAutomationSARoleBindingName() string {
 
 func WriteAWSClusterRoleIdentityCustomerGroupClusterRoleBindingName() string {
 	return fmt.Sprintf("%s-customer-group", WriteAWSClusterRoleIdentityPermissionsName)
+}
+
+func WritePolicyExceptionsAutomationSARoleBindingName() string {
+	return fmt.Sprintf("%s-customer-sa", WritePolicyExceptionsPermissionsName)
 }
 
 func CrossplaneEditAutomationSARoleBindingName() string {
