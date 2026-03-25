@@ -43,6 +43,7 @@ func Test_ClusterRoleCreation(t *testing.T) {
 				defaultnamespacetest.NewClusterRole(pkgkey.WriteFluxResourcesPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 				defaultnamespacetest.NewClusterRole(pkgkey.WriteClientCertsPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 				defaultnamespacetest.NewClusterRole(pkgkey.WriteSilencesPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
+				defaultnamespacetest.NewClusterRole(pkgkey.WritePolicyExceptionsPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 				defaultnamespacetest.NewClusterRole(pkgkey.WriteAWSClusterRoleIdentityPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 			},
 			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{}, true),
@@ -234,6 +235,10 @@ func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule, includeCAPAResour
 		defaultnamespacetest.NewClusterRole(pkgkey.WriteSilencesPermissionsName, defaultnamespacetest.NewSingletonRules(
 			[]string{"monitoring.giantswarm.io"},
 			[]string{"silences"},
+		)),
+		defaultnamespacetest.NewClusterRole(pkgkey.WritePolicyExceptionsPermissionsName, defaultnamespacetest.NewSingletonRules(
+			[]string{"kyverno.io"},
+			[]string{"policyexceptions"},
 		)),
 	}
 

@@ -59,6 +59,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	err = r.createWritePolicyExceptionsClusterRoleBindingToAutomationSA(ctx, namespace.Name)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	if r.provider == "capa" {
 		err = r.createWriteAWSClusterRoleIdentityClusterRoleBindingToAutomationSA(ctx, namespace.Name)
 		if err != nil {
@@ -244,6 +249,39 @@ func (r *Resource) createWriteSilencesClusterRoleBindingToAutomationSA(ctx conte
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
 			Name:     pkgkey.WriteSilencesPermissionsName,
+		},
+	}
+
+	return rbac.CreateOrUpdateClusterRoleBinding(r, ctx, clusterRoleBinding)
+}
+
+// Ensures the ClusterRoleBinding 'write-policy-exceptions-customer-sa' between
+// ClusterRole 'write-policy-exceptions' and ServiceAccount 'automation'.
+func (r *Resource) createWritePolicyExceptionsClusterRoleBindingToAutomationSA(ctx context.Context, namespace string) error {
+	clusterRoleBindingName := pkgkey.WritePolicyExceptionsAutomationSARoleBindingName()
+
+	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ClusterRoleBinding",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: clusterRoleBindingName,
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+		},
+		Subjects: []rbacv1.Subject{
+			{
+				Kind:      "ServiceAccount",
+				Name:      pkgkey.AutomationServiceAccountName,
+				Namespace: namespace,
+			},
+		},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     pkgkey.WritePolicyExceptionsPermissionsName,
 		},
 	}
 
