@@ -63,7 +63,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
-	// create a RoleBinding granting :
+	// create a ClusterRoleBinding granting :
 	// - write-silences access for "automation" ServiceAccount *in this org namespace*
 	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
@@ -84,6 +84,32 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if err := r.createOrUpdateClusterRoleBinding(ctx, ns, clusterRoleBinding); err != nil {
+		return microerror.Mask(err)
+	}
+
+	// create a ClusterRoleBinding granting :
+	// - kamaji datastore management for "automation" ServiceAccount *in this org namespace*
+	// The referenced ClusterRole is provisioned by the global Kamaji app; the binding is
+	// inert on clusters where that role doesn't exist.
+	kamajiDatastoreBinding := &rbacv1.ClusterRoleBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: pkgkey.KamajiDatastoreManagerAutomationSAinNSRoleBindingName(ns.Name),
+			Labels: map[string]string{
+				label.ManagedBy: project.Name(),
+			},
+		},
+		Subjects: []rbacv1.Subject{{
+			Kind:      "ServiceAccount",
+			Name:      pkgkey.AutomationServiceAccountName,
+			Namespace: ns.Name}},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     pkgkey.KamajiDatastoreManagerPermissionsName,
+		},
+	}
+
+	if err := r.createOrUpdateClusterRoleBinding(ctx, ns, kamajiDatastoreBinding); err != nil {
 		return microerror.Mask(err)
 	}
 	return nil
