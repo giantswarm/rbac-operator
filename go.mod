@@ -95,3 +95,11 @@ require (
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
+
+replace github.com/nats-io/nats-server/v2 v2.8.4 => github.com/nats-io/nats-server/v2 v2.14.2
+
+replace go.opentelemetry.io/otel v1.41.0 => go.opentelemetry.io/otel v1.44.0
+
+replace go.opentelemetry.io/otel/sdk v1.40.0 => go.opentelemetry.io/otel/sdk v1.44.0
+
+replace golang.org/x/crypto v0.48.0 => golang.org/x/crypto v0.53.0
