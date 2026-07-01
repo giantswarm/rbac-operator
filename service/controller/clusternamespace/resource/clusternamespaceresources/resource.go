@@ -6,7 +6,7 @@ package clusternamespaceresources
 import (
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v8/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	rbacv1 "k8s.io/api/rbac/v1"

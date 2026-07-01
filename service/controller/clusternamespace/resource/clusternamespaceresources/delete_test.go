@@ -7,7 +7,7 @@ import (
 
 	"github.com/giantswarm/rbac-operator/service/test"
 
-	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
+	"github.com/giantswarm/k8sclient/v8/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
