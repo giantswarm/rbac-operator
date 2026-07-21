@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Create a per-organization ClusterRoleBinding granting the org's `automation` ServiceAccount the `kamaji-datastore-manager` ClusterRole, so cluster apps using Kamaji can manage their `kamaji.clastix.io/datastores` CR. The referenced ClusterRole is provisioned by the global Kamaji app.
+- RBAC: Create `patch-charts` Role for automation ServiceAccounts.
 
 ### Changed
 
