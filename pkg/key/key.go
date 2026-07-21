@@ -20,6 +20,8 @@ const (
 	FluxCRDRoleBindingName                     = "flux-crd-controller"
 	FluxNamespaceName                          = "flux-system"
 	FluxReconcilerRoleBindingName              = "flux-namespace-reconciler"
+	GiantSwarmNamespaceName                    = "giantswarm"
+	PatchChartsPermissionsName                 = "patch-charts"
 	ReadClusterNamespaceAppsRoleBinding        = "read-in-cluster-ns"
 	ReadClusterNamespaceAppsRole               = "read-in-cluster-ns"
 	ReadDefaultCatalogsRole                    = "read-default-catalogs"
