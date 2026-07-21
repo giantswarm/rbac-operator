@@ -4,9 +4,9 @@ import (
 	"github.com/giantswarm/k8sclient/v8/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/v7/pkg/resource"
-	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/metricsresource"
-	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/retryresource"
+	"github.com/giantswarm/operatorkit/v8/pkg/resource"
+	"github.com/giantswarm/operatorkit/v8/pkg/resource/wrapper/metricsresource"
+	"github.com/giantswarm/operatorkit/v8/pkg/resource/wrapper/retryresource"
 
 	"github.com/giantswarm/rbac-operator/service/controller/crossplane/resource/crossplanenamespace"
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"

@@ -10,7 +10,7 @@ require (
 	github.com/giantswarm/microerror v0.4.1
 	github.com/giantswarm/microkit v1.0.4
 	github.com/giantswarm/micrologger v1.1.2
-	github.com/giantswarm/operatorkit/v7 v7.4.0
+	github.com/giantswarm/operatorkit/v8 v8.0.0
 	github.com/giantswarm/organization-operator v1.6.4
 	github.com/google/go-cmp v0.7.0
 	github.com/prometheus/client_golang v1.24.0
@@ -34,6 +34,7 @@ require (
 	github.com/fxamacker/cbor/v2 v2.9.2 // indirect
 	github.com/getsentry/sentry-go v0.48.0 // indirect
 	github.com/giantswarm/backoff v1.0.1 // indirect
+	github.com/giantswarm/k8sclient/v7 v7.0.1 // indirect
 	github.com/giantswarm/to v0.4.2 // indirect
 	github.com/giantswarm/versionbundle v1.2.0 // indirect
 	github.com/go-kit/kit v0.13.0 // indirect
