@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Create a per-organization ClusterRoleBinding granting the org's `automation` ServiceAccount the `kamaji-datastore-manager` ClusterRole, so cluster apps using Kamaji can manage their `kamaji.clastix.io/datastores` CR. The referenced ClusterRole is provisioned by the global Kamaji app.
 
+### Changed
+
+- Go: Update dependencies.
+
 ## [0.44.0] - 2026-03-25
 
 ### Added
