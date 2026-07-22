@@ -7,7 +7,9 @@ import (
 	"github.com/giantswarm/microkit/command"
 	microserver "github.com/giantswarm/microkit/server"
 	"github.com/giantswarm/micrologger"
+	"github.com/go-logr/logr"
 	"github.com/spf13/viper"
+	ctrllog "sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/giantswarm/rbac-operator/flag"
 	"github.com/giantswarm/rbac-operator/pkg/project"
@@ -28,6 +30,13 @@ func main() {
 
 func mainE(ctx context.Context) error {
 	var err error
+
+	// operatorkit pulls in controller-runtime's workqueue, which logs through
+	// its own global logr.Logger. Without an explicit SetLogger call, that
+	// logger sits in a buffering state that can stall the workqueue once it
+	// falls back to its default. We don't use controller-runtime's own
+	// logging (micrologger is used throughout instead), so discard it.
+	ctrllog.SetLogger(logr.Discard())
 
 	var logger micrologger.Logger
 	{

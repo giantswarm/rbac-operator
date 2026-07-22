@@ -122,7 +122,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	if err := r.addAutomationSAToPatchChartsRoleBinding(ctx, ns.Name); err != nil {
+	if err := r.ensurePatchChartsRoleBinding(ctx, ns.Name); err != nil {
 		return microerror.Mask(err)
 	}
 
@@ -149,7 +149,7 @@ func (r *Resource) ensurePatchChartsRole(ctx context.Context) error {
 		},
 	}
 
-	_, err := r.k8sClient.RbacV1().Roles(pkgkey.GiantSwarmNamespaceName).Get(ctx, role.Name, metav1.GetOptions{})
+	existing, err := r.k8sClient.RbacV1().Roles(pkgkey.GiantSwarmNamespaceName).Get(ctx, role.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("creating role %#q in namespace %s", role.Name, pkgkey.GiantSwarmNamespaceName))
 
@@ -162,15 +162,25 @@ func (r *Resource) ensurePatchChartsRole(ctx context.Context) error {
 		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("role %#q in namespace %s has been created", role.Name, pkgkey.GiantSwarmNamespaceName))
 	} else if err != nil {
 		return microerror.Mask(err)
+	} else if !reflect.DeepEqual(role.Rules, existing.Rules) {
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("updating role %#q in namespace %s", role.Name, pkgkey.GiantSwarmNamespaceName))
+
+		existing.Rules = role.Rules
+
+		_, err := r.k8sClient.RbacV1().Roles(pkgkey.GiantSwarmNamespaceName).Update(ctx, existing, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("role %#q in namespace %s has been updated", role.Name, pkgkey.GiantSwarmNamespaceName))
 	}
 
 	return nil
 }
 
-// addAutomationSAToPatchChartsRoleBinding makes sure the shared `patch-charts`
+// ensurePatchChartsRoleBinding makes sure the shared `patch-charts`
 // RoleBinding exists in the `giantswarm` namespace and that the automation
 // ServiceAccount of the given org namespace is listed in its subjects.
-func (r *Resource) addAutomationSAToPatchChartsRoleBinding(ctx context.Context, namespace string) error {
+func (r *Resource) ensurePatchChartsRoleBinding(ctx context.Context, namespace string) error {
 	subject := rbacv1.Subject{
 		Kind:      "ServiceAccount",
 		Name:      pkgkey.AutomationServiceAccountName,
@@ -204,21 +214,16 @@ func (r *Resource) addAutomationSAToPatchChartsRoleBinding(ctx context.Context, 
 			return microerror.Mask(err)
 		}
 		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("rolebinding %#q in namespace %s has been created", roleBinding.Name, pkgkey.GiantSwarmNamespaceName))
-		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
-	}
+	} else if !slices.Contains(existing.Subjects, subject) {
+		existing.Subjects = append(existing.Subjects, subject)
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("adding automation SA of namespace %s to rolebinding %#q", namespace, roleBinding.Name))
 
-	if slices.Contains(existing.Subjects, subject) {
-		return nil
-	}
-
-	existing.Subjects = append(existing.Subjects, subject)
-	r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("adding automation SA of namespace %s to rolebinding %#q", namespace, roleBinding.Name))
-
-	_, err = r.k8sClient.RbacV1().RoleBindings(pkgkey.GiantSwarmNamespaceName).Update(ctx, existing, metav1.UpdateOptions{})
-	if err != nil {
-		return microerror.Mask(err)
+		_, err := r.k8sClient.RbacV1().RoleBindings(pkgkey.GiantSwarmNamespaceName).Update(ctx, existing, metav1.UpdateOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
 	}
 
 	return nil

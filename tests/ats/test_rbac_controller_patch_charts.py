@@ -19,8 +19,10 @@ AUTOMATION_SA_NAME = "automation"
 
 ORG_A = "pctesta"
 ORG_B = "pctestb"
+ORG_C = "pctestc"
 ORG_A_NAMESPACE = f"org-{ORG_A}"
 ORG_B_NAMESPACE = f"org-{ORG_B}"
+ORG_C_NAMESPACE = f"org-{ORG_C}"
 
 
 @pytest.mark.smoke
@@ -42,15 +44,25 @@ class TestRBACControllerPatchCharts:
 
         # both orgs' automation ServiceAccounts should be aggregated into the
         # shared patch-charts RoleBinding, and the Role should exist.
-        self.check_role_created()
+        self.check_role()
         self.check_subjects({ORG_A_NAMESPACE, ORG_B_NAMESPACE})
 
+        # if the Role's rules are changed out-of-band, the operator must
+        # reconcile them back to the desired state. Creating another org
+        # namespace triggers that reconcile immediately, rather than relying
+        # on the operator's ~5 minute periodic resync to eventually catch it.
+        self.drift_role_rules()
+        org_c = self.create_org_namespace(ORG_C_NAMESPACE)
+        self.check_role()
+        self.check_subjects({ORG_A_NAMESPACE, ORG_B_NAMESPACE, ORG_C_NAMESPACE})
+
         # deleting one org namespace must drop only its subject, while the Role
-        # and RoleBinding (with the remaining org) stay in place.
+        # and RoleBinding (with the remaining orgs) stay in place.
         self.delete_namespace(org_b)
-        self.check_subjects({ORG_A_NAMESPACE}, absent={ORG_B_NAMESPACE})
+        self.check_subjects({ORG_A_NAMESPACE, ORG_C_NAMESPACE}, absent={ORG_B_NAMESPACE})
 
         self.delete_namespace(org_a)
+        self.delete_namespace(org_c)
 
     def ensure_giantswarm_namespace(self):
         LOGGER.info("Ensuring %s namespace exists", GIANTSWARM_NAMESPACE)
@@ -72,7 +84,7 @@ class TestRBACControllerPatchCharts:
         return namespace
 
     @retry()
-    def check_role_created(self):
+    def check_role(self):
         LOGGER.info("Checking for the %s Role", PATCH_CHARTS_NAME)
         role = pykube.Role.objects(
             self.kube_client, namespace=GIANTSWARM_NAMESPACE
@@ -121,6 +133,22 @@ class TestRBACControllerPatchCharts:
             if subject.get("kind") == "ServiceAccount"
             and subject.get("name") == AUTOMATION_SA_NAME
         }
+
+    def drift_role_rules(self):
+        LOGGER.info("Drifting the %s Role's rules", PATCH_CHARTS_NAME)
+        role = pykube.Role.objects(
+            self.kube_client, namespace=GIANTSWARM_NAMESPACE
+        ).get(name=PATCH_CHARTS_NAME)
+
+        role.obj["rules"] = [
+            {
+                "apiGroups": ["application.giantswarm.io"],
+                "resources": ["charts"],
+                "verbs": ["get"],
+            }
+        ]
+        role.update()
+        LOGGER.info("Drifted the %s Role's rules", PATCH_CHARTS_NAME)
 
     def delete_namespace(self, namespace: pykube.Namespace):
         LOGGER.info("Deleting namespace %s", namespace.name)

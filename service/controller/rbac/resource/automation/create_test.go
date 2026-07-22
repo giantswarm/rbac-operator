@@ -42,6 +42,20 @@ func patchChartsRoleBinding(subjects []rbacv1.Subject) *rbacv1.RoleBinding {
 	}, subjects)
 }
 
+func patchChartsRole(rules []rbacv1.PolicyRule) *rbacv1.Role {
+	return &rbacv1.Role{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Role",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "patch-charts",
+			Namespace: "giantswarm",
+		},
+		Rules: rules,
+	}
+}
+
 func Test_EnsureCreated_PatchCharts(t *testing.T) {
 	testCases := []struct {
 		name              string
@@ -78,6 +92,20 @@ func Test_EnsureCreated_PatchCharts(t *testing.T) {
 				automationSubject("org-acme"),
 				automationSubject("org-customer"),
 			},
+		},
+		{
+			name:         "case 3: correct the Role's rules when they have drifted from the desired state",
+			orgNamespace: "customer",
+			existingResources: []runtime.Object{
+				patchChartsRole([]rbacv1.PolicyRule{
+					{
+						APIGroups: []string{"application.giantswarm.io"},
+						Resources: []string{"charts"},
+						Verbs:     []string{"get"},
+					},
+				}),
+			},
+			expectedSubjects: []rbacv1.Subject{automationSubject("org-customer")},
 		},
 	}
 
