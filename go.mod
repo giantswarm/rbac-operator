@@ -14,7 +14,7 @@ require (
 	github.com/giantswarm/organization-operator v1.6.4
 	github.com/go-logr/logr v1.4.4
 	github.com/google/go-cmp v0.7.0
-	github.com/prometheus/client_golang v1.24.0
+	github.com/prometheus/client_golang v1.24.1
 	github.com/spf13/viper v1.21.0
 	k8s.io/api v0.36.3
 	k8s.io/apimachinery v0.36.3
