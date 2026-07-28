@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-07-28
+
 ### Added
 
 - RBAC: Grant the `automation` ServiceAccounts of all organization namespaces (`org-<organization>`) full access to Kyverno PolicyExceptions in the namespaces they are managed in. For this, a `write-policy-exceptions` Role granting all verbs on `policyexceptions.kyverno.io` resources, plus a RoleBinding of the same name, are created in each of the `kube-system`, `giantswarm` and `policy-exceptions` namespaces. Every organization's `automation` ServiceAccount is aggregated into the subjects of these RoleBindings, and removed again once its organization namespace is deleted. Namespaces which do not exist on the management cluster are skipped.
@@ -601,7 +603,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Read-only role for customer access into Control Plane.
 
-[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/giantswarm/rbac-operator/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/giantswarm/rbac-operator/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/giantswarm/rbac-operator/compare/v0.44.0...v1.0.0
 [0.44.0]: https://github.com/giantswarm/rbac-operator/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/giantswarm/rbac-operator/compare/v0.42.4...v0.43.0
