@@ -21,7 +21,9 @@ const (
 	FluxNamespaceName                          = "flux-system"
 	FluxReconcilerRoleBindingName              = "flux-namespace-reconciler"
 	GiantSwarmNamespaceName                    = "giantswarm"
+	KubeSystemNamespaceName                    = "kube-system"
 	PatchChartsPermissionsName                 = "patch-charts"
+	PolicyExceptionsNamespaceName              = "policy-exceptions"
 	ReadClusterNamespaceAppsRoleBinding        = "read-in-cluster-ns"
 	ReadClusterNamespaceAppsRole               = "read-in-cluster-ns"
 	ReadDefaultCatalogsRole                    = "read-default-catalogs"
@@ -40,6 +42,14 @@ const (
 )
 
 var (
+	// WritePolicyExceptionsNamespaces are the namespaces in which Kyverno
+	// PolicyExceptions are managed and in which the automation ServiceAccounts
+	// therefore need write access to them.
+	WritePolicyExceptionsNamespaces = []string{
+		KubeSystemNamespaceName,
+		GiantSwarmNamespaceName,
+		PolicyExceptionsNamespaceName,
+	}
 	// FluxCrdServiceAccounts Upstream Flux ServiceAccounts which need permissions for
 	// "*.toolkit.fluxcd.io" resources in Organization namespace
 	// see: https://github.com/fluxcd/flux2/blob/main/manifests/rbac/controller.yaml

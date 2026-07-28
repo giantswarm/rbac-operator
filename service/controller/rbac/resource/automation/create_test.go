@@ -27,6 +27,18 @@ var expectedPatchChartsRules = []rbacv1.PolicyRule{
 	},
 }
 
+// the Role rules the resource is expected to grant for managing PolicyExceptions.
+var expectedWritePolicyExceptionsRules = []rbacv1.PolicyRule{
+	{
+		APIGroups: []string{"kyverno.io"},
+		Resources: []string{"policyexceptions"},
+		Verbs:     []string{"*"},
+	},
+}
+
+// the namespaces the `write-policy-exceptions` Role and RoleBinding are expected in.
+var writePolicyExceptionsNamespaces = []string{"kube-system", "giantswarm", "policy-exceptions"}
+
 func automationSubject(namespace string) rbacv1.Subject {
 	return rbacv1.Subject{
 		Kind:      "ServiceAccount",
@@ -35,25 +47,44 @@ func automationSubject(namespace string) rbacv1.Subject {
 	}
 }
 
-func patchChartsRoleBinding(subjects []rbacv1.Subject) *rbacv1.RoleBinding {
-	return test.NewRoleBinding("patch-charts", "giantswarm", map[string]string{
+func sharedRoleBinding(name, namespace string, subjects []rbacv1.Subject) *rbacv1.RoleBinding {
+	return test.NewRoleBinding(name, namespace, map[string]string{
 		"kind": "Role",
-		"name": "patch-charts",
+		"name": name,
 	}, subjects)
 }
 
-func patchChartsRole(rules []rbacv1.PolicyRule) *rbacv1.Role {
+func patchChartsRoleBinding(subjects []rbacv1.Subject) *rbacv1.RoleBinding {
+	return sharedRoleBinding("patch-charts", "giantswarm", subjects)
+}
+
+func sharedRole(name, namespace string, rules []rbacv1.PolicyRule) *rbacv1.Role {
 	return &rbacv1.Role{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Role",
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "patch-charts",
-			Namespace: "giantswarm",
+			Name:      name,
+			Namespace: namespace,
 		},
 		Rules: rules,
 	}
+}
+
+func patchChartsRole(rules []rbacv1.PolicyRule) *rbacv1.Role {
+	return sharedRole("patch-charts", "giantswarm", rules)
+}
+
+// the namespaces the `write-policy-exceptions` Role is ensured in have to exist
+// for the resource to act on them.
+func writePolicyExceptionsNamespaceObjects() []runtime.Object {
+	var objects []runtime.Object
+	for _, namespace := range writePolicyExceptionsNamespaces {
+		objects = append(objects, test.NewGenericNamespace(namespace))
+	}
+
+	return objects
 }
 
 func Test_EnsureCreated_PatchCharts(t *testing.T) {
@@ -133,6 +164,218 @@ func Test_EnsureCreated_PatchCharts(t *testing.T) {
 			checkRole(t, k8sClientFake, "patch-charts", "giantswarm", expectedPatchChartsRules)
 			checkRoleBindingSubjects(t, k8sClientFake, "patch-charts", "giantswarm", tc.expectedSubjects)
 		})
+	}
+}
+
+func Test_EnsureCreated_WritePolicyExceptions(t *testing.T) {
+	testCases := []struct {
+		name              string
+		orgNamespace      string
+		existingResources []runtime.Object
+		expectedSubjects  []rbacv1.Subject
+	}{
+		{
+			name:             "case 0: create the Role and RoleBinding in all namespaces when they do not exist yet",
+			orgNamespace:     "customer",
+			expectedSubjects: []rbacv1.Subject{automationSubject("org-customer")},
+		},
+		{
+			name:         "case 1: append the org's automation SA to existing RoleBindings",
+			orgNamespace: "customer",
+			existingResources: []runtime.Object{
+				sharedRoleBinding("write-policy-exceptions", "giantswarm", []rbacv1.Subject{automationSubject("org-acme")}),
+				sharedRoleBinding("write-policy-exceptions", "kube-system", []rbacv1.Subject{automationSubject("org-acme")}),
+				sharedRoleBinding("write-policy-exceptions", "policy-exceptions", []rbacv1.Subject{automationSubject("org-acme")}),
+			},
+			expectedSubjects: []rbacv1.Subject{
+				automationSubject("org-acme"),
+				automationSubject("org-customer"),
+			},
+		},
+		{
+			name:         "case 2: do not add a duplicate subject when the org's automation SA is already present",
+			orgNamespace: "customer",
+			existingResources: []runtime.Object{
+				sharedRoleBinding("write-policy-exceptions", "giantswarm", []rbacv1.Subject{automationSubject("org-customer")}),
+				sharedRoleBinding("write-policy-exceptions", "kube-system", []rbacv1.Subject{automationSubject("org-customer")}),
+				sharedRoleBinding("write-policy-exceptions", "policy-exceptions", []rbacv1.Subject{automationSubject("org-customer")}),
+			},
+			expectedSubjects: []rbacv1.Subject{automationSubject("org-customer")},
+		},
+		{
+			name:         "case 3: correct the Roles' rules when they have drifted from the desired state",
+			orgNamespace: "customer",
+			existingResources: []runtime.Object{
+				sharedRole("write-policy-exceptions", "giantswarm", []rbacv1.PolicyRule{
+					{
+						APIGroups: []string{"kyverno.io"},
+						Resources: []string{"policyexceptions"},
+						Verbs:     []string{"get"},
+					},
+				}),
+				sharedRole("write-policy-exceptions", "kube-system", nil),
+			},
+			expectedSubjects: []rbacv1.Subject{automationSubject("org-customer")},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			orgNamespace := test.NewOrgNamespace(tc.orgNamespace)
+
+			runtimeObjects := []runtime.Object{orgNamespace}
+			runtimeObjects = append(runtimeObjects, writePolicyExceptionsNamespaceObjects()...)
+			runtimeObjects = append(runtimeObjects, tc.existingResources...)
+
+			k8sClientFake := newFakeClients(runtimeObjects...)
+
+			r, err := New(Config{
+				K8sClient: k8sClientFake,
+				Logger:    microloggertest.New(),
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if err := r.EnsureCreated(context.TODO(), orgNamespace); err != nil {
+				t.Fatal(err)
+			}
+
+			for _, namespace := range writePolicyExceptionsNamespaces {
+				checkRole(t, k8sClientFake, "write-policy-exceptions", namespace, expectedWritePolicyExceptionsRules)
+				checkRoleBindingSubjects(t, k8sClientFake, "write-policy-exceptions", namespace, tc.expectedSubjects)
+			}
+		})
+	}
+}
+
+// Clusters without the policy apps have no `policy-exceptions` namespace. There,
+// the resource must skip that namespace instead of failing.
+func Test_EnsureCreated_WritePolicyExceptions_MissingNamespace(t *testing.T) {
+	orgNamespace := test.NewOrgNamespace("customer")
+
+	k8sClientFake := newFakeClients(
+		orgNamespace,
+		test.NewGenericNamespace("giantswarm"),
+		test.NewGenericNamespace("kube-system"),
+	)
+
+	r, err := New(Config{
+		K8sClient: k8sClientFake,
+		Logger:    microloggertest.New(),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := r.EnsureCreated(context.TODO(), orgNamespace); err != nil {
+		t.Fatal(err)
+	}
+
+	expectedSubjects := []rbacv1.Subject{automationSubject("org-customer")}
+	for _, namespace := range []string{"giantswarm", "kube-system"} {
+		checkRole(t, k8sClientFake, "write-policy-exceptions", namespace, expectedWritePolicyExceptionsRules)
+		checkRoleBindingSubjects(t, k8sClientFake, "write-policy-exceptions", namespace, expectedSubjects)
+	}
+
+	if _, err := k8sClientFake.K8sClient().RbacV1().Roles("policy-exceptions").Get(context.TODO(), "write-policy-exceptions", metav1.GetOptions{}); err == nil {
+		t.Fatalf("expected Role %#q not to exist in namespace %s", "write-policy-exceptions", "policy-exceptions")
+	}
+}
+
+func Test_EnsureDeleted_WritePolicyExceptions(t *testing.T) {
+	testCases := []struct {
+		name              string
+		orgNamespace      string
+		existingResources []runtime.Object
+		expectedSubjects  []rbacv1.Subject
+	}{
+		{
+			name:         "case 0: remove the org's automation SA and keep the others",
+			orgNamespace: "customer",
+			existingResources: []runtime.Object{
+				sharedRoleBinding("write-policy-exceptions", "giantswarm", []rbacv1.Subject{
+					automationSubject("org-acme"),
+					automationSubject("org-customer"),
+				}),
+				sharedRoleBinding("write-policy-exceptions", "kube-system", []rbacv1.Subject{
+					automationSubject("org-customer"),
+					automationSubject("org-acme"),
+				}),
+				sharedRoleBinding("write-policy-exceptions", "policy-exceptions", []rbacv1.Subject{
+					automationSubject("org-acme"),
+					automationSubject("org-customer"),
+				}),
+			},
+			expectedSubjects: []rbacv1.Subject{automationSubject("org-acme")},
+		},
+		{
+			name:         "case 1: leave an empty subject list when the org was the only subject",
+			orgNamespace: "customer",
+			existingResources: []runtime.Object{
+				sharedRoleBinding("write-policy-exceptions", "giantswarm", []rbacv1.Subject{automationSubject("org-customer")}),
+				sharedRoleBinding("write-policy-exceptions", "kube-system", []rbacv1.Subject{automationSubject("org-customer")}),
+				sharedRoleBinding("write-policy-exceptions", "policy-exceptions", []rbacv1.Subject{automationSubject("org-customer")}),
+			},
+			expectedSubjects: []rbacv1.Subject{},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			orgNamespace := test.NewOrgNamespace(tc.orgNamespace)
+
+			runtimeObjects := []runtime.Object{orgNamespace}
+			runtimeObjects = append(runtimeObjects, writePolicyExceptionsNamespaceObjects()...)
+			runtimeObjects = append(runtimeObjects, tc.existingResources...)
+
+			k8sClientFake := newFakeClients(runtimeObjects...)
+
+			r, err := New(Config{
+				K8sClient: k8sClientFake,
+				Logger:    microloggertest.New(),
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if err := r.EnsureDeleted(context.TODO(), orgNamespace); err != nil {
+				t.Fatal(err)
+			}
+
+			for _, namespace := range writePolicyExceptionsNamespaces {
+				checkRoleBindingSubjects(t, k8sClientFake, "write-policy-exceptions", namespace, tc.expectedSubjects)
+			}
+		})
+	}
+}
+
+// The RoleBindings must not be created on deletion when they never existed.
+func Test_EnsureDeleted_WritePolicyExceptions_NoRoleBindings(t *testing.T) {
+	orgNamespace := test.NewOrgNamespace("customer")
+
+	runtimeObjects := []runtime.Object{orgNamespace}
+	runtimeObjects = append(runtimeObjects, writePolicyExceptionsNamespaceObjects()...)
+
+	k8sClientFake := newFakeClients(runtimeObjects...)
+
+	r, err := New(Config{
+		K8sClient: k8sClientFake,
+		Logger:    microloggertest.New(),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := r.EnsureDeleted(context.TODO(), orgNamespace); err != nil {
+		t.Fatal(err)
+	}
+
+	for _, namespace := range writePolicyExceptionsNamespaces {
+		_, err := k8sClientFake.K8sClient().RbacV1().RoleBindings(namespace).Get(context.TODO(), "write-policy-exceptions", metav1.GetOptions{})
+		if err == nil {
+			t.Fatalf("expected RoleBinding %#q not to exist in namespace %s", "write-policy-exceptions", namespace)
+		}
 	}
 }
 

@@ -30,8 +30,17 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 
 	// remove this org's automation ServiceAccount from the shared `patch-charts`
 	// RoleBinding subjects in the `giantswarm` namespace.
-	if err := r.removeAutomationSAFromPatchChartsRoleBinding(ctx, ns.Name); err != nil {
+	if err := r.removeAutomationSAFromRoleBinding(ctx, pkgkey.PatchChartsPermissionsName, pkgkey.GiantSwarmNamespaceName, ns.Name); err != nil {
 		return microerror.Mask(err)
+	}
+
+	// remove this org's automation ServiceAccount from the shared
+	// `write-policy-exceptions` RoleBinding subjects in every namespace in which
+	// PolicyExceptions are managed.
+	for _, namespace := range pkgkey.WritePolicyExceptionsNamespaces {
+		if err := r.removeAutomationSAFromRoleBinding(ctx, pkgkey.WritePolicyExceptionsPermissionsName, namespace, ns.Name); err != nil {
+			return microerror.Mask(err)
+		}
 	}
 
 	clusterRoleBindings := []string{
@@ -82,18 +91,18 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-// removeAutomationSAFromPatchChartsRoleBinding drops the automation
-// ServiceAccount of the given org namespace from the subjects of the shared
-// `patch-charts` RoleBinding in the `giantswarm` namespace. The Role and the
-// RoleBinding itself are left in place.
-func (r *Resource) removeAutomationSAFromPatchChartsRoleBinding(ctx context.Context, namespace string) error {
+// removeAutomationSAFromRoleBinding drops the automation ServiceAccount of the
+// given org namespace from the subjects of the shared RoleBinding of the given
+// name in the given namespace. The Role and the RoleBinding itself are left in
+// place.
+func (r *Resource) removeAutomationSAFromRoleBinding(ctx context.Context, name string, namespace string, orgNamespace string) error {
 	subject := rbacv1.Subject{
 		Kind:      "ServiceAccount",
 		Name:      pkgkey.AutomationServiceAccountName,
-		Namespace: namespace,
+		Namespace: orgNamespace,
 	}
 
-	existing, err := r.k8sClient.RbacV1().RoleBindings(pkgkey.GiantSwarmNamespaceName).Get(ctx, pkgkey.PatchChartsPermissionsName, metav1.GetOptions{})
+	existing, err := r.k8sClient.RbacV1().RoleBindings(namespace).Get(ctx, name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		return nil
 	} else if err != nil {
@@ -103,9 +112,9 @@ func (r *Resource) removeAutomationSAFromPatchChartsRoleBinding(ctx context.Cont
 			return s == subject
 		})
 
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("removing automation SA of namespace %s from rolebinding %#q", namespace, pkgkey.PatchChartsPermissionsName))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("removing automation SA of namespace %s from rolebinding %#q in namespace %s", orgNamespace, name, namespace))
 
-		_, err := r.k8sClient.RbacV1().RoleBindings(pkgkey.GiantSwarmNamespaceName).Update(ctx, existing, metav1.UpdateOptions{})
+		_, err := r.k8sClient.RbacV1().RoleBindings(namespace).Update(ctx, existing, metav1.UpdateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
