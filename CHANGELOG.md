@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- RBAC: Grant the `automation` ServiceAccounts of all organization namespaces (`org-<organization>`) full access to Kyverno PolicyExceptions in the namespaces they are managed in. For this, a `write-policy-exceptions` Role granting all verbs on `policyexceptions.kyverno.io` resources, plus a RoleBinding of the same name, are created in each of the `kube-system`, `giantswarm` and `policy-exceptions` namespaces. Every organization's `automation` ServiceAccount is aggregated into the subjects of these RoleBindings, and removed again once its organization namespace is deleted. Namespaces which do not exist on the management cluster are skipped.
+
 ### Changed
 
 - Go: Update dependencies.
