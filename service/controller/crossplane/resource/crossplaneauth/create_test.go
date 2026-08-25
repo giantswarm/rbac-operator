@@ -47,7 +47,11 @@ func Test_EnsureCreated(t *testing.T) {
 			var k8sClientFake *k8sclienttest.Clients
 			{
 				testScheme := runtime.NewScheme()
-				corev1.AddToScheme(testScheme)
+				err = corev1.AddToScheme(testScheme)
+				if err != nil {
+					t.Fatalf("error == %#v, want nil", err)
+				}
+
 				k8sClientFake = k8sclienttest.NewClients(k8sclienttest.ClientsConfig{
 					CtrlClient: clientfake.NewClientBuilder().WithScheme(testScheme).WithRuntimeObjects().Build(),
 					K8sClient:  clientgofake.NewSimpleClientset(k8sObj...),
