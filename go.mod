@@ -99,3 +99,11 @@ require (
 	sigs.k8s.io/structured-merge-diff/v6 v6.4.2 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
+
+replace github.com/nats-io/nats-server/v2 v2.8.4 => github.com/nats-io/nats-server/v2 v2.14.6
+
+replace github.com/rabbitmq/amqp091-go v1.2.0 => github.com/rabbitmq/amqp091-go v1.14.0
+
+replace go.opentelemetry.io/otel v1.41.0 => go.opentelemetry.io/otel v1.46.0
+
+replace go.opentelemetry.io/otel/sdk v1.40.0 => go.opentelemetry.io/otel/sdk v1.46.0
