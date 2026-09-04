@@ -2,3 +2,4 @@ CVE-2024-51744 until=2026-09-27 # github.com/golang-jwt/jwt/v4@v4.0.0
 CVE-2025-30204 until=2026-09-27 # github.com/golang-jwt/jwt/v4@v4.0.0
 CVE-2026-56864 until=2026-09-27 # golang.org/x/mod@v0.37.0
 CVE-2026-56865 until=2026-09-27 # golang.org/x/mod@v0.37.0
+CVE-2026-37236 until=2026-10-04 # github.com/grpc-ecosystem/grpc-gateway/v2@v2.27.7
