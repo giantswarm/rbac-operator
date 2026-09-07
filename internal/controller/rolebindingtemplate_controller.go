@@ -121,8 +121,12 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 		return ctrl.Result{}, err
 	}
 
+	provisionedNamespaces := []string{}
+	failedNamespaces := map[string]string{}
+
 	// Remove RoleBindings from namespaces that are no longer in scope
 	// TODO: Use owner references to clean up RoleBindings
+	var staleFailedNamespaces []string
 	for _, ns := range template.Status.ProvisionedNamespaces {
 		if !slices.Contains(namespaces, ns) {
 			rb := &rbacv1.RoleBinding{
@@ -133,13 +137,14 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 			}
 			if err = r.Delete(ctx, rb); client.IgnoreNotFound(err) != nil {
 				log.Error(err, errDeleteRB, "namespace", ns, "rolebinding", rb.Name)
+				staleFailedNamespaces = append(staleFailedNamespaces, ns)
+				// Treat as provisioned namespace so we can retry deletion on the next reconcile
+				provisionedNamespaces = append(provisionedNamespaces, ns)
 			}
 		}
 	}
 
 	// Reconcile RoleBindings for each namespace in scope
-	provisionedNamespaces := []string{}
-	failedNamespaces := map[string]string{}
 	for _, ns := range namespaces {
 		rolebinding := cleanSubjects(getRoleBindingFromTemplate(template, ns), ns)
 		if len(rolebinding.Subjects) == 0 {
@@ -202,6 +207,21 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 		return ctrl.Result{}, err
 	}
 
+	// Requeue if stale RB deletion failed so the next reconcile retries
+	if len(staleFailedNamespaces) > 0 {
+		err := fmt.Errorf("%s: %v", errDeleteRB, staleFailedNamespaces)
+		meta.SetStatusCondition(&template.Status.Conditions, metav1.Condition{
+			Type:    v1alpha1.ReadyCondition,
+			Status:  metav1.ConditionFalse,
+			Reason:  v1alpha1.FailedReason,
+			Message: err.Error(),
+		})
+		if updateErr := r.Status().Update(ctx, template); updateErr != nil {
+			log.Error(updateErr, errUpdateStatus)
+		}
+		return ctrl.Result{}, err
+	}
+
 	log.Info(msgReconcileSucceeded, "name", req.Name, "provisionedNamespaces", provisionedNamespaces, "failedNamespaces", failedNamespaces)
 	meta.SetStatusCondition(&template.Status.Conditions, metav1.Condition{
 		Type:    v1alpha1.ReadyCondition,
@@ -211,7 +231,9 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 	})
 	if updateErr := r.Status().Update(ctx, template); updateErr != nil {
 		log.Error(updateErr, errUpdateStatus)
+		return ctrl.Result{}, updateErr
 	}
+
 	return ctrl.Result{}, nil
 }
 
