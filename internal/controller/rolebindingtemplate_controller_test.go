@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"reflect"
+	"slices"
 	"testing"
 
 	"github.com/giantswarm/k8sclient/v8/pkg/k8sclienttest"
@@ -63,6 +64,7 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 			expectedRoleBindings: []*rbacv1.RoleBinding{getTestRoleBinding()},
 		},
 
+		// TODO: remove cases 2 and 3 (forbidden roleRef kind, no roleRef), validated by the CRD schema
 		{
 			Name: "case2: forbidden roleRef kind",
 			Template: &rbacv1.RoleBinding{
@@ -278,12 +280,14 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 	}
 }
 
-func TestEnsureCreated(t *testing.T) {
+func TestReconcile(t *testing.T) {
 	testCases := []struct {
 		Name          string
 		Template      *v1alpha1.RoleBindingTemplate
 		Organizations []string
+		ExtraObjects  []runtime.Object
 
+		expectedStatus       *v1alpha1.RoleBindingTemplateStatus
 		expectedRoleBindings []*rbacv1.RoleBinding
 		expectError          bool
 	}{
@@ -577,6 +581,157 @@ func TestEnsureCreated(t *testing.T) {
 				},
 			},
 		},
+		{
+			Name: "case7: sets Ready=True condition on successful reconcile",
+			Template: &v1alpha1.RoleBindingTemplate{
+				ObjectMeta: metav1.ObjectMeta{Name: "test-template"},
+				Spec: v1alpha1.RoleBindingTemplateSpec{
+					Template: v1alpha1.RoleBindingTemplateResource{
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{Name: "test-rb"},
+						RoleRef:  rbacv1.RoleRef{Name: "example", Kind: "ClusterRole"},
+						Subjects: []rbacv1.Subject{{Kind: "Group", Name: "test-group"}},
+					},
+				},
+			},
+			Organizations: []string{"example"},
+			expectedStatus: &v1alpha1.RoleBindingTemplateStatus{
+				Conditions: []metav1.Condition{
+					{Type: v1alpha1.ReadyCondition, Status: metav1.ConditionTrue, Reason: v1alpha1.SucceededReason},
+				},
+			},
+		},
+		{
+			Name: "case8: tracks provisioned namespaces in status",
+			Template: &v1alpha1.RoleBindingTemplate{
+				ObjectMeta: metav1.ObjectMeta{Name: "test-template"},
+				Spec: v1alpha1.RoleBindingTemplateSpec{
+					Template: v1alpha1.RoleBindingTemplateResource{
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{Name: "test-rb"},
+						RoleRef:  rbacv1.RoleRef{Name: "example", Kind: "ClusterRole"},
+						Subjects: []rbacv1.Subject{{Kind: "Group", Name: "test-group"}},
+					},
+				},
+			},
+			Organizations:  []string{"alpha", "beta"},
+			expectedStatus: &v1alpha1.RoleBindingTemplateStatus{ProvisionedNamespaces: []string{"org-alpha", "org-beta"}},
+		},
+		{
+			Name: "case9: cleans up stale RoleBinding on first reconcile (upgrade scenario)",
+			Template: &v1alpha1.RoleBindingTemplate{
+				ObjectMeta: metav1.ObjectMeta{Name: "test-template"},
+				Spec: v1alpha1.RoleBindingTemplateSpec{
+					Template: v1alpha1.RoleBindingTemplateResource{
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{Name: "test-rb"},
+						RoleRef:  rbacv1.RoleRef{Name: "example", Kind: "ClusterRole"},
+						Subjects: []rbacv1.Subject{{Kind: "Group", Name: "test-group"}},
+					},
+					Scopes: v1alpha1.RoleBindingTemplateScopes{
+						OrganizationSelector: metav1.LabelSelector{
+							MatchLabels: map[string]string{"name": "current"},
+						},
+					},
+				},
+				Status: v1alpha1.RoleBindingTemplateStatus{
+					ProvisionedNamespaces: []string{"org-stale"},
+				},
+			},
+			Organizations: []string{"current"},
+			ExtraObjects: []runtime.Object{
+				&rbacv1.RoleBinding{
+					ObjectMeta: metav1.ObjectMeta{Name: "test-rb", Namespace: "org-stale"},
+					RoleRef:    rbacv1.RoleRef{Name: "example", Kind: "ClusterRole", APIGroup: "rbac.authorization.k8s.io"},
+				},
+			},
+			expectedRoleBindings: []*rbacv1.RoleBinding{
+				{
+					ObjectMeta: metav1.ObjectMeta{Name: "test-rb", Namespace: "org-current"},
+					Subjects:   []rbacv1.Subject{{Kind: "Group", Name: "test-group"}},
+				},
+			},
+		},
+		{
+			Name: "case10: cleans up stale RoleBinding when namespace removed from scope",
+			Template: &v1alpha1.RoleBindingTemplate{
+				ObjectMeta: metav1.ObjectMeta{Name: "test-template"},
+				Spec: v1alpha1.RoleBindingTemplateSpec{
+					Template: v1alpha1.RoleBindingTemplateResource{
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{Name: "test-rb"},
+						RoleRef:  rbacv1.RoleRef{Name: "example", Kind: "ClusterRole"},
+						Subjects: []rbacv1.Subject{{Kind: "Group", Name: "test-group"}},
+					},
+					Scopes: v1alpha1.RoleBindingTemplateScopes{
+						OrganizationSelector: metav1.LabelSelector{
+							MatchLabels: map[string]string{"name": "current"},
+						},
+					},
+				},
+				Status: v1alpha1.RoleBindingTemplateStatus{
+					ProvisionedNamespaces: []string{"org-stale"},
+					Conditions: []metav1.Condition{
+						{
+							Type:               v1alpha1.ReadyCondition,
+							Status:             metav1.ConditionTrue,
+							Reason:             v1alpha1.SucceededReason,
+							LastTransitionTime: metav1.Now(),
+						},
+					},
+				},
+			},
+			Organizations: []string{"current"},
+			ExtraObjects: []runtime.Object{
+				&rbacv1.RoleBinding{
+					ObjectMeta: metav1.ObjectMeta{Name: "test-rb", Namespace: "org-stale"},
+					RoleRef:    rbacv1.RoleRef{Name: "example", Kind: "ClusterRole", APIGroup: "rbac.authorization.k8s.io"},
+				},
+			},
+			expectedRoleBindings: []*rbacv1.RoleBinding{
+				{
+					ObjectMeta: metav1.ObjectMeta{Name: "test-rb", Namespace: "org-current"},
+					Subjects:   []rbacv1.Subject{{Kind: "Group", Name: "test-group"}},
+				},
+			},
+		},
+		{
+			Name: "case11: sets owner reference on RoleBinding (created by old controller)",
+			Template: &v1alpha1.RoleBindingTemplate{
+				ObjectMeta: metav1.ObjectMeta{Name: "test-template"},
+				Spec: v1alpha1.RoleBindingTemplateSpec{
+					Template: v1alpha1.RoleBindingTemplateResource{
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{Name: "test-rb"},
+						RoleRef:  rbacv1.RoleRef{Name: "example", Kind: "ClusterRole"},
+						Subjects: []rbacv1.Subject{{Kind: "Group", Name: "test-group"}},
+					},
+				},
+			},
+			Organizations: []string{"example"},
+			ExtraObjects: []runtime.Object{
+				&rbacv1.RoleBinding{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-rb",
+						Namespace: "org-example",
+					},
+					RoleRef: rbacv1.RoleRef{Name: "example", Kind: "ClusterRole", APIGroup: "rbac.authorization.k8s.io"},
+				},
+			},
+			expectedRoleBindings: []*rbacv1.RoleBinding{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-rb",
+						Namespace: "org-example",
+						OwnerReferences: []metav1.OwnerReference{
+							{
+								APIVersion:         "auth.giantswarm.io/v1alpha1",
+								Kind:               "RoleBindingTemplate",
+								Name:               "test-template",
+								Controller:         new(true),
+								BlockOwnerDeletion: new(true),
+							},
+						},
+					},
+					Subjects: []rbacv1.Subject{{Kind: "Group", Name: "test-group"}},
+				},
+			},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -597,6 +752,8 @@ func TestEnsureCreated(t *testing.T) {
 					},
 				})
 			}
+			objects = append(objects, tc.ExtraObjects...)
+
 			var k8sClientFake *k8sclienttest.Clients
 			{
 				schemeBuilder := runtime.SchemeBuilder{
@@ -632,11 +789,49 @@ func TestEnsureCreated(t *testing.T) {
 			if tc.expectError && err == nil {
 				t.Fatalf("Expected error, got success")
 			}
-			roleBindingList := &rbacv1.RoleBindingList{}
-			if err := k8sClientFake.CtrlClient().List(ctx, roleBindingList); err != nil {
-				t.Fatalf("failed to get role bindings: %s", err)
+
+			if tc.expectedRoleBindings != nil {
+				roleBindingList := &rbacv1.RoleBindingList{}
+				if err := k8sClientFake.CtrlClient().List(ctx, roleBindingList); err != nil {
+					t.Fatalf("failed to get role bindings: %s", err)
+				}
+				defaultnamespacetest.RoleBindingsShouldEqual(t, tc.expectedRoleBindings, roleBindingList.Items)
 			}
-			defaultnamespacetest.RoleBindingsShouldEqual(t, tc.expectedRoleBindings, roleBindingList.Items)
+
+			if tc.expectedStatus != nil {
+				result := &v1alpha1.RoleBindingTemplate{}
+				if err := k8sClientFake.CtrlClient().Get(ctx, types.NamespacedName{Name: tc.Template.Name}, result); err != nil {
+					t.Fatalf("failed to get template: %v", err)
+				}
+				if tc.expectedStatus.ProvisionedNamespaces != nil {
+					if len(result.Status.ProvisionedNamespaces) != len(tc.expectedStatus.ProvisionedNamespaces) {
+						t.Fatalf("expected %d provisioned namespaces, got %d: %v", len(tc.expectedStatus.ProvisionedNamespaces), len(result.Status.ProvisionedNamespaces), result.Status.ProvisionedNamespaces)
+					}
+					for _, expected := range tc.expectedStatus.ProvisionedNamespaces {
+						if !slices.Contains(result.Status.ProvisionedNamespaces, expected) {
+							t.Fatalf("expected %s in ProvisionedNamespaces, got %v", expected, result.Status.ProvisionedNamespaces)
+						}
+					}
+				}
+				for _, expectedCondition := range tc.expectedStatus.Conditions {
+					var readyCondition *metav1.Condition
+					for i := range result.Status.Conditions {
+						if result.Status.Conditions[i].Type == expectedCondition.Type {
+							readyCondition = &result.Status.Conditions[i]
+							break
+						}
+					}
+					if readyCondition == nil {
+						t.Fatalf("expected condition %s to be set, got none", expectedCondition.Type)
+					}
+					if expectedCondition.Status != "" && readyCondition.Status != expectedCondition.Status {
+						t.Fatalf("expected %s=%s, got %s=%s (reason: %s)", expectedCondition.Type, expectedCondition.Status, expectedCondition.Type, readyCondition.Status, readyCondition.Reason)
+					}
+					if expectedCondition.Reason != "" && readyCondition.Reason != expectedCondition.Reason {
+						t.Fatalf("expected reason %s, got %s", expectedCondition.Reason, readyCondition.Reason)
+					}
+				}
+			}
 		})
 	}
 }
@@ -683,7 +878,7 @@ func getTestRoleBindingInNS(namespace string) *rbacv1.RoleBinding {
 	return &rbacv1.RoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "something",
-			Namespace: "org-example",
+			Namespace: namespace,
 			Labels: map[string]string{
 				label.ManagedBy: project.Name(),
 			},
