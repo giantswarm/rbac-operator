@@ -130,6 +130,11 @@ type RoleBindingTemplateStatus struct {
 	// +optional
 	ProvisionedNamespaces []string `json:"provisionedNamespaces"`
 
+	// Deprecated: Use ProvisionedNamespaces instead.
+	// Namespaces contains a list of namespaces the RoleBinding is currently applied to.
+	// +optional
+	Namespaces []string `json:"namespaces,omitempty"`
+
 	// +listType=map
 	// +listMapKey=type
 	// +optional

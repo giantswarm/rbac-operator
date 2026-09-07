@@ -264,6 +264,13 @@ spec:
                   - namespace
                   type: object
                 type: array
+              namespaces:
+                description: |-
+                  Deprecated: Use ProvisionedNamespaces instead.
+                  Namespaces contains a list of namespaces the RoleBinding is currently applied to.
+                items:
+                  type: string
+                type: array
               provisionedNamespaces:
                 description: ProvisionedNamespaces are the namespaces where the RoleBindingTemplate
                   has created rolebindings

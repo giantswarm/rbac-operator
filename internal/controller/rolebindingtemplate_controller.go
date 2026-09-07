@@ -94,8 +94,12 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 			Reason:  v1alpha1.ProgressingReason,
 			Message: msgReconcileStarted,
 		})
-		template.Status.ProvisionedNamespaces = []string{}
-		template.Status.FailedNamespaces = []v1alpha1.RoleBindingTemplateNamespaceFailure{}
+		// Also migrate deprecated .status.namespaces into ProvisionedNamespaces so the stale-cleanup loop can act on it.
+		// Only relevant when migrating from the old controller
+		// TODO: remove when Namespaces is removed.
+		if len(template.Status.ProvisionedNamespaces) == 0 && len(template.Status.Namespaces) > 0 { //nolint:staticcheck
+			template.Status.ProvisionedNamespaces = template.Status.Namespaces //nolint:staticcheck
+		}
 		if err := r.Status().Update(ctx, template); err != nil {
 			log.Error(err, errUpdateStatus)
 			return ctrl.Result{}, err
@@ -172,6 +176,9 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 	}
 
 	template.Status.ProvisionedNamespaces = provisionedNamespaces
+	// Keep deprecated Namespaces field in sync
+	// TODO: remove when Namespaces is removed.
+	template.Status.Namespaces = provisionedNamespaces // nolint:staticcheck
 	for ns, reason := range failedNamespaces {
 		template.Status.FailedNamespaces = append(template.Status.FailedNamespaces, v1alpha1.RoleBindingTemplateNamespaceFailure{
 			Namespace: ns,

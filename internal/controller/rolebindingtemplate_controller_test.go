@@ -616,6 +616,7 @@ func TestReconcile(t *testing.T) {
 			expectedStatus: &v1alpha1.RoleBindingTemplateStatus{ProvisionedNamespaces: []string{"org-alpha", "org-beta"}},
 		},
 		{
+			// TODO: remove when Namespaces is removed.
 			Name: "case9: cleans up stale RoleBinding on first reconcile (upgrade scenario)",
 			Template: &v1alpha1.RoleBindingTemplate{
 				ObjectMeta: metav1.ObjectMeta{Name: "test-template"},
@@ -632,7 +633,7 @@ func TestReconcile(t *testing.T) {
 					},
 				},
 				Status: v1alpha1.RoleBindingTemplateStatus{
-					ProvisionedNamespaces: []string{"org-stale"},
+					Namespaces: []string{"org-stale"},
 				},
 			},
 			Organizations: []string{"current"},
