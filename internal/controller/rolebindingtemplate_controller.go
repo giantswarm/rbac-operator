@@ -51,13 +51,13 @@ type RoleBindingTemplateReconciler struct {
 const (
 	errGetRBT           = "could not get RoleBindingTemplate"
 	errUpdateStatus     = "unable to update status"
-	errNamespacesFailed = "one or more namespaces failed"
+	errNamespacesFailed = "failed to reconcile RoleBindings in one or more namespaces"
 	errGetNamespaces    = "unable to get namespaces from scope"
 	errCreateOrUpdateRB = "could not create or update RoleBinding"
 	errDeleteRB         = "could not delete RoleBinding"
 
-	msgReconcileStarted   = "starting reconciliation"
-	msgReconcileSucceeded = "reconciliation succeeded"
+	msgReconcileStarted   = "RoleBindingTemplate is being reconciled"
+	msgReconcileSucceeded = "RoleBindings provisioned successfully"
 )
 
 // +kubebuilder:rbac:groups=auth.giantswarm.io,resources=rolebindingtemplates,verbs=get;list;watch;create;update;patch;delete
@@ -110,6 +110,7 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 	// Get namespaces from the specified scopes
 	namespaces, err := r.getNamespacesFromScope(ctx, template.Spec.Scopes)
 	if err != nil {
+		log.Error(err, errGetNamespaces)
 		meta.SetStatusCondition(&template.Status.Conditions, metav1.Condition{
 			Type:    v1alpha1.ReadyCondition,
 			Status:  metav1.ConditionFalse,
@@ -204,7 +205,7 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 	// > 0 failed namespaces means reconciliation was not successful
 	if len(template.Status.FailedNamespaces) > 0 {
 		err := errors.New(errNamespacesFailed)
-		log.Error(err, "failedNamespaces", template.Status.FailedNamespaces)
+		log.Error(err, "reconciliation incomplete", "failedNamespaces", template.Status.FailedNamespaces)
 		meta.SetStatusCondition(&template.Status.Conditions, metav1.Condition{
 			Type:    v1alpha1.ReadyCondition,
 			Status:  metav1.ConditionFalse,
@@ -232,7 +233,7 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 		return ctrl.Result{}, err
 	}
 
-	log.Info(msgReconcileSucceeded, "name", req.Name, "provisionedNamespaces", provisionedNamespaces, "failedNamespaces", failedNamespaces)
+	log.Info(msgReconcileSucceeded, "name", req.Name, "provisionedNamespaces", provisionedNamespaces)
 	meta.SetStatusCondition(&template.Status.Conditions, metav1.Condition{
 		Type:    v1alpha1.ReadyCondition,
 		Status:  metav1.ConditionTrue,
