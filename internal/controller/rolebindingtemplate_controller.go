@@ -192,6 +192,8 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 	// Keep deprecated Namespaces field in sync
 	// TODO: remove when Namespaces is removed.
 	template.Status.Namespaces = provisionedNamespaces // nolint:staticcheck
+
+	template.Status.FailedNamespaces = nil
 	for ns, reason := range failedNamespaces {
 		template.Status.FailedNamespaces = append(template.Status.FailedNamespaces, v1alpha1.RoleBindingTemplateNamespaceFailure{
 			Namespace: ns,
