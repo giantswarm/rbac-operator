@@ -242,7 +242,6 @@ func TestGetRoleBindingFromTemplate(t *testing.T) {
 							Name:        tc.Template.ObjectMeta.Name,
 							Labels:      tc.Template.ObjectMeta.Labels,
 							Annotations: tc.Template.ObjectMeta.Annotations,
-							Finalizers:  tc.Template.ObjectMeta.Finalizers,
 						},
 						RoleRef:  tc.Template.RoleRef,
 						Subjects: tc.Template.Subjects,

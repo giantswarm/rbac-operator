@@ -109,11 +109,6 @@ spec:
                           type: string
                         description: Annotations to be added to created RoleBindings
                         type: object
-                      finalizers:
-                        description: Finalizers to be added to created RoleBindings
-                        items:
-                          type: string
-                        type: array
                       labels:
                         additionalProperties:
                           type: string

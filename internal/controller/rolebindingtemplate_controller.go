@@ -306,7 +306,6 @@ func getRoleBindingFromTemplate(template *v1alpha1.RoleBindingTemplate, namespac
 		ObjectMeta: metav1.ObjectMeta{
 			Labels:      template.Spec.Template.Metadata.Labels,
 			Annotations: template.Spec.Template.Metadata.Annotations,
-			Finalizers:  template.Spec.Template.Metadata.Finalizers,
 		},
 		RoleRef: template.Spec.Template.RoleRef,
 	}
@@ -330,13 +329,11 @@ func getRoleBindingFromTemplate(template *v1alpha1.RoleBindingTemplate, namespac
 	}
 
 	subjects := []rbacv1.Subject{}
-	{
-		for _, subject := range template.Spec.Template.Subjects {
-			if subject.Kind == rbacv1.ServiceAccountKind && subject.Namespace == "" {
-				subject.Namespace = namespace
-			}
-			subjects = append(subjects, subject)
+	for _, subject := range template.Spec.Template.Subjects {
+		if subject.Kind == rbacv1.ServiceAccountKind && subject.Namespace == "" {
+			subject.Namespace = namespace
 		}
+		subjects = append(subjects, subject)
 	}
 	roleBinding.Subjects = subjects
 

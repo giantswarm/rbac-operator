@@ -73,10 +73,6 @@ type RoleBindingTemplateMetadata struct {
 	// Annotations to be added to created RoleBindings
 	// +optional
 	Annotations map[string]string `json:"annotations,omitempty"`
-
-	// Finalizers to be added to created RoleBindings
-	// +optional
-	Finalizers []string `json:"finalizers,omitempty"`
 }
 
 // RoleBindingTemplateResource describes the data needed to create a rolebinding from a template.
