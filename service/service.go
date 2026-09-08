@@ -233,7 +233,6 @@ func New(config Config) (*Service, error) {
 
 	var kubebuilderManager ctrl.Manager
 	{
-		ctrl.SetLogger(zap.New())
 		scheme := runtime.NewScheme()
 		if err = clientgoscheme.AddToScheme(scheme); err != nil {
 			return nil, microerror.Mask(err)
@@ -246,6 +245,7 @@ func New(config Config) (*Service, error) {
 		}
 		kubebuilderManager, err = ctrl.NewManager(restConfig, ctrl.Options{
 			Scheme: scheme,
+			Logger: zap.New(),
 		})
 		if err != nil {
 			return nil, microerror.Mask(err)
