@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 	"slices"
 
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
@@ -166,7 +167,14 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 				},
 			}
 			_, err := ctrl.CreateOrUpdate(ctx, r.Client, expectedRB, func() error {
-				expectedRB.ObjectMeta = rolebinding.ObjectMeta
+				if expectedRB.Labels == nil {
+					expectedRB.Labels = map[string]string{}
+				}
+				if expectedRB.Annotations == nil {
+					expectedRB.Annotations = map[string]string{}
+				}
+				maps.Copy(expectedRB.Labels, rolebinding.Labels)
+				maps.Copy(expectedRB.Annotations, rolebinding.Annotations)
 				expectedRB.Subjects = rolebinding.Subjects
 				expectedRB.RoleRef = rolebinding.RoleRef
 				return ctrl.SetControllerReference(template, expectedRB, r.Scheme)
