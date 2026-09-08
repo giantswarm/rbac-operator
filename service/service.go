@@ -273,8 +273,9 @@ func (s *Service) Boot(ctx context.Context) {
 		// kubebuilderManager is created in New but controllers are registered in Boot for
 		// now to avoid duplicate-name errors when New() is called multiple times in tests.
 		if err := (&controller.RoleBindingTemplateReconciler{
-			Client: s.kubebuilderManager.GetClient(),
-			Scheme: s.kubebuilderManager.GetScheme(),
+			Client:   s.kubebuilderManager.GetClient(),
+			Scheme:   s.kubebuilderManager.GetScheme(),
+			Recorder: s.kubebuilderManager.GetEventRecorderFor("rolebindingtemplate-controller"),
 		}).SetupWithManager(s.kubebuilderManager); err != nil {
 			panic(microerror.JSON(microerror.Mask(err)))
 		}

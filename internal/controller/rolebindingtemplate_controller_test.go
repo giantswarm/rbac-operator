@@ -2,8 +2,10 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/giantswarm/k8sclient/v8/pkg/k8sclienttest"
@@ -12,12 +14,16 @@ import (
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/tools/record"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
+	"sigs.k8s.io/controller-runtime/pkg/client/interceptor"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/giantswarm/rbac-operator/api/v1alpha1"
@@ -736,49 +742,7 @@ func TestReconcile(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
-			objects := []runtime.Object{tc.Template}
-			namespaces := []runtime.Object{
-				&corev1.Namespace{
-					ObjectMeta: metav1.ObjectMeta{
-						Name: "example",
-					},
-				},
-			}
-			for _, org := range tc.Organizations {
-				objects = append(objects, getTestOrganization(org))
-				namespaces = append(namespaces, &corev1.Namespace{
-					ObjectMeta: metav1.ObjectMeta{
-						Name: "org-" + org,
-					},
-				})
-			}
-			objects = append(objects, tc.ExtraObjects...)
-
-			var k8sClientFake *k8sclienttest.Clients
-			{
-				schemeBuilder := runtime.SchemeBuilder{
-					security.AddToScheme,
-					v1alpha1.AddToScheme,
-				}
-				if err := schemeBuilder.AddToScheme(scheme.Scheme); err != nil {
-					t.Fatal(err)
-				}
-
-				k8sClientFake = k8sclienttest.NewClients(k8sclienttest.ClientsConfig{
-					CtrlClient: clientfake.NewClientBuilder().
-						WithScheme(scheme.Scheme).
-						WithRuntimeObjects(objects...).
-						WithStatusSubresource(&v1alpha1.RoleBindingTemplate{}).
-						Build(),
-					K8sClient: clientgofake.NewSimpleClientset(namespaces...),
-				})
-			}
-
-			r := &RoleBindingTemplateReconciler{
-				Client: k8sClientFake.CtrlClient(),
-				Scheme: k8sClientFake.CtrlClient().Scheme(),
-			}
-
+			r, k8sClientFake := newTestReconciler(t, tc.Template, tc.Organizations, tc.ExtraObjects, interceptor.Funcs{})
 			ctx := context.Background()
 			_, err := r.Reconcile(ctx, reconcile.Request{
 				NamespacedName: types.NamespacedName{Name: tc.Template.Name},
@@ -834,6 +798,248 @@ func TestReconcile(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestReconcileEvents(t *testing.T) {
+	testCases := []struct {
+		Name          string
+		Template      *v1alpha1.RoleBindingTemplate
+		Organizations []string
+		ExtraObjects  []runtime.Object
+		Interceptors  interceptor.Funcs
+
+		expectError    bool
+		expectedEvents []string
+	}{
+		{
+			Name: "NamespaceSkipped when subjects filtered to empty in protected namespace",
+			Template: &v1alpha1.RoleBindingTemplate{
+				ObjectMeta: metav1.ObjectMeta{Name: "test-template"},
+				Spec: v1alpha1.RoleBindingTemplateSpec{
+					Template: v1alpha1.RoleBindingTemplateResource{
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{Name: "test-rb"},
+						RoleRef:  rbacv1.RoleRef{Name: "example", Kind: "ClusterRole"},
+						Subjects: []rbacv1.Subject{
+							{Kind: "Group", Name: "test-group"}, // Groups are filtered in protected namespaces
+						},
+					},
+				},
+			},
+			Organizations:  []string{"giantswarm"}, // org-giantswarm is a protected namespace
+			expectedEvents: []string{"Normal NamespaceSkipped"},
+		},
+		{
+			Name: "RoleBindingDeleteFailed when stale RoleBinding deletion fails",
+			Template: &v1alpha1.RoleBindingTemplate{
+				ObjectMeta: metav1.ObjectMeta{Name: "test-template"},
+				Spec: v1alpha1.RoleBindingTemplateSpec{
+					Template: v1alpha1.RoleBindingTemplateResource{
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{Name: "test-rb"},
+						RoleRef:  rbacv1.RoleRef{Name: "example", Kind: "ClusterRole"},
+						Subjects: []rbacv1.Subject{{Kind: "Group", Name: "test-group"}},
+					},
+					Scopes: v1alpha1.RoleBindingTemplateScopes{
+						OrganizationSelector: metav1.LabelSelector{
+							MatchLabels: map[string]string{"name": "current"},
+						},
+					},
+				},
+				Status: v1alpha1.RoleBindingTemplateStatus{
+					ProvisionedNamespaces: []string{"org-stale"},
+					Conditions: []metav1.Condition{
+						{Type: v1alpha1.ReadyCondition, Status: metav1.ConditionTrue, Reason: v1alpha1.SucceededReason, LastTransitionTime: metav1.Now()},
+					},
+				},
+			},
+			Organizations: []string{"current"},
+			ExtraObjects: []runtime.Object{
+				&rbacv1.RoleBinding{
+					ObjectMeta: metav1.ObjectMeta{Name: "test-rb", Namespace: "org-stale"},
+					RoleRef:    rbacv1.RoleRef{Name: "example", Kind: "ClusterRole", APIGroup: "rbac.authorization.k8s.io"},
+				},
+			},
+			Interceptors: interceptor.Funcs{
+				Delete: func(ctx context.Context, c client.WithWatch, obj client.Object, opts ...client.DeleteOption) error {
+					if _, ok := obj.(*rbacv1.RoleBinding); ok {
+						return apierrors.NewInternalError(fmt.Errorf("injected delete error"))
+					}
+					return c.Delete(ctx, obj, opts...)
+				},
+			},
+			expectError:    true,
+			expectedEvents: []string{"Warning RoleBindingDeleteFailed"},
+		},
+		{
+			Name: "NamespaceSkipped and RoleBindingDeleteFailed when in-scope deletion fails after subject filtering",
+			Template: &v1alpha1.RoleBindingTemplate{
+				ObjectMeta: metav1.ObjectMeta{Name: "test-template"},
+				Spec: v1alpha1.RoleBindingTemplateSpec{
+					Template: v1alpha1.RoleBindingTemplateResource{
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{Name: "test-rb"},
+						RoleRef:  rbacv1.RoleRef{Name: "example", Kind: "ClusterRole"},
+						Subjects: []rbacv1.Subject{
+							{Kind: "Group", Name: "test-group"}, // filtered in protected ns
+						},
+					},
+				},
+			},
+			Organizations: []string{"giantswarm"}, // org-giantswarm is protected
+			ExtraObjects: []runtime.Object{
+				&rbacv1.RoleBinding{
+					ObjectMeta: metav1.ObjectMeta{Name: "test-rb", Namespace: "org-giantswarm"},
+					RoleRef:    rbacv1.RoleRef{Name: "example", Kind: "ClusterRole", APIGroup: "rbac.authorization.k8s.io"},
+				},
+			},
+			Interceptors: interceptor.Funcs{
+				Delete: func(ctx context.Context, c client.WithWatch, obj client.Object, opts ...client.DeleteOption) error {
+					if _, ok := obj.(*rbacv1.RoleBinding); ok {
+						return apierrors.NewInternalError(fmt.Errorf("injected delete error"))
+					}
+					return c.Delete(ctx, obj, opts...)
+				},
+			},
+			expectError:    true,
+			expectedEvents: []string{"Normal NamespaceSkipped", "Warning RoleBindingDeleteFailed"},
+		},
+		{
+			Name: "RoleBindingProvisionFailed when CreateOrUpdate fails",
+			Template: &v1alpha1.RoleBindingTemplate{
+				ObjectMeta: metav1.ObjectMeta{Name: "test-template"},
+				Spec: v1alpha1.RoleBindingTemplateSpec{
+					Template: v1alpha1.RoleBindingTemplateResource{
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{Name: "test-rb"},
+						RoleRef:  rbacv1.RoleRef{Name: "example", Kind: "ClusterRole"},
+						Subjects: []rbacv1.Subject{{Kind: "Group", Name: "test-group"}},
+					},
+				},
+			},
+			Organizations: []string{"example"},
+			Interceptors: interceptor.Funcs{
+				Create: func(ctx context.Context, c client.WithWatch, obj client.Object, opts ...client.CreateOption) error {
+					if _, ok := obj.(*rbacv1.RoleBinding); ok {
+						return apierrors.NewInternalError(fmt.Errorf("injected create error"))
+					}
+					return c.Create(ctx, obj, opts...)
+				},
+				Patch: func(ctx context.Context, c client.WithWatch, obj client.Object, patch client.Patch, opts ...client.PatchOption) error {
+					if _, ok := obj.(*rbacv1.RoleBinding); ok {
+						return apierrors.NewInternalError(fmt.Errorf("injected patch error"))
+					}
+					return c.Patch(ctx, obj, patch, opts...)
+				},
+			},
+			expectError:    true,
+			expectedEvents: []string{"Warning RoleBindingProvisionFailed"},
+		},
+		{
+			Name: "ScopeLookupFailed when namespace scope resolution fails",
+			Template: &v1alpha1.RoleBindingTemplate{
+				ObjectMeta: metav1.ObjectMeta{Name: "test-template"},
+				Spec: v1alpha1.RoleBindingTemplateSpec{
+					Template: v1alpha1.RoleBindingTemplateResource{
+						Metadata: v1alpha1.RoleBindingTemplateMetadata{Name: "test-rb"},
+						RoleRef:  rbacv1.RoleRef{Name: "example", Kind: "ClusterRole"},
+						Subjects: []rbacv1.Subject{{Kind: "Group", Name: "test-group"}},
+					},
+					Scopes: v1alpha1.RoleBindingTemplateScopes{
+						OrganizationSelector: metav1.LabelSelector{
+							MatchLabels: map[string]string{"name": "any"},
+						},
+					},
+				},
+			},
+			Interceptors: interceptor.Funcs{
+				List: func(ctx context.Context, c client.WithWatch, list client.ObjectList, opts ...client.ListOption) error {
+					if _, ok := list.(*security.OrganizationList); ok {
+						return apierrors.NewInternalError(fmt.Errorf("injected list error"))
+					}
+					return c.List(ctx, list, opts...)
+				},
+			},
+			expectError:    true,
+			expectedEvents: []string{"Warning ScopeLookupFailed"},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			r, _ := newTestReconciler(t, tc.Template, tc.Organizations, tc.ExtraObjects, tc.Interceptors)
+			ctx := context.Background()
+
+			_, err := r.Reconcile(ctx, reconcile.Request{
+				NamespacedName: types.NamespacedName{Name: tc.Template.Name},
+			})
+			if !tc.expectError && err != nil {
+				t.Fatalf("expected success, got error: %v", err)
+			}
+			if tc.expectError && err == nil {
+				t.Fatalf("expected error, got success")
+			}
+
+			var gotEvents []string
+			for len(r.Recorder.(*record.FakeRecorder).Events) > 0 {
+				gotEvents = append(gotEvents, <-r.Recorder.(*record.FakeRecorder).Events)
+			}
+			for _, expected := range tc.expectedEvents {
+				found := false
+				for _, got := range gotEvents {
+					if strings.Contains(got, expected) {
+						found = true
+						break
+					}
+				}
+				if !found {
+					t.Fatalf("expected event containing %q, got: %v", expected, gotEvents)
+				}
+			}
+		})
+	}
+}
+
+// newTestReconciler builds a RoleBindingTemplateReconciler backed by fake clients.
+// organizations are turned into Organization objects and org-<name> namespaces.
+// interceptors allow injecting errors into specific client operations.
+func newTestReconciler(t *testing.T, template *v1alpha1.RoleBindingTemplate, organizations []string, extraObjects []runtime.Object, funcs interceptor.Funcs) (*RoleBindingTemplateReconciler, *k8sclienttest.Clients) {
+	t.Helper()
+
+	objects := []runtime.Object{template}
+	namespaces := []runtime.Object{
+		&corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "example"}},
+	}
+	for _, org := range organizations {
+		objects = append(objects, getTestOrganization(org))
+		namespaces = append(namespaces, &corev1.Namespace{
+			ObjectMeta: metav1.ObjectMeta{Name: "org-" + org},
+		})
+	}
+	objects = append(objects, extraObjects...)
+
+	schemeBuilder := runtime.SchemeBuilder{
+		security.AddToScheme,
+		v1alpha1.AddToScheme,
+	}
+	if err := schemeBuilder.AddToScheme(scheme.Scheme); err != nil {
+		t.Fatal(err)
+	}
+
+	ctrlClient := clientfake.NewClientBuilder().
+		WithScheme(scheme.Scheme).
+		WithRuntimeObjects(objects...).
+		WithStatusSubresource(&v1alpha1.RoleBindingTemplate{}).
+		WithInterceptorFuncs(funcs).
+		Build()
+
+	k8sClientFake := k8sclienttest.NewClients(k8sclienttest.ClientsConfig{
+		CtrlClient: ctrlClient,
+		K8sClient:  clientgofake.NewSimpleClientset(namespaces...),
+	})
+
+	r := &RoleBindingTemplateReconciler{
+		Client:   k8sClientFake.CtrlClient(),
+		Scheme:   k8sClientFake.CtrlClient().Scheme(),
+		Recorder: record.NewFakeRecorder(100),
+	}
+	return r, k8sClientFake
 }
 
 func getTestOrganization(name string) *security.Organization {
