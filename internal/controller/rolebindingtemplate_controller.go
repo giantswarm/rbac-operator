@@ -122,6 +122,12 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 		return ctrl.Result{}, nil
 	}
 
+	// Skip reconciliation for objects that are being deleted
+	// ownerReferences handle RoleBinding cleanup.
+	if !template.DeletionTimestamp.IsZero() {
+		return ctrl.Result{}, nil
+	}
+
 	// Initialize status conditions if not already set
 	if len(template.Status.Conditions) == 0 {
 		meta.SetStatusCondition(&template.Status.Conditions, metav1.Condition{
