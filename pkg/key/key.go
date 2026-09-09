@@ -190,3 +190,9 @@ func WritePolicyExceptionsAutomationSARoleBindingName() string {
 func CrossplaneEditAutomationSARoleBindingName() string {
 	return CrossplaneEditRoleBindingName
 }
+
+// CrossplaneBindClusterRoleBindingName returns the name of the ClusterRoleBinding that grants
+// customer admin groups and org automation ServiceAccounts access to triggeringClusterRole.
+func CrossplaneBindClusterRoleBindingName(triggeringClusterRole string) string {
+	return fmt.Sprintf("rbac-op-%s-to-customer-admin", triggeringClusterRole)
+}
