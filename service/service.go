@@ -275,7 +275,7 @@ func (s *Service) Boot(ctx context.Context) {
 		if err := (&controller.RoleBindingTemplateReconciler{
 			Client:   s.kubebuilderManager.GetClient(),
 			Scheme:   s.kubebuilderManager.GetScheme(),
-			Recorder: s.kubebuilderManager.GetEventRecorderFor("rolebindingtemplate-controller"),
+			Recorder: s.kubebuilderManager.GetEventRecorder("rolebindingtemplate-controller"),
 		}).SetupWithManager(s.kubebuilderManager); err != nil {
 			panic(microerror.JSON(microerror.Mask(err)))
 		}

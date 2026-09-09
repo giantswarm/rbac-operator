@@ -33,7 +33,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/tools/record"
+	"k8s.io/client-go/tools/events"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -48,7 +48,7 @@ import (
 type RoleBindingTemplateReconciler struct {
 	client.Client
 	Scheme   *runtime.Scheme
-	Recorder record.EventRecorder
+	Recorder events.EventRecorder
 }
 
 // TODO: remove when migration path from operatorkit is no longer needed
@@ -71,9 +71,14 @@ const (
 	reasonRoleBindingDeleteFailed    = "RoleBindingDeleteFailed"
 	reasonRoleBindingProvisionFailed = "RoleBindingProvisionFailed"
 	reasonScopeLookupFailed          = "ScopeLookupFailed"
+
+	actionRemoveFinalizer      = "RemoveFinalizer"
+	actionLookupScopes         = "LookupScopes"
+	actionDeleteRoleBinding    = "DeleteRoleBinding"
+	actionProvisionRoleBinding = "ProvisionRoleBinding"
 )
 
-// +kubebuilder:rbac:groups="",resources=events,verbs=create;patch
+// +kubebuilder:rbac:groups=events.k8s.io,resources=events,verbs=create;patch
 // +kubebuilder:rbac:groups=auth.giantswarm.io,resources=rolebindingtemplates,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=auth.giantswarm.io,resources=rolebindingtemplates/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=auth.giantswarm.io,resources=rolebindingtemplates/finalizers,verbs=update
@@ -108,7 +113,7 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 		controllerutil.RemoveFinalizer(template, legacyFinalizer)
 		if err := r.Update(ctx, template); err != nil {
 			log.Error(err, "failed to remove legacy operatorkit finalizer", "finalizer", legacyFinalizer)
-			r.Recorder.Eventf(template, corev1.EventTypeWarning, "LegacyFinalizerRemovalFailed",
+			r.Recorder.Eventf(template, nil, corev1.EventTypeWarning, "LegacyFinalizerRemovalFailed", actionRemoveFinalizer,
 				"failed to remove legacy operatorkit finalizer %s: %v", legacyFinalizer, err)
 			return ctrl.Result{}, err
 		}
@@ -141,7 +146,7 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 	namespaces, err := r.getNamespacesFromScope(ctx, template.Spec.Scopes)
 	if err != nil {
 		log.Error(err, errGetNamespaces)
-		r.Recorder.Eventf(template, corev1.EventTypeWarning, reasonScopeLookupFailed,
+		r.Recorder.Eventf(template, nil, corev1.EventTypeWarning, reasonScopeLookupFailed, actionLookupScopes,
 			"could not list namespaces from scope: %v", err)
 		meta.SetStatusCondition(&template.Status.Conditions, metav1.Condition{
 			Type:    v1alpha1.ReadyCondition,
@@ -171,7 +176,7 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 			}
 			if err = r.Delete(ctx, rb); client.IgnoreNotFound(err) != nil {
 				log.Error(err, errDeleteRB, "namespace", ns, "rolebinding", rb.Name)
-				r.Recorder.Eventf(template, corev1.EventTypeWarning, reasonRoleBindingDeleteFailed,
+				r.Recorder.Eventf(template, rb, corev1.EventTypeWarning, reasonRoleBindingDeleteFailed, actionDeleteRoleBinding,
 					"failed to remove out-of-scope RoleBinding %s from namespace %s: %v", rb.Name, ns, err)
 				staleFailedNamespaces = append(staleFailedNamespaces, ns)
 				// Treat as provisioned namespace so we can retry deletion on the next reconcile
@@ -186,11 +191,11 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 		if len(rolebinding.Subjects) == 0 {
 			// If there are no subjects after cleaning, delete the RoleBinding
 			log.Info("removing RoleBinding due to empty subjects after cleaning", "namespace", ns, "rolebinding", rolebinding.Name)
-			r.Recorder.Eventf(template, corev1.EventTypeNormal, reasonNamespaceSkipped,
+			r.Recorder.Eventf(template, rolebinding, corev1.EventTypeNormal, reasonNamespaceSkipped, actionProvisionRoleBinding,
 				"namespace %s skipped: all subjects were filtered out", ns)
 			if err = r.Delete(ctx, rolebinding); client.IgnoreNotFound(err) != nil {
 				log.Error(err, errDeleteRB, "namespace", ns, "rolebinding", rolebinding.Name)
-				r.Recorder.Eventf(template, corev1.EventTypeWarning, reasonRoleBindingDeleteFailed,
+				r.Recorder.Eventf(template, rolebinding, corev1.EventTypeWarning, reasonRoleBindingDeleteFailed, actionDeleteRoleBinding,
 					"failed to delete RoleBinding %s in namespace %s: %v", rolebinding.Name, ns, err)
 				failedNamespaces[ns] = errDeleteRB
 			} else {
@@ -220,7 +225,7 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 			})
 			if err != nil {
 				log.Error(err, errCreateOrUpdateRB, "namespace", ns, "rolebinding", rolebinding.Name)
-				r.Recorder.Eventf(template, corev1.EventTypeWarning, reasonRoleBindingProvisionFailed,
+				r.Recorder.Eventf(template, expectedRB, corev1.EventTypeWarning, reasonRoleBindingProvisionFailed, actionProvisionRoleBinding,
 					"failed to provision RoleBinding %s in namespace %s: %v", rolebinding.Name, ns, err)
 				failedNamespaces[ns] = errCreateOrUpdateRB
 			} else {

@@ -20,7 +20,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/client-go/tools/record"
+	"k8s.io/client-go/tools/events"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/client/interceptor"
@@ -845,8 +845,8 @@ func TestReconcileLegacyFinalizer(t *testing.T) {
 		}
 
 		var gotEvents []string
-		for len(r.Recorder.(*record.FakeRecorder).Events) > 0 {
-			gotEvents = append(gotEvents, <-r.Recorder.(*record.FakeRecorder).Events)
+		for len(r.Recorder.(*events.FakeRecorder).Events) > 0 {
+			gotEvents = append(gotEvents, <-r.Recorder.(*events.FakeRecorder).Events)
 		}
 		found := false
 		for _, e := range gotEvents {
@@ -1038,8 +1038,8 @@ func TestReconcileEvents(t *testing.T) {
 			}
 
 			var gotEvents []string
-			for len(r.Recorder.(*record.FakeRecorder).Events) > 0 {
-				gotEvents = append(gotEvents, <-r.Recorder.(*record.FakeRecorder).Events)
+			for len(r.Recorder.(*events.FakeRecorder).Events) > 0 {
+				gotEvents = append(gotEvents, <-r.Recorder.(*events.FakeRecorder).Events)
 			}
 			for _, expected := range tc.expectedEvents {
 				found := false
@@ -1098,7 +1098,7 @@ func newTestReconciler(t *testing.T, template *v1alpha1.RoleBindingTemplate, org
 	r := &RoleBindingTemplateReconciler{
 		Client:   k8sClientFake.CtrlClient(),
 		Scheme:   k8sClientFake.CtrlClient().Scheme(),
-		Recorder: record.NewFakeRecorder(100),
+		Recorder: events.NewFakeRecorder(100),
 	}
 	return r, k8sClientFake
 }
