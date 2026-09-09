@@ -68,6 +68,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
+	err = r.createClusterAppChartLookupsClusterRole(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	err = r.labelDefaultClusterRoles(ctx)
 	if err != nil {
 		return microerror.Mask(err)
@@ -340,6 +345,47 @@ func (r *Resource) createWriteAWSClusterRoleIdentityClusterRole(ctx context.Cont
 			},
 		},
 		Rules: []rbacv1.PolicyRule{policyRule},
+	}
+
+	return rbac.CreateOrUpdateClusterRole(r, ctx, clusterRole)
+}
+
+// Ensures the ClusterRole 'cluster-app-chart-lookups'.
+//
+// The purpose of this role is to grant read-only access to cluster-scoped resources looked up at Helm render time
+// by the cluster-* (release-*) charts.
+func (r *Resource) createClusterAppChartLookupsClusterRole(ctx context.Context) error {
+	clusterRole := &rbacv1.ClusterRole{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: pkgkey.ClusterAppChartLookupsPermissionsName,
+			Labels: map[string]string{
+				label.ManagedBy:              project.Name(),
+				label.DisplayInUserInterface: "true",
+			},
+			Annotations: map[string]string{
+				annotation.Notes: "Contains read-only permissions to cluster-scoped resources looked up " +
+					"when rendering cluster Helm charts. It is bound to the organization automation " +
+					"service account and thus cluster installing HelmReleases should use that service " +
+					"account to reconcile.",
+			},
+		},
+		Rules: []rbacv1.PolicyRule{
+			{
+				APIGroups: []string{"release.giantswarm.io"},
+				Resources: []string{"releases"},
+				Verbs:     []string{"get", "list", "watch"},
+			},
+			{
+				APIGroups: []string{""},
+				Resources: []string{"nodes"},
+				Verbs:     []string{"get", "list", "watch"},
+			},
+			{
+				APIGroups: []string{"infrastructure.cluster.x-k8s.io"},
+				Resources: []string{"awsclusterroleidentities"},
+				Verbs:     []string{"get", "list", "watch"},
+			},
+		},
 	}
 
 	return rbac.CreateOrUpdateClusterRole(r, ctx, clusterRole)

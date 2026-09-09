@@ -38,6 +38,7 @@ const (
 	WriteAWSClusterRoleIdentityPermissionsName = "write-aws-cluster-role-identity"
 	WritePolicyExceptionsPermissionsName       = "write-policy-exceptions"
 	KamajiDatastoreManagerPermissionsName      = "kamaji-datastore-manager"
+	ClusterAppChartLookupsPermissionsName      = "cluster-app-chart-lookups"
 	CrossplaneEditRoleBindingName              = "crossplane-edit-automation"
 )
 
@@ -173,6 +174,10 @@ func WriteSilencesAutomationSAinNSRoleBindingName(namespace string) string {
 
 func KamajiDatastoreManagerAutomationSAinNSRoleBindingName(namespace string) string {
 	return fmt.Sprintf("%s-customer-sa-ns-%s", KamajiDatastoreManagerPermissionsName, namespace)
+}
+
+func ClusterAppChartLookupsAutomationSAinNSRoleBindingName(namespace string) string {
+	return fmt.Sprintf("%s-customer-sa-ns-%s", ClusterAppChartLookupsPermissionsName, namespace)
 }
 
 func WriteAWSClusterRoleIdentityAutomationSARoleBindingName() string {
