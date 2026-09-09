@@ -800,6 +800,67 @@ func TestReconcile(t *testing.T) {
 	}
 }
 
+func TestReconcileLegacyFinalizer(t *testing.T) {
+	template := &v1alpha1.RoleBindingTemplate{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:       "test-template",
+			Finalizers: []string{legacyFinalizer},
+		},
+		Spec: v1alpha1.RoleBindingTemplateSpec{
+			Template: v1alpha1.RoleBindingTemplateResource{
+				Metadata: v1alpha1.RoleBindingTemplateMetadata{Name: "test-rb"},
+				RoleRef:  rbacv1.RoleRef{Name: "example", Kind: "ClusterRole"},
+				Subjects: []rbacv1.Subject{{Kind: "Group", Name: "test-group"}},
+			},
+		},
+	}
+	ctx := context.Background()
+
+	t.Run("finalizer is removed", func(t *testing.T) {
+		r, k8sClientFake := newTestReconciler(t, template, []string{"example"}, nil, interceptor.Funcs{})
+		if _, err := r.Reconcile(ctx, reconcile.Request{NamespacedName: types.NamespacedName{Name: template.Name}}); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		result := &v1alpha1.RoleBindingTemplate{}
+		if err := k8sClientFake.CtrlClient().Get(ctx, types.NamespacedName{Name: template.Name}, result); err != nil {
+			t.Fatalf("failed to get template: %v", err)
+		}
+		if slices.Contains(result.Finalizers, legacyFinalizer) {
+			t.Fatalf("expected legacy finalizer to be removed, still present")
+		}
+	})
+
+	t.Run("emits warning event when finalizer removal fails", func(t *testing.T) {
+		r, _ := newTestReconciler(t, template, []string{"example"}, nil, interceptor.Funcs{
+			Update: func(ctx context.Context, c client.WithWatch, obj client.Object, opts ...client.UpdateOption) error {
+				if rbt, ok := obj.(*v1alpha1.RoleBindingTemplate); ok && !slices.Contains(rbt.Finalizers, legacyFinalizer) {
+					return apierrors.NewInternalError(fmt.Errorf("injected update error"))
+				}
+				return c.Update(ctx, obj, opts...)
+			},
+		})
+		if _, err := r.Reconcile(ctx, reconcile.Request{NamespacedName: types.NamespacedName{Name: template.Name}}); err == nil {
+			t.Fatal("expected error, got nil")
+		}
+
+		var gotEvents []string
+		for len(r.Recorder.(*record.FakeRecorder).Events) > 0 {
+			gotEvents = append(gotEvents, <-r.Recorder.(*record.FakeRecorder).Events)
+		}
+		found := false
+		for _, e := range gotEvents {
+			if strings.Contains(e, "Warning LegacyFinalizerRemovalFailed") {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Fatalf("expected Warning LegacyFinalizerRemovalFailed event, got: %v", gotEvents)
+		}
+	})
+}
+
 func TestReconcileEvents(t *testing.T) {
 	testCases := []struct {
 		Name          string
