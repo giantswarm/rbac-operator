@@ -15,6 +15,7 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
+	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/service/test"
 )
 
@@ -447,6 +448,71 @@ func Test_EnsureDeleted_PatchCharts(t *testing.T) {
 	}
 }
 
+func Test_EnsureCreated_ClusterAppChartLookups(t *testing.T) {
+	orgNamespace := test.NewOrgNamespace("customer")
+
+	k8sClientFake := newFakeClients(orgNamespace)
+
+	r, err := New(Config{
+		K8sClient: k8sClientFake,
+		Logger:    microloggertest.New(),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := r.EnsureCreated(context.TODO(), orgNamespace); err != nil {
+		t.Fatal(err)
+	}
+
+	checkClusterRoleBinding(
+		t,
+		k8sClientFake,
+		pkgkey.ClusterAppChartLookupsAutomationSAinNSRoleBindingName("org-customer"),
+		rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     pkgkey.ClusterAppChartLookupsPermissionsName,
+		},
+		[]rbacv1.Subject{automationSubject("org-customer")},
+	)
+}
+
+func Test_EnsureDeleted_ClusterAppChartLookups(t *testing.T) {
+	orgNamespace := test.NewOrgNamespace("customer")
+
+	existingBinding := &rbacv1.ClusterRoleBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: pkgkey.ClusterAppChartLookupsAutomationSAinNSRoleBindingName("org-customer"),
+		},
+		Subjects: []rbacv1.Subject{automationSubject("org-customer")},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     pkgkey.ClusterAppChartLookupsPermissionsName,
+		},
+	}
+
+	k8sClientFake := newFakeClients(orgNamespace, existingBinding)
+
+	r, err := New(Config{
+		K8sClient: k8sClientFake,
+		Logger:    microloggertest.New(),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := r.EnsureDeleted(context.TODO(), orgNamespace); err != nil {
+		t.Fatal(err)
+	}
+
+	name := pkgkey.ClusterAppChartLookupsAutomationSAinNSRoleBindingName("org-customer")
+	if _, err := k8sClientFake.K8sClient().RbacV1().ClusterRoleBindings().Get(context.TODO(), name, metav1.GetOptions{}); err == nil {
+		t.Fatalf("expected ClusterRoleBinding %#q not to exist", name)
+	}
+}
+
 func newFakeClients(runtimeObjects ...runtime.Object) *k8sclienttest.Clients {
 	return k8sclienttest.NewClients(k8sclienttest.ClientsConfig{
 		CtrlClient: clientfake.NewClientBuilder().WithScheme(scheme.Scheme).Build(),
@@ -477,5 +543,22 @@ func checkRoleBindingSubjects(t *testing.T, k8sClient k8sclient.Interface, name,
 
 	if !reflect.DeepEqual(expectedSubjects, roleBinding.Subjects) {
 		t.Fatalf("unexpected Subjects - expected %v, received %v\n", expectedSubjects, roleBinding.Subjects)
+	}
+}
+
+func checkClusterRoleBinding(t *testing.T, k8sClient k8sclient.Interface, name string, expectedRoleRef rbacv1.RoleRef, expectedSubjects []rbacv1.Subject) {
+	t.Helper()
+
+	clusterRoleBinding, err := k8sClient.K8sClient().RbacV1().ClusterRoleBindings().Get(context.TODO(), name, metav1.GetOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !reflect.DeepEqual(expectedRoleRef, clusterRoleBinding.RoleRef) {
+		t.Fatalf("unexpected RoleRef - expected %v, received %v\n", expectedRoleRef, clusterRoleBinding.RoleRef)
+	}
+
+	if !reflect.DeepEqual(expectedSubjects, clusterRoleBinding.Subjects) {
+		t.Fatalf("unexpected Subjects - expected %v, received %v\n", expectedSubjects, clusterRoleBinding.Subjects)
 	}
 }

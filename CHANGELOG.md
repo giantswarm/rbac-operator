@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- RBAC: Grant the `automation` ServiceAccounts of all organization namespaces (`org-<organization>`) read-only access to cluster-scoped resources looked up at Helm render time by the `cluster-*` (`release-*`) charts. For this, a `cluster-app-chart-lookups` ClusterRole is created, plus a per-organization ClusterRoleBinding of the same name suffixed with the namespace.
+
 ## [1.1.0] - 2026-07-28
 
 ### Added

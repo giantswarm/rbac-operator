@@ -45,6 +45,7 @@ func Test_ClusterRoleCreation(t *testing.T) {
 				defaultnamespacetest.NewClusterRole(pkgkey.WriteSilencesPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 				defaultnamespacetest.NewClusterRole(pkgkey.WritePolicyExceptionsPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 				defaultnamespacetest.NewClusterRole(pkgkey.WriteAWSClusterRoleIdentityPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
+				defaultnamespacetest.NewClusterRole(pkgkey.ClusterAppChartLookupsPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 			},
 			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{}, true),
 		},
@@ -240,6 +241,11 @@ func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule, includeCAPAResour
 			[]string{"kyverno.io"},
 			[]string{"policyexceptions"},
 		)),
+		defaultnamespacetest.NewClusterRole(pkgkey.ClusterAppChartLookupsPermissionsName, []rbacv1.PolicyRule{
+			defaultnamespacetest.NewRule([]string{"release.giantswarm.io"}, []string{"releases"}),
+			defaultnamespacetest.NewRule([]string{""}, []string{"nodes"}),
+			defaultnamespacetest.NewRule([]string{"infrastructure.cluster.x-k8s.io"}, []string{"awsclusterroleidentities"}),
+		}),
 	}
 
 	if includeCAPAResources {
