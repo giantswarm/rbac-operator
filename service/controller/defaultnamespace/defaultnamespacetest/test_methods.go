@@ -80,6 +80,12 @@ func RoleBindingsShouldEqual(t *testing.T, expected []*rbacv1.RoleBinding, actua
 			if expectedItem.Name == actualItem.Name && expectedItem.Namespace == actualItem.Namespace {
 				hasItem = true
 				SubjectsShouldEqual(t, actualItem.Kind, actualItem.Name, expectedItem.Subjects, actualItem.Subjects)
+				if len(expectedItem.OwnerReferences) > 0 {
+					if !reflect.DeepEqual(expectedItem.OwnerReferences, actualItem.OwnerReferences) {
+						t.Fatalf("owner references mismatch on RoleBinding %s/%s: expected %v, got %v",
+							expectedItem.Namespace, expectedItem.Name, expectedItem.OwnerReferences, actualItem.OwnerReferences)
+					}
+				}
 				break
 			}
 		}
