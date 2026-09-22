@@ -64,54 +64,41 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
-	// create a ClusterRoleBinding granting :
-	// - write-silences access for "automation" ServiceAccount *in this org namespace*
-	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: pkgkey.WriteSilencesAutomationSAinNSRoleBindingName(ns.Name),
-			Labels: map[string]string{
-				label.ManagedBy: project.Name(),
+	// create ClusterRoleBindings granting the "automation" ServiceAccount *in
+	// this org namespace* access to a handful of ClusterRoles: write-silences
+	// (silences.monitoring.giantswarm.io), kamaji-datastore-manager (provisioned
+	// by the global Kamaji app; inert on clusters where that role doesn't
+	// exist), and cluster-app-chart-lookups (cluster-scoped resources looked up
+	// at Helm render time by the cluster-aws / release-aws charts).
+	for _, binding := range []struct {
+		name        string
+		clusterRole string
+	}{
+		{pkgkey.WriteSilencesAutomationSAinNSRoleBindingName(ns.Name), pkgkey.WriteSilencesPermissionsName},
+		{pkgkey.KamajiDatastoreManagerAutomationSAinNSRoleBindingName(ns.Name), pkgkey.KamajiDatastoreManagerPermissionsName},
+		{pkgkey.ClusterAppChartLookupsAutomationSAinNSRoleBindingName(ns.Name), pkgkey.ClusterAppChartLookupsPermissionsName},
+	} {
+		clusterRoleBinding := &rbacv1.ClusterRoleBinding{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: binding.name,
+				Labels: map[string]string{
+					label.ManagedBy: project.Name(),
+				},
 			},
-		},
-		Subjects: []rbacv1.Subject{{
-			Kind:      "ServiceAccount",
-			Name:      pkgkey.AutomationServiceAccountName,
-			Namespace: ns.Name}},
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     pkgkey.WriteSilencesPermissionsName,
-		},
-	}
-
-	if err := r.createOrUpdateClusterRoleBinding(ctx, ns, clusterRoleBinding); err != nil {
-		return microerror.Mask(err)
-	}
-
-	// create a ClusterRoleBinding granting :
-	// - kamaji datastore management for "automation" ServiceAccount *in this org namespace*
-	// The referenced ClusterRole is provisioned by the global Kamaji app; the binding is
-	// inert on clusters where that role doesn't exist.
-	kamajiDatastoreBinding := &rbacv1.ClusterRoleBinding{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: pkgkey.KamajiDatastoreManagerAutomationSAinNSRoleBindingName(ns.Name),
-			Labels: map[string]string{
-				label.ManagedBy: project.Name(),
+			Subjects: []rbacv1.Subject{{
+				Kind:      "ServiceAccount",
+				Name:      pkgkey.AutomationServiceAccountName,
+				Namespace: ns.Name}},
+			RoleRef: rbacv1.RoleRef{
+				APIGroup: "rbac.authorization.k8s.io",
+				Kind:     "ClusterRole",
+				Name:     binding.clusterRole,
 			},
-		},
-		Subjects: []rbacv1.Subject{{
-			Kind:      "ServiceAccount",
-			Name:      pkgkey.AutomationServiceAccountName,
-			Namespace: ns.Name}},
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     pkgkey.KamajiDatastoreManagerPermissionsName,
-		},
-	}
+		}
 
-	if err := r.createOrUpdateClusterRoleBinding(ctx, ns, kamajiDatastoreBinding); err != nil {
-		return microerror.Mask(err)
+		if err := r.createOrUpdateClusterRoleBinding(ctx, ns, clusterRoleBinding); err != nil {
+			return microerror.Mask(err)
+		}
 	}
 
 	// create the shared `patch-charts` Role and RoleBinding in the `giantswarm`
