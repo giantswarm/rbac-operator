@@ -1,6 +1,6 @@
 # rbac-operator
 
-[![CircleCI](https://circleci.com/gh/giantswarm/rbac-operator.svg?&style=shield&&circle-token=373dcae33aecb47a0a53c51105e9381dff5b0b88)](https://circleci.com/gh/giantswarm/rbac-operator)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/giantswarm/rbac-operator/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/giantswarm/rbac-operator/tree/main)
 [![Docker Repository on Quay](https://quay.io/repository/giantswarm/rbac-operator/status "Docker Repository on Quay")](https://quay.io/repository/giantswarm/rbac-operator)
 
 The rbac-operator is a Kubernetes operator that manages RBAC-related resources in Giant Swarm management clusters. It automates the creation and maintenance of roles, role bindings, and service accounts to ensure proper access control across the platform.
