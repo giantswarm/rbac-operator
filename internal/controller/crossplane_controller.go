@@ -136,8 +136,7 @@ func (r *CrossplaneReconciler) buildSubjects(ctx context.Context) ([]rbacv1.Subj
 
 // SetupWithManager registers the reconciler. Watches the triggering ClusterRole as primary.
 // When an org namespace is created or deleted, the ClusterRole is enqueued so the
-// ClusterRoleBinding is rebuilt with the current set of org automation SAs. The org-namespace
-// filter is applied on the watch itself via nsPredicate, not inside the mapper.
+// ClusterRoleBinding is rebuilt with the current set of org automation SAs.
 func (r *CrossplaneReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	crPredicate := predicate.NewPredicateFuncs(func(obj client.Object) bool {
 		return obj.GetName() == r.CrossplaneBindTriggeringClusterRole
