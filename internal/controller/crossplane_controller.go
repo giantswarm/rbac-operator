@@ -36,7 +36,6 @@ const (
 
 // CrossplaneReconciler manages the ClusterRoleBinding that grants customer admin groups and
 // the automation ServiceAccount from every org namespace access to the crossplane-edit ClusterRole.
-// Merges the two old operatorkit crossplane sub-controllers into one authoritative reconcile.
 type CrossplaneReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
