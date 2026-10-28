@@ -13,6 +13,7 @@ import (
 	"github.com/giantswarm/micrologger"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
 	"github.com/spf13/viper"
+	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
@@ -25,7 +26,6 @@ import (
 	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/collector"
 	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace"
-	"github.com/giantswarm/rbac-operator/service/controller/crossplane"
 	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac"
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
@@ -46,10 +46,12 @@ type Service struct {
 	clusterController          *defaultnamespace.DefaultNamespace
 	rbacController             *rbac.RBAC
 	clusterNamespaceController *clusternamespace.ClusterNamespace
-	crossplaneController       *crossplane.Crossplane
 	operatorCollector          *collector.Set
 
 	kubebuilderManager ctrl.Manager
+
+	crossplaneBindTriggeringClusterRole string
+	customerAdminSubjects               []rbacv1.Subject
 }
 
 // New creates a new configured service object.
@@ -185,21 +187,15 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var crossplaneController *crossplane.Crossplane
-	{
-		c := crossplane.CrossplaneConfig{
-			K8sClient: k8sClient,
-			Logger:    config.Logger,
+	crossplaneBindTriggeringClusterRole := config.Viper.GetString(config.Flag.Service.CrossplaneBindTriggeringClusterRoleName)
 
-			CustomerAdminGroups:                 accessGroups.WriteAllCustomerGroups,
-			CustomerReaderGroups:                accessGroups.ReadAllCustomerGroups,
-			CrossplaneBindTriggeringClusterRole: config.Viper.GetString(config.Flag.Service.CrossplaneBindTriggeringClusterRoleName),
-		}
-
-		crossplaneController, err = crossplane.NewCrossplane(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
+	var customerAdminSubjects []rbacv1.Subject
+	for _, g := range accessGroups.WriteAllCustomerGroups {
+		customerAdminSubjects = append(customerAdminSubjects, rbacv1.Subject{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "Group",
+			Name:     g.Name,
+		})
 	}
 
 	var operatorCollector *collector.Set
@@ -260,9 +256,10 @@ func New(config Config) (*Service, error) {
 		rbacController:             rbacController,
 		clusterNamespaceController: clusterNamespaceController,
 		operatorCollector:          operatorCollector,
-		crossplaneController:       crossplaneController,
 
-		kubebuilderManager: kubebuilderManager,
+		kubebuilderManager:                  kubebuilderManager,
+		crossplaneBindTriggeringClusterRole: crossplaneBindTriggeringClusterRole,
+		customerAdminSubjects:               customerAdminSubjects,
 	}
 
 	return s, nil
@@ -276,6 +273,15 @@ func (s *Service) Boot(ctx context.Context) {
 			Client:   s.kubebuilderManager.GetClient(),
 			Scheme:   s.kubebuilderManager.GetScheme(),
 			Recorder: s.kubebuilderManager.GetEventRecorder("rolebindingtemplate-controller"),
+		}).SetupWithManager(s.kubebuilderManager); err != nil {
+			panic(microerror.JSON(microerror.Mask(err)))
+		}
+
+		if err := (&controller.CrossplaneReconciler{
+			Client:                              s.kubebuilderManager.GetClient(),
+			Scheme:                              s.kubebuilderManager.GetScheme(),
+			CustomerAdminGroups:                 s.customerAdminSubjects,
+			CrossplaneBindTriggeringClusterRole: s.crossplaneBindTriggeringClusterRole,
 		}).SetupWithManager(s.kubebuilderManager); err != nil {
 			panic(microerror.JSON(microerror.Mask(err)))
 		}
@@ -297,8 +303,6 @@ func (s *Service) Boot(ctx context.Context) {
 		go s.rbacController.Boot(ctx)
 
 		go s.clusterNamespaceController.Boot(ctx)
-
-		go s.crossplaneController.Boot(ctx)
 
 		go func() {
 			err := s.kubebuilderManager.Start(ctx)

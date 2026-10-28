@@ -1,4 +1,4 @@
-package crossplaneauth_test
+package controller
 
 import (
 	"context"
@@ -6,21 +6,36 @@ import (
 	"testing"
 
 	"github.com/giantswarm/k8sclient/v8/pkg/k8sclienttest"
-	"github.com/giantswarm/micrologger/microloggertest"
-
-	"github.com/giantswarm/rbac-operator/service/controller/crossplane/key"
-	"github.com/giantswarm/rbac-operator/service/controller/crossplane/resource/crossplaneauth"
 
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
+
+	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
 )
 
-func Test_EnsureCreated(t *testing.T) {
+const testCrossplaneClusterRoleName = "crossplane-edit"
+
+var crossplaneEditCR = rbacv1.ClusterRole{
+	ObjectMeta: metav1.ObjectMeta{
+		Name: testCrossplaneClusterRoleName,
+	},
+}
+
+var crossplaneClusterRoleBinding = rbacv1.ClusterRoleBinding{
+	ObjectMeta: metav1.ObjectMeta{
+		Name: pkgkey.CrossplaneBindClusterRoleBindingName(testCrossplaneClusterRoleName),
+	},
+}
+
+func Test_Reconcile(t *testing.T) {
 	tests := []struct {
 		name                string
 		clusterRole         *rbacv1.ClusterRole
@@ -51,29 +66,42 @@ func Test_EnsureCreated(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error == %#v, want nil", err)
 				}
+				err = rbacv1.AddToScheme(testScheme)
+				if err != nil {
+					t.Fatalf("error == %#v, want nil", err)
+				}
+
+				ctrlClientObjs := []runtime.Object{tc.clusterRole}
+				for _, crb := range tc.clusterRoleBindings {
+					ctrlClientObjs = append(ctrlClientObjs, crb)
+				}
 
 				k8sClientFake = k8sclienttest.NewClients(k8sclienttest.ClientsConfig{
-					CtrlClient: clientfake.NewClientBuilder().WithScheme(testScheme).WithRuntimeObjects().Build(),
+					CtrlClient: clientfake.NewClientBuilder().WithScheme(testScheme).WithRuntimeObjects(ctrlClientObjs...).Build(),
 					K8sClient:  clientgofake.NewSimpleClientset(k8sObj...),
 				})
 			}
 
-			fakeCrossplaneauth, err := crossplaneauth.New(crossplaneauth.Config{
-				K8sClient:                           k8sClientFake,
-				Logger:                              microloggertest.New(),
+			r := &CrossplaneReconciler{
+				Client:                              k8sClientFake.CtrlClient(),
+				Scheme:                              k8sClientFake.CtrlClient().Scheme(),
 				CrossplaneBindTriggeringClusterRole: testCrossplaneClusterRoleName,
+			}
+			if err != nil {
+				t.Fatalf("error == %#v, want nil", err)
+			}
+
+			_, err = r.Reconcile(context.TODO(), ctrl.Request{
+				NamespacedName: types.NamespacedName{Name: tc.clusterRole.Name},
 			})
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			err = fakeCrossplaneauth.EnsureCreated(context.TODO(), tc.clusterRole)
-			if err != nil {
-				t.Fatalf("error == %#v, want nil", err)
-			}
-
-			_, err = k8sClientFake.K8sClient().RbacV1().ClusterRoleBindings().Get(context.TODO(),
-				key.GetClusterRoleBindingName(testCrossplaneClusterRoleName), metav1.GetOptions{})
+			var gotCRB rbacv1.ClusterRoleBinding
+			err = k8sClientFake.CtrlClient().Get(context.TODO(), client.ObjectKey{
+				Name: pkgkey.CrossplaneBindClusterRoleBindingName(testCrossplaneClusterRoleName),
+			}, &gotCRB)
 
 			if errors.IsNotFound(err) {
 				t.Fatalf("error == %#v, was not NotFound", err)
