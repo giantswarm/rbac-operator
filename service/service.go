@@ -12,6 +12,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
+	"github.com/go-viper/mapstructure/v2"
 	"github.com/spf13/viper"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -119,10 +120,17 @@ func New(config Config) (*Service, error) {
 
 	var accessGroups accessgroup.AccessGroups
 	{
-		err = config.Viper.UnmarshalKey(config.Flag.Service.AccessGroups, &accessGroups)
-		if err != nil {
-			// TODO: Log error
-			accessGroups = accessgroup.AccessGroups{}
+		// The flag defaults to an empty string, which means no access groups are
+		// configured and only the legacy group flags apply.
+		if raw := config.Viper.Get(config.Flag.Service.AccessGroups); raw != nil && raw != "" {
+			// Fail on unknown keys too. a typo must not silently drop groups,
+			// since empty customer groups revoke their bindings.
+			err = config.Viper.UnmarshalKey(config.Flag.Service.AccessGroups, &accessGroups, func(c *mapstructure.DecoderConfig) {
+				c.ErrorUnused = true
+			})
+			if err != nil {
+				return nil, microerror.Maskf(invalidConfigError, "parsing %s: %s", config.Flag.Service.AccessGroups, err)
+			}
 		}
 
 		legacyCustomerAdminGroup := config.Viper.GetString(config.Flag.Service.WriteAllCustomerGroup)

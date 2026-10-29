@@ -20,7 +20,9 @@ func Test_Service(t *testing.T) {
 		WriteAllGiantswarmGroups      []map[string]string
 		LegacyWriteAllCustomerGroup   string
 		LegacyWriteAllGiantswarmGroup string
-		ExpectedError                 error
+		// RawAccessGroups, when set, is used as the raw accessGroups value instead of the group lists.
+		RawAccessGroups any
+		ExpectedError   error
 	}{
 		{
 			Name:                     "case 0: Instantiate Service with defined access group lists",
@@ -35,6 +37,28 @@ func Test_Service(t *testing.T) {
 		},
 		{
 			Name:          "case 2: Fail to instantiate service without any access groups defined",
+			ExpectedError: invalidConfigError,
+		},
+		{
+			Name:                          "case 3: Fail to instantiate service with malformed access groups",
+			RawAccessGroups:               map[string]any{"writeAllCustomerGroups": "customer:acme:Employees"},
+			LegacyWriteAllGiantswarmGroup: "giantswarm:giantswarm:giantswarm-admins",
+			ExpectedError:                 invalidConfigError,
+		},
+		{
+			Name: "case 4: Fail to instantiate service with unknown access group keys",
+			RawAccessGroups: map[string]any{
+				"writeAllCustomerGroup":    []map[string]string{{"name": "customer:acme:Employees"}},
+				"writeAllGiantswarmGroups": []map[string]string{{"name": "giantswarm:giantswarm:giantswarm-admins"}},
+			},
+			ExpectedError: invalidConfigError,
+		},
+		{
+			Name: "case 5: Fail to instantiate service with unknown access group fields",
+			RawAccessGroups: map[string]any{
+				"writeAllCustomerGroups":   []map[string]string{{"nmae": "customer:acme:Employees"}},
+				"writeAllGiantswarmGroups": []map[string]string{{"name": "giantswarm:giantswarm:giantswarm-admins"}},
+			},
 			ExpectedError: invalidConfigError,
 		},
 	}
@@ -54,6 +78,9 @@ func Test_Service(t *testing.T) {
 			v := viper.New()
 			v.Set("service.kubernetes.address", server.URL)
 
+			if tc.RawAccessGroups != nil {
+				v.Set("service.accessGroups", tc.RawAccessGroups)
+			}
 			if len(tc.WriteAllCustomerGroups) > 0 {
 				v.Set("service.accessGroups.writeAllCustomerGroups", tc.WriteAllCustomerGroups)
 			}
