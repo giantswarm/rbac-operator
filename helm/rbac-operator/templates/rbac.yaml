@@ -14,6 +14,12 @@ rules:
   - apiGroups:
       - ""
     resources:
+      - namespaces/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - ""
+    resources:
       - serviceaccounts
     verbs:
       - create
@@ -22,6 +28,7 @@ rules:
       - patch
       - update
       - delete
+      - watch
   - apiGroups:
       - "security.giantswarm.io"
     resources:

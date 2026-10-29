@@ -61,6 +61,7 @@ func (r *OrgNamespaceReconciler) removeLegacyFinalizers(ctx context.Context, ns 
 }
 
 // +kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch;update
+// +kubebuilder:rbac:groups="",resources=namespaces/finalizers,verbs=update
 // +kubebuilder:rbac:groups="",resources=serviceaccounts,verbs=get;list;watch;create;update;patch
 // +kubebuilder:rbac:groups="rbac.authorization.k8s.io",resources=roles,verbs=get;list;watch;create;update;patch;bind;escalate
 // +kubebuilder:rbac:groups="rbac.authorization.k8s.io",resources=clusterroles,verbs=get;list;watch;create;update;patch;bind;escalate
