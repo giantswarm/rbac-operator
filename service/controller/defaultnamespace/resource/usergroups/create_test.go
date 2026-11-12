@@ -58,17 +58,13 @@ func Test_UserGroups(t *testing.T) {
 					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
 				),
 				defaultnamespacetest.NewClusterRoleBinding(
-					pkgkey.WriteAllCustomerGroupClusterRoleBindingName(),
-					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
-				),
-				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.WriteAllGSGroupClusterRoleBindingName(),
 					defaultnamespacetest.NewGroupSubjects("giantswarm1", "giantswarm2"),
 				),
 			},
 		},
 		{
-			Name:     "case 1: Add multiple subjects to existing bindings on CAPA",
+			Name:     "case 1: Add multiple subjects to existing bindings and remove the customer cluster-admin binding on CAPA",
 			Provider: "capa",
 			InitialObjects: []runtime.Object{
 				defaultnamespacetest.NewRoleBinding(
@@ -82,6 +78,10 @@ func Test_UserGroups(t *testing.T) {
 				),
 				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.ReadAllCustomerGroupClusterRoleBindingName(),
+					defaultnamespacetest.NewGroupSubjects("customers"),
+				),
+				defaultnamespacetest.NewClusterRoleBinding(
+					pkgkey.WriteAllCustomerGroupClusterRoleBindingName(),
 					defaultnamespacetest.NewGroupSubjects("customers"),
 				),
 				defaultnamespacetest.NewClusterRoleBinding(
@@ -109,10 +109,6 @@ func Test_UserGroups(t *testing.T) {
 				),
 				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.ReadAllCustomerGroupClusterRoleBindingName(),
-					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
-				),
-				defaultnamespacetest.NewClusterRoleBinding(
-					pkgkey.WriteAllCustomerGroupClusterRoleBindingName(),
 					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
 				),
 				defaultnamespacetest.NewClusterRoleBinding(
@@ -144,10 +140,6 @@ func Test_UserGroups(t *testing.T) {
 				),
 				defaultnamespacetest.NewClusterRoleBinding(
 					pkgkey.ReadAllCustomerGroupClusterRoleBindingName(),
-					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
-				),
-				defaultnamespacetest.NewClusterRoleBinding(
-					pkgkey.WriteAllCustomerGroupClusterRoleBindingName(),
 					defaultnamespacetest.NewGroupSubjects("customers1", "customers2"),
 				),
 				defaultnamespacetest.NewClusterRoleBinding(
