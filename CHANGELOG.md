@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Remove the cluster-wide `write-all-customer-group` ClusterRoleBinding to `cluster-admin` for customer admin groups. They keep `read-all` cluster-wide and `cluster-admin` in the `default` and organization namespaces.
 - Fix ARM64 images.
 - The `helm.sh/chart` label is valid for long chart versions: the 63-character cut trims the whole trailing run of `-`, `.` and `_`.
 

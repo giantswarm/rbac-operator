@@ -33,13 +33,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	// Customer groups must not get cluster-admin on the whole management
+	// cluster. Delete the ClusterRoleBinding created by earlier releases.
+	err = rbac.DeleteClusterRoleBinding(r, ctx, pkgkey.WriteAllCustomerGroupClusterRoleBindingName())
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	if len(r.customerAdminGroups) > 0 {
 		err = r.createReadAllClusterRoleBindingToCustomerGroup(ctx)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		err = r.createWriteAllClusterRoleBindingToCustomerGroup(ctx)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -125,38 +127,6 @@ func (r *Resource) createWriteAWSClusterRoleIdentityClusterRoleBindingToCustomer
 	}
 
 	return rbac.CreateOrUpdateClusterRoleBinding(r, ctx, clusterRoleBinding)
-}
-
-// Ensures the ClusterRoleBinding 'write-all-customer-group' between
-// ClusterRole 'cluster-admin' and the customer admin group.
-func (r *Resource) createWriteAllClusterRoleBindingToCustomerGroup(ctx context.Context) error {
-	subjects := accessgroup.GroupsToSubjects(r.customerAdminGroups)
-	if len(subjects) == 0 {
-		return microerror.Maskf(invalidConfigError, "empty customer admin group name given")
-	}
-
-	clusterRoleBindingName := pkgkey.WriteAllCustomerGroupClusterRoleBindingName()
-
-	writeAllClusterRoleBinding := &rbacv1.ClusterRoleBinding{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "ClusterRoleBinding",
-			APIVersion: "rbac.authorization.k8s.io/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: clusterRoleBindingName,
-			Labels: map[string]string{
-				label.ManagedBy: project.Name(),
-			},
-		},
-		Subjects: subjects,
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     pkgkey.ClusterAdminClusterRoleName,
-		},
-	}
-
-	return rbac.CreateOrUpdateClusterRoleBinding(r, ctx, writeAllClusterRoleBinding)
 }
 
 // Ensures the ClusterRoleBinding 'read-all-customer-group' between
