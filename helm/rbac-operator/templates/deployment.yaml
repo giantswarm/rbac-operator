@@ -19,6 +19,9 @@ spec:
       labels:
         {{- include "labels.common" . | nindent 8 }}
     spec:
+      {{- with include "rbac-operator.podScheduling" . }}
+      {{- . | nindent 6 }}
+      {{- end }}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
