@@ -5,7 +5,7 @@ var (
 	gitSHA      = "n/a"
 	name        = "rbac-operator"
 	source      = "https://github.com/giantswarm/rbac-operator"
-	version     = "1.3.0"
+	version     = "1.3.1-dev"
 )
 
 func Description() string {
