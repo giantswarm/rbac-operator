@@ -44,3 +44,12 @@ serviceMonitor:
 global:
   podSecurityStandards:
     enforced: true
+
+# -- CPU architecture of nodes to schedule on; empty means any.
+architecture: ""
+
+# -- Node selector for pod scheduling. Merged with `architecture`.
+nodeSelector: {}
+
+# -- Tolerations for pod scheduling
+tolerations: []
