@@ -225,6 +225,7 @@ func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule, includeCAPAResour
 				"imagerepositories",
 				"imageupdateautomations",
 				"kustomizations",
+				"ocirepositories",
 				"providers",
 				"receivers",
 			},

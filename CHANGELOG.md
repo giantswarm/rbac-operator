@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `ocirepositories` to the `write-flux-resources` ClusterRole, as cluster HelmReleases take their chart from an `OCIRepository`.
 - Add `architecture`, `nodeSelector` and `tolerations` values so rbac-operator can run on arm64 node pools.
 
 ## [1.3.0] - 2026-11-12

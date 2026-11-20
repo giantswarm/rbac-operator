@@ -200,6 +200,7 @@ func (r *Resource) createWriteFluxResourcesClusterRole(ctx context.Context) erro
 			"imagerepositories",
 			"imageupdateautomations",
 			"kustomizations",
+			"ocirepositories",
 			"providers",
 			"receivers",
 		},
