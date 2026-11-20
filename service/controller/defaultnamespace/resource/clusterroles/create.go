@@ -185,7 +185,7 @@ func (r *Resource) createWriteFluxResourcesClusterRole(ctx context.Context) erro
 		APIGroups: []string{
 			"helm.toolkit.fluxcd.io",
 			"image.toolkit.fluxcd.io",
-			"kustomizations.kustomize.toolkit.fluxcd.io",
+			"kustomize.toolkit.fluxcd.io",
 			"notification.toolkit.fluxcd.io",
 			"source.toolkit.fluxcd.io",
 		},
@@ -200,6 +200,7 @@ func (r *Resource) createWriteFluxResourcesClusterRole(ctx context.Context) erro
 			"imagerepositories",
 			"imageupdateautomations",
 			"kustomizations",
+			"ocirepositories",
 			"providers",
 			"receivers",
 		},
