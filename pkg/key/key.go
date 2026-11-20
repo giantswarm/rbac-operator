@@ -42,6 +42,15 @@ const (
 	CrossplaneEditRoleBindingName              = "crossplane-edit-automation"
 )
 
+// Kyverno's background controller generates ExternalSecrets and SecretStores
+// in organization namespaces. It is bound to the ClusterRole granting this in
+// each organization namespace.
+const (
+	KyvernoNamespaceName                             = "kyverno"
+	KyvernoBackgroundControllerServiceAccountName    = "kyverno-background-controller"
+	WriteKyvernoGeneratedESOResourcesPermissionsName = "write-kyverno-generated-externalsecrets"
+)
+
 var (
 	// WritePolicyExceptionsNamespaces are the namespaces in which Kyverno
 	// PolicyExceptions are managed and in which the automation ServiceAccounts

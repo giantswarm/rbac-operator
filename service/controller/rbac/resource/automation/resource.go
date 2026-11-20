@@ -29,6 +29,18 @@ type Resource struct {
 	logger    micrologger.Logger
 }
 
+// K8sClient returns the Kubernetes client, so the resource can be passed to
+// the helpers in pkg/rbac.
+func (r Resource) K8sClient() kubernetes.Interface {
+	return r.k8sClient
+}
+
+// Logger returns the logger, so the resource can be passed to the helpers in
+// pkg/rbac.
+func (r Resource) Logger() micrologger.Logger {
+	return r.logger
+}
+
 func New(config Config) (*Resource, error) {
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
