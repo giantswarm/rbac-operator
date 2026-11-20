@@ -9,8 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `ocirepositories` to the `write-flux-resources` ClusterRole, as cluster HelmReleases take their chart from an `OCIRepository`.
 - Add `architecture`, `nodeSelector` and `tolerations` values so rbac-operator can run on arm64 node pools.
 - RBAC: Grant Kyverno's background controller (ServiceAccount `kyverno-background-controller` in namespace `kyverno`) the permissions to generate External Secrets Operator `ExternalSecrets` and `SecretStores` in all organization namespaces (`org-<organization>`), and to read the Secrets that trigger them. For this, a `write-kyverno-generated-externalsecrets` ClusterRole is created, plus a RoleBinding of the same name in each organization namespace. Without these permissions, Kyverno refuses generate policies for these kinds.
+
+### Fixed
+
+- Grant `kustomizations` in the `write-flux-resources` ClusterRole under the `kustomize.toolkit.fluxcd.io` API group. It named `kustomizations.kustomize.toolkit.fluxcd.io`, which is no API group, so the role granted nothing on Flux `Kustomization` resources.
 
 ## [1.3.0] - 2026-11-12
 
