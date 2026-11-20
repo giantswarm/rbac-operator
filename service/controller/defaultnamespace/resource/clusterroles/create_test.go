@@ -250,6 +250,12 @@ func Test_WriteKyvernoGeneratedExternalSecretsClusterRole(t *testing.T) {
 		t.Fatalf("expected label %s=%s, received %q", label.ManagedBy, project.Name(), clusterRole.Labels[label.ManagedBy])
 	}
 
+	// The role grants read access to Secrets and is bound to Kyverno only, so it must not be offered
+	// to customers as a role they can bind.
+	if value, ok := clusterRole.Labels[label.DisplayInUserInterface]; ok {
+		t.Fatalf("expected no label %s, received %q", label.DisplayInUserInterface, value)
+	}
+
 	if clusterRole.Annotations[annotation.Notes] == "" {
 		t.Fatalf("expected annotation %s to be set", annotation.Notes)
 	}

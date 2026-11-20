@@ -405,9 +405,10 @@ func (r *Resource) createWriteKyvernoGeneratedExternalSecretsClusterRole(ctx con
 	clusterRole := &rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: pkgkey.WriteKyvernoGeneratedESOResourcesPermissionsName,
+			// No DisplayInUserInterface label: the role grants read access to Secrets and is bound
+			// to Kyverno only, so it isn't offered to customers as a role they can bind.
 			Labels: map[string]string{
-				label.ManagedBy:              project.Name(),
-				label.DisplayInUserInterface: "true",
+				label.ManagedBy: project.Name(),
 			},
 			Annotations: map[string]string{
 				annotation.Notes: "Grants Kyverno's background controller the permissions to generate " +
