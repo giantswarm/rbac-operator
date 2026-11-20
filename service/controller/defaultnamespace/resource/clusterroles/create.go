@@ -73,6 +73,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	err = r.createWriteKyvernoGeneratedExternalSecretsClusterRole(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	err = r.labelDefaultClusterRoles(ctx)
 	if err != nil {
 		return microerror.Mask(err)
@@ -383,6 +388,43 @@ func (r *Resource) createClusterAppChartLookupsClusterRole(ctx context.Context) 
 			{
 				APIGroups: []string{"infrastructure.cluster.x-k8s.io"},
 				Resources: []string{"awsclusterroleidentities"},
+				Verbs:     []string{"get", "list", "watch"},
+			},
+		},
+	}
+
+	return rbac.CreateOrUpdateClusterRole(r, ctx, clusterRole)
+}
+
+// Ensures the ClusterRole 'write-kyverno-generated-externalsecrets'.
+//
+// Purpose of this role is to let Kyverno's background controller generate
+// ExternalSecrets and SecretStores from the Secrets it is triggered by. It is
+// bound to that controller in each organization namespace only.
+func (r *Resource) createWriteKyvernoGeneratedExternalSecretsClusterRole(ctx context.Context) error {
+	clusterRole := &rbacv1.ClusterRole{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: pkgkey.WriteKyvernoGeneratedESOResourcesPermissionsName,
+			Labels: map[string]string{
+				label.ManagedBy:              project.Name(),
+				label.DisplayInUserInterface: "true",
+			},
+			Annotations: map[string]string{
+				annotation.Notes: "Grants Kyverno's background controller the permissions to generate " +
+					"externalsecrets.external-secrets.io and secretstores.external-secrets.io resources " +
+					"from the Secrets which trigger them. It is bound to that controller in each " +
+					"organization namespace.",
+			},
+		},
+		Rules: []rbacv1.PolicyRule{
+			{
+				APIGroups: []string{"external-secrets.io"},
+				Resources: []string{"externalsecrets", "secretstores"},
+				Verbs:     []string{"get", "list", "watch", "create", "update", "patch", "delete"},
+			},
+			{
+				APIGroups: []string{""},
+				Resources: []string{"secrets"},
 				Verbs:     []string{"get", "list", "watch"},
 			},
 		},

@@ -48,6 +48,14 @@ func automationSubject(namespace string) rbacv1.Subject {
 	}
 }
 
+func clusterRoleRef(name string) rbacv1.RoleRef {
+	return rbacv1.RoleRef{
+		APIGroup: "rbac.authorization.k8s.io",
+		Kind:     "ClusterRole",
+		Name:     name,
+	}
+}
+
 func sharedRoleBinding(name, namespace string, subjects []rbacv1.Subject) *rbacv1.RoleBinding {
 	return test.NewRoleBinding(name, namespace, map[string]string{
 		"kind": "Role",
@@ -469,11 +477,7 @@ func Test_EnsureCreated_ClusterAppChartLookups(t *testing.T) {
 		t,
 		k8sClientFake,
 		pkgkey.ClusterAppChartLookupsAutomationSAinNSRoleBindingName("org-customer"),
-		rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     pkgkey.ClusterAppChartLookupsPermissionsName,
-		},
+		clusterRoleRef(pkgkey.ClusterAppChartLookupsPermissionsName),
 		[]rbacv1.Subject{automationSubject("org-customer")},
 	)
 }
@@ -486,11 +490,7 @@ func Test_EnsureDeleted_ClusterAppChartLookups(t *testing.T) {
 			Name: pkgkey.ClusterAppChartLookupsAutomationSAinNSRoleBindingName("org-customer"),
 		},
 		Subjects: []rbacv1.Subject{automationSubject("org-customer")},
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     pkgkey.ClusterAppChartLookupsPermissionsName,
-		},
+		RoleRef:  clusterRoleRef(pkgkey.ClusterAppChartLookupsPermissionsName),
 	}
 
 	k8sClientFake := newFakeClients(orgNamespace, existingBinding)
@@ -510,6 +510,65 @@ func Test_EnsureDeleted_ClusterAppChartLookups(t *testing.T) {
 	name := pkgkey.ClusterAppChartLookupsAutomationSAinNSRoleBindingName("org-customer")
 	if _, err := k8sClientFake.K8sClient().RbacV1().ClusterRoleBindings().Get(context.TODO(), name, metav1.GetOptions{}); err == nil {
 		t.Fatalf("expected ClusterRoleBinding %#q not to exist", name)
+	}
+}
+
+// Kyverno's background controller generates ExternalSecrets and SecretStores in
+// organization namespaces. It is bound to the ClusterRole granting this in each
+// organization namespace with a RoleBinding, never cluster-wide.
+func Test_EnsureCreated_WriteKyvernoGeneratedExternalSecrets(t *testing.T) {
+	expectedRoleRef := clusterRoleRef("write-kyverno-generated-externalsecrets")
+	expectedSubjects := []rbacv1.Subject{{
+		Kind:      "ServiceAccount",
+		Name:      "kyverno-background-controller",
+		Namespace: "kyverno",
+	}}
+
+	testCases := []struct {
+		name              string
+		existingResources []runtime.Object
+	}{
+		{
+			name: "case 0: create the RoleBinding when it does not exist yet",
+		},
+		{
+			name: "case 1: correct the RoleBinding's subjects when they have drifted from the desired state",
+			existingResources: []runtime.Object{
+				&rbacv1.RoleBinding{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "write-kyverno-generated-externalsecrets",
+						Namespace: "org-customer",
+					},
+					Subjects: []rbacv1.Subject{automationSubject("org-customer")},
+					RoleRef:  expectedRoleRef,
+				},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			orgNamespace := test.NewOrgNamespace("customer")
+			k8sClientFake := newFakeClients(append([]runtime.Object{orgNamespace}, tc.existingResources...)...)
+
+			r, err := New(Config{
+				K8sClient: k8sClientFake,
+				Logger:    microloggertest.New(),
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if err := r.EnsureCreated(context.TODO(), orgNamespace); err != nil {
+				t.Fatal(err)
+			}
+
+			checkRoleBinding(t, k8sClientFake, "write-kyverno-generated-externalsecrets", "org-customer", expectedRoleRef, expectedSubjects)
+
+			if _, err := k8sClientFake.K8sClient().RbacV1().ClusterRoleBindings().Get(context.TODO(), "write-kyverno-generated-externalsecrets", metav1.GetOptions{}); err == nil {
+				t.Fatalf("expected no ClusterRoleBinding %#q", "write-kyverno-generated-externalsecrets")
+			}
+		})
 	}
 }
 
@@ -539,6 +598,23 @@ func checkRoleBindingSubjects(t *testing.T, k8sClient k8sclient.Interface, name,
 	roleBinding, err := k8sClient.K8sClient().RbacV1().RoleBindings(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	if !reflect.DeepEqual(expectedSubjects, roleBinding.Subjects) {
+		t.Fatalf("unexpected Subjects - expected %v, received %v\n", expectedSubjects, roleBinding.Subjects)
+	}
+}
+
+func checkRoleBinding(t *testing.T, k8sClient k8sclient.Interface, name, namespace string, expectedRoleRef rbacv1.RoleRef, expectedSubjects []rbacv1.Subject) {
+	t.Helper()
+
+	roleBinding, err := k8sClient.K8sClient().RbacV1().RoleBindings(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !reflect.DeepEqual(expectedRoleRef, roleBinding.RoleRef) {
+		t.Fatalf("unexpected RoleRef - expected %v, received %v\n", expectedRoleRef, roleBinding.RoleRef)
 	}
 
 	if !reflect.DeepEqual(expectedSubjects, roleBinding.Subjects) {
