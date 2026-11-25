@@ -36,7 +36,6 @@ import (
 	"k8s.io/client-go/tools/events"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/giantswarm/rbac-operator/api/v1alpha1"
@@ -50,11 +49,6 @@ type RoleBindingTemplateReconciler struct {
 	Scheme   *runtime.Scheme
 	Recorder events.EventRecorder
 }
-
-// TODO: remove when migration path from operatorkit is no longer needed
-// legacyFinalizer is the operatorkit finalizer added by the old controller. The new controller
-// removes it so that deletions are no longer blocked; ownerReferences handle RoleBinding cleanup.
-const legacyFinalizer = "operatorkit.giantswarm.io/rbac-operator-rolebindingtemplate-controller"
 
 const (
 	errGetRBT           = "could not get RoleBindingTemplate"
@@ -72,7 +66,6 @@ const (
 	reasonRoleBindingProvisionFailed = "RoleBindingProvisionFailed"
 	reasonScopeLookupFailed          = "ScopeLookupFailed"
 
-	actionRemoveFinalizer      = "RemoveFinalizer"
 	actionLookupScopes         = "LookupScopes"
 	actionDeleteRoleBinding    = "DeleteRoleBinding"
 	actionProvisionRoleBinding = "ProvisionRoleBinding"
@@ -104,22 +97,6 @@ func (r *RoleBindingTemplateReconciler) Reconcile(ctx context.Context, req ctrl.
 		}
 		log.Error(err, errGetRBT)
 		return ctrl.Result{}, err
-	}
-
-	// TODO: remove when migration path from operatorkit is no longer needed
-	// Remove legacy operatorkit finalizer if present so old RBTs are not stuck on deletion.
-	// ownerReferences handle RoleBinding cleanup in the new controller.
-	if controllerutil.ContainsFinalizer(template, legacyFinalizer) {
-		controllerutil.RemoveFinalizer(template, legacyFinalizer)
-		if err := r.Update(ctx, template); err != nil {
-			log.Error(err, "failed to remove legacy operatorkit finalizer", "finalizer", legacyFinalizer)
-			r.Recorder.Eventf(template, nil, corev1.EventTypeWarning, "LegacyFinalizerRemovalFailed", actionRemoveFinalizer,
-				"failed to remove legacy operatorkit finalizer %s: %v", legacyFinalizer, err)
-			return ctrl.Result{}, err
-		}
-		log.Info("removed legacy operatorkit finalizer", "finalizer", legacyFinalizer)
-		// The finalizer removal will trigger another reconcile
-		return ctrl.Result{}, nil
 	}
 
 	// Skip reconciliation for objects that are being deleted

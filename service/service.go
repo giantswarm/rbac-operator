@@ -280,6 +280,12 @@ func (s *Service) Boot(ctx context.Context) {
 			panic(microerror.JSON(microerror.Mask(err)))
 		}
 
+		for _, r := range controller.LegacyFinalizerReconcilers(s.kubebuilderManager.GetClient()) {
+			if err := r.SetupWithManager(s.kubebuilderManager); err != nil {
+				panic(microerror.JSON(microerror.Mask(err)))
+			}
+		}
+
 		err := s.clusterController.EnsureResourcesCreated(ctx)
 		if err != nil {
 			panic(microerror.JSON(microerror.Mask(err)))
