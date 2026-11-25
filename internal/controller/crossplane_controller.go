@@ -25,15 +25,6 @@ import (
 	"github.com/giantswarm/rbac-operator/pkg/project"
 )
 
-// TODO: remove when migration path from operatorkit is no longer needed
-// legacyClusterRoleFinalizer is the operatorkit finalizers added by
-// the old crossplane sub-controllers, to the triggering ClusterRole.
-// The new controller removes them so deletions are no longer blocked.
-// ownerReferences handle ClusterRoleBinding cleanup instead.
-const (
-	legacyClusterRoleFinalizer = "operatorkit.giantswarm.io/rbac-operator-crossplane-controller"
-)
-
 // CrossplaneReconciler manages the ClusterRoleBinding that grants customer admin groups and
 // the automation ServiceAccount from every org namespace access to the crossplane-edit ClusterRole.
 type CrossplaneReconciler struct {
@@ -44,7 +35,7 @@ type CrossplaneReconciler struct {
 	CrossplaneBindTriggeringClusterRole string
 }
 
-// +kubebuilder:rbac:groups="rbac.authorization.k8s.io",resources=clusterroles,verbs=get;list;watch;update
+// +kubebuilder:rbac:groups="rbac.authorization.k8s.io",resources=clusterroles,verbs=get;list;watch
 // +kubebuilder:rbac:groups="rbac.authorization.k8s.io",resources=clusterrolebindings,verbs=get;list;watch;create;update;patch
 // +kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch
 
@@ -57,19 +48,6 @@ func (r *CrossplaneReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 			return ctrl.Result{}, nil
 		}
 		return ctrl.Result{}, err
-	}
-
-	// TODO: remove when migration path from operatorkit is no longer needed
-	// Remove legacy operatorkit finalizer if present so the old ClusterRole is not stuck on deletion.
-	// ownerReferences handle ClusterRoleBinding cleanup in the new controller.
-	if controllerutil.ContainsFinalizer(cr, legacyClusterRoleFinalizer) {
-		controllerutil.RemoveFinalizer(cr, legacyClusterRoleFinalizer)
-		if err := r.Update(ctx, cr); err != nil {
-			return ctrl.Result{}, fmt.Errorf("remove legacy operatorkit finalizer from ClusterRole %s: %w", cr.Name, err)
-		}
-		log.Info("removed legacy operatorkit finalizer", "clusterRole", cr.Name, "finalizer", legacyClusterRoleFinalizer)
-		// The finalizer removal will trigger another reconcile
-		return ctrl.Result{}, nil
 	}
 
 	if !cr.DeletionTimestamp.IsZero() {
