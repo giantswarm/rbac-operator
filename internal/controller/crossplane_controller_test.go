@@ -3,9 +3,11 @@ package controller
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/giantswarm/k8sclient/v8/pkg/k8sclienttest"
+	"github.com/giantswarm/k8smetadata/pkg/label"
 
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -109,5 +111,47 @@ func Test_Reconcile(t *testing.T) {
 				t.Fatalf("error == %#v, was expecting no error", err)
 			}
 		})
+	}
+}
+
+// The subjects must be in a stable order, otherwise CreateOrUpdate rewrites the
+// ClusterRoleBinding on every reconcile.
+func Test_BuildSubjectsIsSorted(t *testing.T) {
+	scheme := runtime.NewScheme()
+	if err := corev1.AddToScheme(scheme); err != nil {
+		t.Fatal(err)
+	}
+	orgNS := func(name string) *corev1.Namespace {
+		return &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{
+			Name:   name,
+			Labels: map[string]string{label.Organization: name},
+		}}
+	}
+	r := &CrossplaneReconciler{
+		Client: clientfake.NewClientBuilder().WithScheme(scheme).
+			WithObjects(orgNS("org-b"), orgNS("org-a")).Build(),
+		CustomerAdminGroups: []rbacv1.Subject{
+			{APIGroup: rbacv1.GroupName, Kind: "Group", Name: "z-admins"},
+			{APIGroup: rbacv1.GroupName, Kind: "Group", Name: "a-admins"},
+		},
+	}
+
+	got, err := r.buildSubjects(context.TODO())
+	if err != nil {
+		t.Fatalf("error == %#v, want nil", err)
+	}
+
+	sa := func(namespace string) rbacv1.Subject {
+		return rbacv1.Subject{Kind: "ServiceAccount", Name: pkgkey.AutomationServiceAccountName, Namespace: namespace}
+	}
+	expected := []rbacv1.Subject{
+		{APIGroup: rbacv1.GroupName, Kind: "Group", Name: "a-admins"},
+		{APIGroup: rbacv1.GroupName, Kind: "Group", Name: "z-admins"},
+		sa(pkgkey.DefaultNamespaceName),
+		sa("org-a"),
+		sa("org-b"),
+	}
+	if !reflect.DeepEqual(expected, got) {
+		t.Fatalf("unexpected subjects\nexpected %v\nreceived %v", expected, got)
 	}
 }

@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"cmp"
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
@@ -109,6 +111,17 @@ func (r *CrossplaneReconciler) buildSubjects(ctx context.Context) ([]rbacv1.Subj
 	}
 
 	subjects = append(subjects, r.CustomerAdminGroups...)
+
+	// Cache lists come back in random order. Unsorted subjects would make
+	// CreateOrUpdate rewrite the ClusterRoleBinding on every reconcile, and
+	// each rewrite triggers another reconcile through Owns.
+	slices.SortFunc(subjects, func(a, b rbacv1.Subject) int {
+		return cmp.Or(
+			cmp.Compare(a.Kind, b.Kind),
+			cmp.Compare(a.Namespace, b.Namespace),
+			cmp.Compare(a.Name, b.Name),
+		)
+	})
 
 	return subjects, nil
 }
