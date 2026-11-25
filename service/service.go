@@ -12,7 +12,9 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
+	"github.com/go-viper/mapstructure/v2"
 	"github.com/spf13/viper"
+	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
@@ -27,7 +29,6 @@ import (
 	"github.com/giantswarm/rbac-operator/service/controller/clusternamespace"
 	"github.com/giantswarm/rbac-operator/service/controller/crossplane"
 	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace"
-	"github.com/giantswarm/rbac-operator/service/controller/rbac"
 	"github.com/giantswarm/rbac-operator/service/internal/accessgroup"
 )
 
@@ -44,10 +45,12 @@ type Service struct {
 
 	bootOnce                   sync.Once
 	clusterController          *defaultnamespace.DefaultNamespace
-	rbacController             *rbac.RBAC
 	clusterNamespaceController *clusternamespace.ClusterNamespace
 	crossplaneController       *crossplane.Crossplane
 	operatorCollector          *collector.Set
+
+	writeAllCustomerSubjects []rbacv1.Subject
+	readAllCustomerSubjects  []rbacv1.Subject
 
 	kubebuilderManager ctrl.Manager
 }
@@ -117,10 +120,17 @@ func New(config Config) (*Service, error) {
 
 	var accessGroups accessgroup.AccessGroups
 	{
-		err = config.Viper.UnmarshalKey(config.Flag.Service.AccessGroups, &accessGroups)
-		if err != nil {
-			// TODO: Log error
-			accessGroups = accessgroup.AccessGroups{}
+		// The flag defaults to an empty string, which means no access groups are
+		// configured and only the legacy group flags apply.
+		if raw := config.Viper.Get(config.Flag.Service.AccessGroups); raw != nil && raw != "" {
+			// Fail on unknown keys too. a typo must not silently drop groups,
+			// since empty customer groups revoke their bindings.
+			err = config.Viper.UnmarshalKey(config.Flag.Service.AccessGroups, &accessGroups, func(c *mapstructure.DecoderConfig) {
+				c.ErrorUnused = true
+			})
+			if err != nil {
+				return nil, microerror.Maskf(invalidConfigError, "parsing %s: %s", config.Flag.Service.AccessGroups, err)
+			}
 		}
 
 		legacyCustomerAdminGroup := config.Viper.GetString(config.Flag.Service.WriteAllCustomerGroup)
@@ -163,23 +173,6 @@ func New(config Config) (*Service, error) {
 		}
 
 		clusterNamespaceController, err = clusternamespace.NewClusterNamespace(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var rbacController *rbac.RBAC
-	{
-
-		c := rbac.RBACConfig{
-			K8sClient: k8sClient,
-			Logger:    config.Logger,
-
-			WriteAllCustomerGroups: accessGroups.WriteAllCustomerGroups,
-			ReadAllCustomerGroups:  accessGroups.ReadAllCustomerGroups,
-		}
-
-		rbacController, err = rbac.NewRBAC(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -257,10 +250,12 @@ func New(config Config) (*Service, error) {
 
 		bootOnce:                   sync.Once{},
 		clusterController:          clusterController,
-		rbacController:             rbacController,
 		clusterNamespaceController: clusterNamespaceController,
 		operatorCollector:          operatorCollector,
 		crossplaneController:       crossplaneController,
+
+		writeAllCustomerSubjects: accessgroup.GroupsToSubjects(accessGroups.WriteAllCustomerGroups),
+		readAllCustomerSubjects:  accessgroup.GroupsToSubjects(accessGroups.ReadAllCustomerGroups),
 
 		kubebuilderManager: kubebuilderManager,
 	}
@@ -280,6 +275,15 @@ func (s *Service) Boot(ctx context.Context) {
 			panic(microerror.JSON(microerror.Mask(err)))
 		}
 
+		if err := (&controller.OrgNamespaceReconciler{
+			Client:                   s.kubebuilderManager.GetClient(),
+			Scheme:                   s.kubebuilderManager.GetScheme(),
+			WriteAllCustomerSubjects: s.writeAllCustomerSubjects,
+			ReadAllCustomerSubjects:  s.readAllCustomerSubjects,
+		}).SetupWithManager(s.kubebuilderManager); err != nil {
+			panic(microerror.JSON(microerror.Mask(err)))
+		}
+
 		err := s.clusterController.EnsureResourcesCreated(ctx)
 		if err != nil {
 			panic(microerror.JSON(microerror.Mask(err)))
@@ -293,8 +297,6 @@ func (s *Service) Boot(ctx context.Context) {
 		}()
 
 		go s.clusterController.Controller.Boot(ctx)
-
-		go s.rbacController.Boot(ctx)
 
 		go s.clusterNamespaceController.Boot(ctx)
 

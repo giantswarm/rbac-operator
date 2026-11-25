@@ -41,8 +41,9 @@ func GroupsToSubjects(groups []AccessGroup) []rbacv1.Subject {
 	for _, group := range groups {
 		if group.Name != "" {
 			subjects = append(subjects, rbacv1.Subject{
-				Kind: "Group",
-				Name: group.Name,
+				APIGroup: rbacv1.GroupName,
+				Kind:     "Group",
+				Name:     group.Name,
 			})
 		}
 	}

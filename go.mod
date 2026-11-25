@@ -13,6 +13,7 @@ require (
 	github.com/giantswarm/operatorkit/v7 v7.4.0
 	github.com/giantswarm/organization-operator v1.6.4
 	github.com/go-logr/logr v1.4.4
+	github.com/go-viper/mapstructure/v2 v2.5.0
 	github.com/google/go-cmp v0.7.0
 	github.com/prometheus/client_golang v1.25.0
 	github.com/spf13/viper v1.21.0
@@ -56,7 +57,6 @@ require (
 	github.com/go-openapi/swag/typeutils v0.28.0 // indirect
 	github.com/go-openapi/swag/yamlutils v0.28.0 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
-	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/google/gnostic-models v0.7.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
