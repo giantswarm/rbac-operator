@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	k8smetadata "github.com/giantswarm/k8smetadata/pkg/label"
 	corev1 "k8s.io/api/core/v1"
@@ -114,8 +115,14 @@ func (r *OrgNamespaceReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	if err := r.List(ctx, rbs, client.InNamespace(ns.Name)); err != nil {
 		return ctrl.Result{}, fmt.Errorf("listing RoleBindings: %w", err)
 	}
-	// Any subject bound to anything in the org namespace is considered a member.
-	members := uniqueSubjectsFromRBs(rbs.Items)
+	// HACK: Keep only RoleBindings with at least one named User or Group subject.
+	// Kept RoleBindings contribute all their subjects, ServiceAccounts included.
+	rbs.Items = slices.DeleteFunc(rbs.Items, func(rb rbacv1.RoleBinding) bool {
+		return !slices.ContainsFunc(rb.Subjects, func(s rbacv1.Subject) bool {
+			return (s.Kind == rbacv1.UserKind || s.Kind == rbacv1.GroupKind) && s.Name != ""
+		})
+	})
+	members := uniqueSubjectsFromRBs(rbs.Items, nil)
 	readers := subjectsFromRBsWithClusterRoleRef(rbs.Items, pkgkey.DefaultReadAllPermissionsName)
 	writers := subjectsFromRBsWithClusterRoleRef(rbs.Items, pkgkey.ClusterAdminClusterRoleName)
 

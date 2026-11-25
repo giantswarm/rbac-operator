@@ -8,35 +8,26 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 )
 
-// uniqueSubjectsFromRBs deduplicates subjects across all RoleBindings.
-func uniqueSubjectsFromRBs(rbs []rbacv1.RoleBinding) []rbacv1.Subject {
+// subjectsFromRBsWithClusterRoleRef returns the unique subjects of the
+// RoleBindings that reference the given ClusterRole.
+func subjectsFromRBsWithClusterRoleRef(rbs []rbacv1.RoleBinding, clusterRoleName string) []rbacv1.Subject {
+	return uniqueSubjectsFromRBs(rbs, func(rb rbacv1.RoleBinding) bool {
+		return rb.RoleRef.Kind == "ClusterRole" && rb.RoleRef.Name == clusterRoleName
+	})
+}
+
+func uniqueSubjectsFromRBs(rbs []rbacv1.RoleBinding, rbFilter func(rbacv1.RoleBinding) bool) []rbacv1.Subject {
 	seen := map[string]struct{}{}
 	var out []rbacv1.Subject
 	for _, rb := range rbs {
+		if rbFilter != nil && !rbFilter(rb) {
+			continue
+		}
 		for _, s := range rb.Subjects {
 			k := fmt.Sprintf("%s/%s/%s", s.Kind, s.Namespace, s.Name)
 			if _, ok := seen[k]; !ok {
 				seen[k] = struct{}{}
 				out = append(out, s)
-			}
-		}
-	}
-	sortSubjects(out)
-	return out
-}
-
-// subjectsFromRBsWithClusterRoleRef returns unique subjects from RoleBindings referencing a specific ClusterRole.
-func subjectsFromRBsWithClusterRoleRef(rbs []rbacv1.RoleBinding, clusterRoleName string) []rbacv1.Subject {
-	seen := map[string]struct{}{}
-	var out []rbacv1.Subject
-	for _, rb := range rbs {
-		if rb.RoleRef.Kind == "ClusterRole" && rb.RoleRef.Name == clusterRoleName {
-			for _, s := range rb.Subjects {
-				k := fmt.Sprintf("%s/%s/%s", s.Kind, s.Namespace, s.Name)
-				if _, ok := seen[k]; !ok {
-					seen[k] = struct{}{}
-					out = append(out, s)
-				}
 			}
 		}
 	}
