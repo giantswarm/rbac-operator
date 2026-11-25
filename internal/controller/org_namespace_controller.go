@@ -36,32 +36,7 @@ type OrgNamespaceReconciler struct {
 	ReadAllCustomerSubjects []rbacv1.Subject
 }
 
-const (
-	// legacyRBACControllerFinalizer is the finalizer the old operatorkit-based
-	// "rbac" controller (removed in favor of OrgNamespaceReconciler) added to
-	// these namespaces.
-	legacyRBACControllerFinalizer = "operatorkit.giantswarm.io/rbac-operator-rbac-controller"
-
-	// legacyCrossplaneNamespaceControllerFinalizer is the finalizer the
-	// operatorkit-based "crossplane-namespace" controller adds to org
-	// namespaces. That controller is being migrated away separately, so we strip
-	// its finalizer here.
-	legacyCrossplaneNamespaceControllerFinalizer = "operatorkit.giantswarm.io/rbac-operator-crossplane-namespace-controller"
-)
-
-func (r *OrgNamespaceReconciler) removeLegacyFinalizers(ctx context.Context, ns *corev1.Namespace) error {
-	removedLegacyRBAC := controllerutil.RemoveFinalizer(ns, legacyRBACControllerFinalizer)
-	removedLegacyCrossplane := controllerutil.RemoveFinalizer(ns, legacyCrossplaneNamespaceControllerFinalizer)
-	if removedLegacyRBAC || removedLegacyCrossplane {
-		if err := r.Update(ctx, ns); err != nil {
-			return fmt.Errorf("updating namespace %s: %w", ns.Name, err)
-		}
-	}
-
-	return nil
-}
-
-// +kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch;update
+// +kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch
 // +kubebuilder:rbac:groups="",resources=namespaces/finalizers,verbs=update
 // +kubebuilder:rbac:groups="",resources=serviceaccounts,verbs=get;list;watch;create;update;patch
 // +kubebuilder:rbac:groups="rbac.authorization.k8s.io",resources=roles,verbs=get;list;watch;create;update;patch;bind;escalate
@@ -82,9 +57,6 @@ func (r *OrgNamespaceReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, fmt.Errorf("getting namespace: %w", err)
 	}
 
-	if err := r.removeLegacyFinalizers(ctx, ns); err != nil {
-		return ctrl.Result{}, fmt.Errorf("removing legacy finalizers: %w", err)
-	}
 	if !ns.DeletionTimestamp.IsZero() {
 		// Drop this namespace's automation ServiceAccount from the shared bindings
 		if err := r.ensureAutomationSharedRBAC(ctx); err != nil {

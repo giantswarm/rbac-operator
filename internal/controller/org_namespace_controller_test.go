@@ -527,28 +527,6 @@ func TestOrgNamespaceReconciler_IsIdempotent(t *testing.T) {
 	}
 }
 
-// The finalizers of the removed operatorkit controllers would otherwise block
-// namespace deletion forever.
-func TestOrgNamespaceReconciler_RemovesLegacyFinalizers(t *testing.T) {
-	ns := orgNamespace("customer")
-	ns.Finalizers = []string{
-		"operatorkit.giantswarm.io/rbac-operator-rbac-controller",
-		"operatorkit.giantswarm.io/rbac-operator-crossplane-namespace-controller",
-		"test.giantswarm.io/keep",
-	}
-	r, c := newOrgNamespaceReconciler(t, nil, ns)
-
-	reconcileNamespace(t, r, "org-customer")
-
-	got := &corev1.Namespace{}
-	if err := c.Get(context.Background(), types.NamespacedName{Name: "org-customer"}, got); err != nil {
-		t.Fatalf("getting namespace: %v", err)
-	}
-	if expected := []string{"test.giantswarm.io/keep"}; !reflect.DeepEqual(expected, got.Finalizers) {
-		t.Fatalf("unexpected Finalizers - expected %v, received %v", expected, got.Finalizers)
-	}
-}
-
 // Legacy customer namespaces without the org- prefix have no organization: they
 // only get customer-admin access.
 func TestOrgNamespaceReconciler_LegacyCustomerNamespace(t *testing.T) {
