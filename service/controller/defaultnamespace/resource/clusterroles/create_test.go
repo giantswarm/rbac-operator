@@ -2,9 +2,11 @@ package clusterroles
 
 import (
 	"context"
+	"reflect"
 	"testing"
 
 	"github.com/giantswarm/k8sclient/v8/pkg/k8sclienttest"
+	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/micrologger/microloggertest"
 	security "github.com/giantswarm/organization-operator/api/v1alpha1"
@@ -16,6 +18,7 @@ import (
 	clientfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
+	"github.com/giantswarm/rbac-operator/pkg/project"
 	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/defaultnamespacetest"
 	"github.com/giantswarm/rbac-operator/service/controller/defaultnamespace/key"
 )
@@ -46,6 +49,7 @@ func Test_ClusterRoleCreation(t *testing.T) {
 				defaultnamespacetest.NewClusterRole(pkgkey.WritePolicyExceptionsPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 				defaultnamespacetest.NewClusterRole(pkgkey.WriteAWSClusterRoleIdentityPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 				defaultnamespacetest.NewClusterRole(pkgkey.ClusterAppChartLookupsPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
+				defaultnamespacetest.NewClusterRole(pkgkey.WriteKyvernoGeneratedESOResourcesPermissionsName, defaultnamespacetest.NewSingletonRulesNoResources()),
 			},
 			ExpectedClusterRoles: newExpectedClusterRoles([]rbacv1.PolicyRule{}, true),
 		},
@@ -197,6 +201,66 @@ func Test_ClusterRoleLabeling(t *testing.T) {
 	}
 }
 
+// The Kyverno background controller is bound to this ClusterRole in every
+// organization namespace. Kyverno refuses a generate policy unless the
+// controller holds exactly these verbs, so the verbs are checked as well.
+func Test_WriteKyvernoGeneratedExternalSecretsClusterRole(t *testing.T) {
+	ctx := context.TODO()
+
+	k8sClientFake := k8sclienttest.NewClients(k8sclienttest.ClientsConfig{
+		CtrlClient: clientfake.NewClientBuilder().WithScheme(scheme.Scheme).Build(),
+		K8sClient:  defaultnamespacetest.NewClientSet(),
+	})
+
+	clusterRoles, err := New(Config{
+		K8sClient: k8sClientFake,
+		Logger:    microloggertest.New(),
+	})
+	if err != nil {
+		t.Fatalf("error == %#v, want nil", err)
+	}
+
+	err = clusterRoles.EnsureCreated(ctx, defaultnamespacetest.NewDefaultNamespace())
+	if err != nil {
+		t.Fatalf("failed to ensure creation of cluster roles: %s", err)
+	}
+
+	clusterRole, err := k8sClientFake.K8sClient().RbacV1().ClusterRoles().Get(ctx, pkgkey.WriteKyvernoGeneratedESOResourcesPermissionsName, metav1.GetOptions{})
+	if err != nil {
+		t.Fatalf("error == %#v, want nil", err)
+	}
+
+	expectedRules := []rbacv1.PolicyRule{
+		{
+			APIGroups: []string{"external-secrets.io"},
+			Resources: []string{"externalsecrets", "secretstores"},
+			Verbs:     []string{"get", "list", "watch", "create", "update", "patch", "delete"},
+		},
+		{
+			APIGroups: []string{""},
+			Resources: []string{"secrets"},
+			Verbs:     []string{"get", "list", "watch"},
+		},
+	}
+	if !reflect.DeepEqual(expectedRules, clusterRole.Rules) {
+		t.Fatalf("unexpected rules - expected %v, received %v", expectedRules, clusterRole.Rules)
+	}
+
+	if clusterRole.Labels[label.ManagedBy] != project.Name() {
+		t.Fatalf("expected label %s=%s, received %q", label.ManagedBy, project.Name(), clusterRole.Labels[label.ManagedBy])
+	}
+
+	// The role grants read access to Secrets and is bound to Kyverno only, so it must not be offered
+	// to customers as a role they can bind.
+	if value, ok := clusterRole.Labels[label.DisplayInUserInterface]; ok {
+		t.Fatalf("expected no label %s, received %q", label.DisplayInUserInterface, value)
+	}
+
+	if clusterRole.Annotations[annotation.Notes] == "" {
+		t.Fatalf("expected annotation %s to be set", annotation.Notes)
+	}
+}
+
 func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule, includeCAPAResources bool) []*rbacv1.ClusterRole {
 	roles := []*rbacv1.ClusterRole{
 		defaultnamespacetest.NewClusterRole(pkgkey.DefaultReadAllPermissionsName, append(readAllRules, defaultnamespacetest.NewSingleResourceRule(
@@ -246,6 +310,10 @@ func newExpectedClusterRoles(readAllRules []rbacv1.PolicyRule, includeCAPAResour
 			defaultnamespacetest.NewRule([]string{"release.giantswarm.io"}, []string{"releases"}),
 			defaultnamespacetest.NewRule([]string{""}, []string{"nodes"}),
 			defaultnamespacetest.NewRule([]string{"infrastructure.cluster.x-k8s.io"}, []string{"awsclusterroleidentities"}),
+		}),
+		defaultnamespacetest.NewClusterRole(pkgkey.WriteKyvernoGeneratedESOResourcesPermissionsName, []rbacv1.PolicyRule{
+			defaultnamespacetest.NewRule([]string{"external-secrets.io"}, []string{"externalsecrets", "secretstores"}),
+			defaultnamespacetest.NewRule([]string{""}, []string{"secrets"}),
 		}),
 	}
 

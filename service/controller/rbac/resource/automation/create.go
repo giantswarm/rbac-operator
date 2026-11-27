@@ -15,6 +15,7 @@ import (
 
 	pkgkey "github.com/giantswarm/rbac-operator/pkg/key"
 	"github.com/giantswarm/rbac-operator/pkg/project"
+	"github.com/giantswarm/rbac-operator/pkg/rbac"
 	"github.com/giantswarm/rbac-operator/service/controller/rbac/key"
 )
 
@@ -97,6 +98,37 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		if err := r.createOrUpdateClusterRoleBinding(ctx, ns, clusterRoleBinding); err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	// create a RoleBinding granting Kyverno's background controller the
+	// `write-kyverno-generated-externalsecrets` ClusterRole in this org
+	// namespace only, so that Kyverno generate policies there can create
+	// ExternalSecrets and SecretStores from the Secrets which trigger them. It
+	// is removed together with the namespace.
+	{
+		roleBinding := &rbacv1.RoleBinding{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      pkgkey.WriteKyvernoGeneratedESOResourcesPermissionsName,
+				Namespace: ns.Name,
+				Labels: map[string]string{
+					label.ManagedBy: project.Name(),
+				},
+			},
+			Subjects: []rbacv1.Subject{{
+				Kind:      rbacv1.ServiceAccountKind,
+				Name:      pkgkey.KyvernoBackgroundControllerServiceAccountName,
+				Namespace: pkgkey.KyvernoNamespaceName,
+			}},
+			RoleRef: rbacv1.RoleRef{
+				APIGroup: rbacv1.GroupName,
+				Kind:     "ClusterRole",
+				Name:     pkgkey.WriteKyvernoGeneratedESOResourcesPermissionsName,
+			},
+		}
+
+		if err := rbac.CreateOrUpdateRoleBinding(r, ctx, ns.Name, roleBinding); err != nil {
 			return microerror.Mask(err)
 		}
 	}
